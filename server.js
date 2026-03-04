@@ -11,6 +11,15 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
+app.use((req, res, next) => {
+  const host = req.get('host');
+  // onrender.com でアクセスしてきた場合のみ、独自ドメインへリダイレクト
+  if (host.includes('onrender.com')) {
+    return res.redirect(301, `https://mochicotori.com${req.originalUrl}`);
+  }
+  next();
+});
+
 // ✅ サーバー側：クライアントと完全に同期させたモード設定
 const MODE_SETTINGS = {
   mochicotori: {
@@ -79,14 +88,7 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use((req, res, next) => {
-  const host = req.get('host');
-  // onrender.com でアクセスしてきた場合のみ、独自ドメインへリダイレクト
-  if (host.includes('onrender.com')) {
-    return res.redirect(301, `https://mochicotori.com${req.originalUrl}`);
-  }
-  next();
-});
+
 
 // 📁 アップロード設定
 const upload = multer({ dest: 'uploads/' });
