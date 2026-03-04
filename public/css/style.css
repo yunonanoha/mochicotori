@@ -1,0 +1,1652 @@
+/* 共通 */
+body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 20px;
+    }
+.hidden{display: none;}
+.block{display:block;}
+.flex{display: flex;}
+.inline-flex{display:inline-flex;}
+.no-scrollbar {
+    /* IE, Edge用 */
+    -ms-overflow-style: none;
+    /* Firefox用 */
+    scrollbar-width: none;
+}
+/* Chrome, Safari, Opera, 新しいEdge用 */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.fa-discord{
+    padding:12px;
+    color:#5865F2;
+}
+
+footer img{display:none;}
+
+/* 部屋作成画面、入室画面、部屋画面、アバウト画面 */
+   #createRoom, #login, #room, #about{
+      max-width: 100%;
+      margin: 0 auto;
+/*      margin-right:130px;*/
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+/* 部屋作成画面 */
+ body.createRoom {
+    font-family: "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
+    background: #f8f9fa;
+    color: #222;
+    text-align: center;
+    margin: 0;
+    /* 🚩 スマホで余白が広すぎないように調整 */
+    padding: 20px; 
+    box-sizing: border-box; /* 🚩 パディングが幅を壊さないように */
+  }
+.innnerRoomLink{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    margin-top:10px;
+}
+/* 説明文エリア（吹き出し本体） */
+#toriExplanation{
+    align-items: center; justify-content: center; max-width: 800px; margin: 0 auto; gap: 20px;
+}
+#explanation {
+    position: relative;
+    width: 300px;
+    background-color: rgba(40, 40, 40, 0.98);
+    color: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    z-index: 1000;
+    text-align: left;
+    border: 1px solid #555;
+    cursor: pointer;
+
+    /* 🚩 アニメーションの設定 */
+    transform-origin: right center; /* ロゴ側（右）から広がるように変更 */
+    margin-right: 15px; /* ロゴとの隙間 */
+}
+
+/* 🚩 クラスがない時だけアニメーションさせる */
+#explanation:not(.hidden) {
+    display: block;
+    animation: talkBubbleLeft 0.3s ease-out forwards;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* 🚩 右に向かって広がるアニメーション（ロゴが右にある用） */
+@keyframes talkBubbleLeft {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateX(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateX(0);
+    }
+}
+
+/* 🚩 吹き出しのツノ（右向きの三角形：ロゴが右にあるため） */
+#explanation::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 100%; /* 本体の「右端」に配置 */
+    transform: translateY(-50%);
+
+    border-style: solid;
+    border-width: 10px;
+    /* 左側(border-left)に色をつけて右を向かせる */
+    border-color: transparent transparent transparent rgba(40, 40, 40, 0.98);
+}
+
+#createRoom footer a{order:1}
+#createRoom footer p{order:2;
+text-align: left;}
+#createRoom footer img{
+    height:120px;
+}
+
+#createRoom h1 {
+    margin-bottom: 20px;
+    font-size: 1.5rem; /* 🚩 スマホで見やすいサイズ */
+  }
+@media (min-width: 769px) {
+    h1 { font-size: 2rem; margin-bottom: 30px; }
+  }
+
+#createRoom .logo-Mochicotori {
+    width: 120px;
+    height: auto;
+    object-fit: contain;
+}
+.logo-Mochicotori {
+    cursor: help;
+}
+#createRoom .mode-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* 🚩 スマホでは狭めに */
+    margin-bottom: 20px;
+    flex-wrap: wrap; /* 🚩 画面幅が足りない時に自動で改行させる */
+  }
+
+#createRoom .mode-btn {
+    padding: 12px 15px; /* 🚩 指で押しやすいサイズ感 */
+    border-radius: 10px;
+    background: #ddd;
+    cursor: pointer;
+    transition: 0.2s;
+    font-size: 0.9rem;
+    flex: 1 1 120px; /* 🚩 横並びしつつ、狭くなったら幅を広げる */
+    max-width: 200px;
+  }
+
+#createRoom .mode-btn.active {
+    background: #3498db;
+    color: #fff;
+  }
+
+#createRoom form {
+    margin-top: 20px;
+  }
+
+  /* 🚩 入力欄（もしあれば）もスマホで100%幅にする */
+#createRoom input[type="text"], textarea {
+    max-width: 400px;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px; /* 🚩 iPhoneでフォーカス時にズームされないための16px以上 */
+    margin-bottom: 10px;
+  }
+
+#createRoom button {
+    background: #2ecc71;
+    border: none;
+    color: white;
+    padding: 12px 25px; /* 🚩 スマホのタップ面積を確保 */
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%; /* 🚩 スマホではボタンを横いっぱいに */
+    max-width: 300px;
+  }
+
+#createRoom button:hover {
+    background: #27ae60;
+  }
+
+#createRoom #roomLink {
+    margin-top: 25px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    word-break: break-all; /* 🚩 長いURLが画面を突き抜けないように */
+/*    padding: 15px;*/
+    background: #eee;
+/*    border-radius: 10px;*/
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+#roomLink:not(:empty) {padding: 20px;}
+
+#createRoom #copyBtn {
+    background: #555;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 7px;
+    cursor: pointer;
+    font-size: 0.9em;
+      min-width:90px;
+    width: auto; /* 🚩 コピーボタンは全幅にしない */
+  }
+
+
+
+/* 入室画面 */
+#welcometoMochicotori{
+align-items:flex-end;
+}
+#welcometoMochicotori h1{
+    margin-top:20px;
+    margin-bottom:0;
+}
+#enterRadio{
+    margin: 15px 0;
+    text-align: left;   
+}
+#enterRadio label{
+    width:25%;
+    cursor: pointer;
+    display: block;
+    margin-bottom: 5px;
+}
+#enterName{
+    margin:10px;
+}
+#enterBtn{
+    margin:0 10px;
+}
+
+/* 部屋画面 */
+/*#UI{width:100%}*/
+/* 場 & 手札 */
+#gallery, #field {
+      display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: flex-start;
+    }
+      
+#gallery .card:hover {
+      transform: scale(1.05);
+      cursor: pointer;
+    }
+
+.card {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+
+#hand-container {
+/*        display: flex;*/
+        align-items: flex-start;
+        gap: 15px;
+        margin-top: 15px;
+        width: 100%;
+        order: 2; /* 手札を下に配置 */
+    }
+
+      /* 場のカードコンテナに相対位置を指定 */
+#field .card-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+    width : 130px;
+    min-width: 130px;
+    display : inline-block;
+    vertical-align : top;
+    margin : 5px;
+    text-align : center;
+    font-size:1.4rem;
+}
+
+.card-text-inner {
+  word-break: break-all;
+  line-height: 1.4;
+}
+      /* 🚩 ワード＆チェーンモード専用のデカ文字設定 */
+.text-card.large-text .card-text-inner {
+  font-size: 2.2rem; /* 2~2.5remでお好みの大きさに */
+  font-weight: 900;  /* より太くしてカードらしく */
+  line-height: 1.1;
+}
+        
+ .card.text-card {
+    background: white;
+/*    border: 2px solid #333;*/
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #333; /* 確実に色を付ける */
+/*    padding: 10px;*/
+    text-align: center;
+    word-break: break-all;
+}
+
+/* ターン通知 */
+#turnBadge {
+/* display: inline-block;*/
+    margin: 10px;
+    font-size: 1.2rem;
+    cursor: help;
+    /* アニメーションを繰り返す */
+    animation: card-slide-up 1s ease-out infinite;
+    will-change: transform, opacity;
+    margin-top:30px;
+}
+
+@keyframes card-slide-up {
+    0% {
+        opacity: 0;
+        transform: translateX(10px); 
+    }
+    3% {
+        opacity: 1;
+        transform: translateY(0);    /* 定位置 */
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(0);    /* 定位置 */
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-20px); /* さらに上へ昇りながら消える */
+    }
+}
+
+/* パス & 手札交換 */
+#turn-actions ,#exchange-controls{
+/*    display: flex;*/
+    flex-direction: column;
+    gap: 10px;
+    min-width: 120px;
+    padding-top: 40px;
+    flex-shrink: 0;
+}
+/* 選択されたカードを浮かせて枠線をつける */
+.hand-card.selected {
+  outline: 4px solid #ffeb3b;
+  transform: translateY(-15px);
+  filter: brightness(1.1);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+}
+
+#pass-btn{width:100%}
+#exchange-start-btn{width:100%}
+#exchange-confirm-btn{
+    background-color: #ff9800;
+    color: white;
+    width: 100%;
+}
+#exchange-cancel-btn{ 
+    width: 100%;
+}
+
+/* しりとりテキスト欄 */
+#mochicotoriText{
+    margin-top:5px;
+    width: 70%;
+      }
+
+/* ロゴ & メンバーリスト & チャット */
+.game-layout-wrapper {
+    display: flex;
+    width: 100%;
+    gap: 20px;
+    position: relative; /* 🚩 右側の絶対位置の基準にする */
+    align-items: flex-start; /* 🚩 子要素を勝手に伸ばさない（leftsを成り行きにする） */
+    box-sizing: border-box;
+    padding-right: 650px;
+}
+.member-container {
+  display: flex;
+  flex-wrap: wrap; 
+  justify-content: flex-start; /* 左寄せ */
+  gap: 30px; /* 参加者列と観戦者列の間隔 */
+  margin-bottom: 15px;
+  background: rgba(255, 255, 255, 0.1); /* 薄い背景を入れてエリアを明確化（任意） */
+  padding: 10px;
+  border-radius: 8px;
+}
+.member-container > div {
+  text-align: left; /* 見出しとリストを左寄せ */
+  min-width: 140px; /* 列の最低幅 */
+}
+.member-container h4 {
+  margin: 0 0 5px 0;
+  font-size: 1.1em;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 3px;
+  display: inline-block; /* 下線の長さを文字に合わせるなら */
+}
+/* ホバー時にクリックできる感を出す */
+.member-container h4:hover {
+  color: #ff9800; 
+  border-bottom-color: #ff9800;
+}
+.member-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}     
+/* --- 観戦者と参加者のリストを横並びにする --- */
+.member-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;       /* 横並びにする */
+  flex-wrap: wrap;     /* 溢れたら改行 */
+  gap: 10px;           /* メンバー同士の隙間 */
+}
+.member-container li {
+  font-size: 0.95em;
+}
+      /* ターンプレイヤーの下線強調 */
+.active-turn-border {
+    border-bottom: 4px solid #4CAF50 !important;
+    transition: all 0.3s ease;
+}
+.player-info{
+/*    display: flex;*/
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+    font-weight: bold;
+}
+.card-count{
+    font-size: 0.9em;
+    color: #666;
+}
+.chi-chaBadge {
+    cursor: help;
+    margin-right: 4px;
+    width: 36px;
+    height: 22px;
+    color: #efd7e2;
+    font-weight: bold;
+    background-color: #d01818;
+/*    display: inline-flex;*/
+    /* 🚩 上下左右中央寄せの設定 */
+/*    display: inline-flex;*/
+    justify-content: center; /* 左右中央 */
+    align-items: center;     /* 上下中央 */
+    
+    transform: translateY(-0.6rem); /* 全体の浮かせ具合はここで調整 */
+    font-size: 0.8em; /* 枠に対して文字が大きい場合は調整 */
+    border-radius: 4px; /* 角を少し丸めると綺麗に収まります */
+}
+
+
+
+/* 左側：メイン。ここがこのコンテナの「高さ」を決定する唯一の要素になる */
+#lefts {
+    flex: 1;
+    min-width: 0;
+    /* 🚩 何も指定しないことで、中身に応じた高さ(241px等)になる */
+}
+/*同期ボタン*/
+.sync-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+/*    padding: 6px 12px;*/
+    margin: 0 5px;
+/*    background-color: #f0f0f0;*/
+/*    border: 1px solid #ccc;*/
+/*    border-radius: 6px;*/
+    cursor: help;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+/* クリック（アクティブ）時：凹む演出 */
+.sync-btn:active {
+    transform: scale(.9);
+}
+.sync-icon {
+    font-size: 1.1em;
+}
+
+#roomInfo {
+  display: flex;        /* 中身を横並びにする */
+  align-items: center;  /* 縦方向のラインを中央で揃える */
+  gap: 16px;            /* 画像とIDの間の余白 */
+  font-size: 24px;      /* テキストのサイズ調整（お好みで） */
+  color: #495057;       /* 少し柔らかい色に */
+}
+/* 画像の下に微妙な隙間ができるのを防ぐ */
+#topLogo {
+width: 60px;
+    height: auto;
+    object-fit: contain;
+}
+#topDetails{align-items: center;}
+.topDetailsPart{
+    margin: 0 10px;
+    color: #ccc;
+}
+    #playerList {
+        display:flex;
+      list-style: none;
+      padding: 0;
+    }
+    #playerList li {
+      margin-right:10px;
+    }
+
+/* 右側：チャット固定エリア */
+#chatArea {
+    /* 🚩 flex指定をやめ、絶対位置で「親の高さ100%」にする */
+    position: absolute; 
+    right: 0;
+    top: 0;
+    bottom: 0; /* 🚩 これで親（leftsの高さ）と同じになる */
+    width: 630px;
+    max-height: 450px;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* チャットログ部分*/
+#messages {
+        list-style: none;
+    flex-grow: 1;
+    overflow-y: auto;
+    background: rgba(0, 0, 0, 0.03);
+    border-radius: 5px;
+    padding: 10px;
+}
+#messages li{
+border-bottom: 1px solid #eee; /* 薄いグレーの線 */
+}
+
+/* 投票 & ★5評価 & いいね & 文字装飾 & 100点満点評価 */
+/* 投票・評価パネルを中央に浮かせる共通スタイル */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* 背景だけ黒く透かす */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* 一番手前に表示 */
+}
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 90%;
+    color: #333; /* 文字は透かさない */
+}
+#ratingTextCard.card.text-card{
+          font-size:3.5rem;
+      }
+/* ハート（いいね）をまとめる箱 */
+.like-container {
+  position: absolute;
+  top: -20px;
+  right: 5px;
+  display: flex; /* 横に並べる */
+  flex-direction: row-reverse; /* 右から左へ並べる */
+  flex-wrap: wrap; /* 溢れたら改行する */
+  gap: 2px; /* ハート同士の隙間 */
+  max-width: 100px; /* カードからはみ出さないように */
+  pointer-events: none; /* クリックの邪魔をしない */
+}
+/* ハート1つのスタイル */
+.like-badge {
+  font-size: 18px;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  line-height: 1;
+}
+.phase-banner {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    z-index: 10002;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.banner-deco,#finishDecoCheckBtn { background: rgba(70, 130, 180, 0.9); } /* 青系 */
+.banner-like,#finishLikeCheckBtn { background: rgba(210, 190, 50, 0.9); } /* 黄色系 */
+.phase-btn {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10003;
+    padding: 15px 30px;
+/*    background: #4682b4;*/
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+/* 投票パネル */
+#votePanel{
+/*    display:none;*/
+    background: #fff3cd;
+    padding: 25px;
+    border-radius: 15px;
+    border: 2px solid #ffeeba;
+    text-align: center;
+    min-width: 280px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+#voteOkBtn{background: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;}
+#voteNgBtn{background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer;}
+#voteSymbols{
+    position: absolute;
+    top: -10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    font-size: 24px;
+    text-shadow: 1px 1px 2px white;
+    z-index: 10;
+}
+#voteTextCard{
+    width: 240px;
+    height: 240px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    font-size: 4rem;
+    font-weight: bold;
+}
+#voteText{
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin: 5px 0;
+    color: #333;
+}
+#voteProgress, #ratingProgress{
+    color: #666;
+    font-size: 0.9rem;
+}
+/* ★5評価パネル */
+#ratingPanel{
+/*    display:none;*/
+    background: #e3f2fd;
+    padding: 25px;
+    border-radius: 15px;
+    border: 2px solid #bbdefb;
+    text-align: center;
+    min-width: 280px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+#ratingMsg{color: #333;}
+#ratingCandidate{margin: 10px auto; width: 240px;}
+#ratingImg{width: 240px; height: 240px; object-fit: cover; border-radius: 8px; border: 2px solid #ccc;}
+#ratingTextCard{width: 240px; height: 240px; object-fit: cover; border-radius: 8px; border: 2px solid #ccc;}
+#ratingText{font-weight: bold; color: #333;}
+.star-rating{
+    color: #ff9800;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+.star-rating-input {
+    display: inline-flex;
+    flex-direction: row; /* row-reverse から row に変更 */
+    justify-content: center;
+    gap: 10px;
+    font-size: 3rem;
+    cursor: pointer;
+    margin: 20px 0;
+}
+.star-rating-input span { 
+    color: #ccc; 
+    transition: 0.2s; 
+}
+/* 🟢 ホバー時に「自分より左側（前）」を光らせる新しい設定 */
+.star-rating-input:hover span { 
+    color: #ff9800; /* 全体を一旦オレンジにする */
+}
+.star-rating-input span:hover ~ span { 
+    color: #ccc; /* マウスより右側（後続）をグレーに戻す */
+}
+.star-rating-input span{
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+/* 100点満点評価 & リザルト画面 のオーバーレイ */
+#modalOverlay{
+/*    display:none;*/
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+/* リザルト画面 */
+#gameEndModal {
+/*    align-items: flex-start; */
+    padding: 20px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 9999;
+    color:white;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+/* リザルト画面全体の装飾 */
+#finalResultSection {
+    background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+    border: 2px solid #d4af37;
+    border-radius: 15px;
+    padding: 20px;
+    color: #f0f0f0;
+    max-height: 85vh;
+    /* 🚩 縦はみ出しがなければバーを出さないように変更 */
+    overflow-y: auto; 
+    overflow-x: hidden; /* 親は横スクロールさせない（子に任せる） */
+    /* 要素間の隙間を一定にする */
+    display: flex;
+    flex-direction: column;
+}
+/* 採点 */
+#gameScoreSelect{
+    font-size: 2rem;
+    padding: 10px;
+    background: #444;
+    color: white;
+    border-radius: 10px;
+}
+#inputFormArea button{
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-left: 10px;
+}
+#sentMessage{
+     display:none;
+    font-size: 1.5rem;
+    margin: 20px 0;
+    color: #4CAF50;
+}
+/* 勝者 */
+#resWinners {
+    font-size: 2.2rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    font-family: 'Hiragino Mincho ProN', 'serif';
+}
+/* カード一覧（横スクロールエリア） */
+#resCardScroll {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden; /* 🚩 縦には絶対にはみ出させない */
+    gap: 11px;
+/*    padding: 10px 5px;*/
+    width: 100%;
+    /* 🚩 高さを固定気味にすることで親の縦バー発生を防ぐ */
+    min-height: 140px; 
+    flex-shrink: 0;     /* 親が狭くなっても潰れないようにする */
+/*    background: rgba(0, 0, 0, 0.3) !important;*/
+    background-color: #444;
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid #444;
+    box-sizing: border-box;
+    white-space: nowrap; -webkit-overflow-scrolling: touch;
+}
+#resCardScroll .card{
+        width:100px; 
+        height:100px; 
+        border-radius:8px; 
+        border:2px solid ${f.color}; 
+        background:#fff; 
+        display:flex; 
+        align-items:center; 
+        justify-content:center; 
+        line-height:1.2; 
+        font-weight:bold; 
+        color:#333; 
+        overflow-y:auto; 
+        word-break:break-all; 
+        white-space:pre-wrap; /* 🚩 改行を有効にする */
+        text-align:center; 
+/*        padding:8px; */
+        box-sizing:border-box; 
+    }
+#resCardScroll .card-text-inner{
+        width:100%;
+/*        height:100%;*/
+    }
+/* カード全体のコンテナ */
+#resCardScroll .card-wrapper {
+    flex: 0 0 auto;
+    width: 100px;
+    text-align: center;
+}
+/* テキストカードの基本 */
+#resCardScroll .text-card {
+    border-width: 2px;
+    border-style: solid;
+    font-size: 1.2rem;
+    aspect-ratio: 1 / 1; /* 正方形を維持 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/* 画像カード */
+#resCardScroll .image-card {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border-width: 2px;
+    border-style: solid;
+}
+/* 下部のテキスト（はみ出し防止） */
+#resCardScroll .card-footer-text {
+    font-size: 0.6rem;
+    color: #eee;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+/* 星評価のエリア */
+#resCardScroll .card-stars {
+    color: #ffeb3b;
+    font-size: 0.8rem;
+}
+#resCardScrollMsg{
+    font-size: 0.8rem; color: #777;
+}
+/* 獲得したいいね */
+#resLikesList{}
+#firstofStar{
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #ffeb3b;
+}
+#secondorLowerofStar{
+    font-size: 0.85rem;
+    color: #ddd;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* 🚩 スクロールバー自体のデザイン */
+/* リザルト画面全体の縦スクロールバー設定 */
+#finalResultSection::-webkit-scrollbar {
+    width: 10px; /* 少し太くして掴みやすく */
+}
+/* スクロールバーが通る道（溝） */
+#finalResultSection::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1); /* 背景より少し明るいグレーに */
+    border-radius: 10px;
+    margin: 5px; /* 上下に余白を作ってデザイン性を出す */
+}
+/* 動くツマミ部分 */
+#finalResultSection::-webkit-scrollbar-thumb {
+    background: #d4af37; /* 基本はゴールド */
+    border: 2px solid #1a1a1a; /* ツマミの周りに背景色と同じ色の縁取りをして浮き立たせる */
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.5); /* 立体感 */
+}
+/* ゲーム満足度 */
+#avgScoreDisplay{
+    font-size: 3rem;
+    color: #ffeb3b;
+    margin: 5px 0;
+}
+#resScoreDetails{
+    font-size: 0.9rem;
+    color: #aaa;
+    background: #333;
+    padding: 10px;
+    border-radius: 5px;
+}
+/* ランキングエリア */
+.res-rank-box {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin: 10px 0;
+    padding: 15px;
+}
+/* ボタン群 */
+#resultButtonsArea{
+    margin-top:30px;
+}
+#showBoardBtn{
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    background: #555;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+#postXBtn{
+    background:#000;
+    color:white;
+    padding:10px 20px;
+    border-radius:5px;
+    border:none;
+    cursor:pointer;
+}
+#SSBtn{
+    background:#4CAF50;
+    color:white;
+    padding:10px 20px;
+    border-radius:5px;
+    border:none;
+    cursor:pointer;
+    margin-right:5px;
+}
+/*リザルトロゴエリア*/
+/* ロゴエリア全体の枠線と余白 */
+.ss-logo-area {
+    margin-top: 30px;
+    border-top: 1px solid #444;
+    padding-top: 20px;
+}
+
+/* 右寄せにするためのコンテナ */
+.ss-logo-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* ロゴとテキストを横並びにする */
+.ss-logo-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+}
+
+/* ロゴ画像の設定 */
+.ss-logo-img {
+    width: 50px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* テキストを上下中央に配置 */
+.ss-text-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* メインタイトル */
+.ss-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    line-height: 1.2;
+}
+
+/* サブタイトル（年号と説明） */
+.ss-subtitle {
+    font-size: 0.65rem;
+    color: #888;
+    margin-top: 2px;
+}
+.ss-mobile-br {
+    display: none; /* 通常は改行しない */
+}
+/* 参加者一覧のスタイル */
+#resAllPlayers{
+    border-radius: 3px;
+/*background-color:#999;*/
+}
+#resAllPlayers span {
+    font-size: 0.85rem; 
+    font-weight: bold;
+    
+}
+
+/* --- レスポンシブ調整 --- */
+@media (max-width: 480px) {
+    .ss-title {
+        font-size: 0.9rem; /* スマホでは少し小さく */
+    }
+    .ss-logo-img {
+        width: 40px;      /* ロゴも少し縮小 */
+    }
+}
+/* 結果を見るボタン */
+#reShowResultBtn {
+/*    display: block;*/
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000; 
+    background: #ff9800;
+    color: white; 
+    border:none;
+    border-radius:30px; 
+    padding:15px 25px;
+    font-weight:bold;
+    box-shadow:0 4px 20px rgba(0,0,0,0.5);
+    cursor:pointer;
+}
+
+   
+
+/* ルール説明 & ゲーム設定 */
+/* 親コンテナ：右固定・左可変 */
+.setup-layout-wrapper {
+  display: flex;
+  width: 100%;
+  gap: 30px;
+  align-items: flex-start;
+  padding: 20px;
+  box-sizing: border-box;
+}
+/* 左側：ルール説明（ウィンドウに合わせて狭まる） */
+#items {
+  flex: 1;
+  min-width: 0;
+  color: #333;
+}
+
+#items h2 {
+  color: #2c3e50;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+}
+/* 右側：設定パネル */
+#settingsPanel {
+  flex: 0 0 390px;
+  width: 390px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px; /* 少し角を丸く */
+  box-sizing: border-box;
+  border: 1px solid #e0e4e8;
+  /* 影はダサくない程度に、極めて薄く */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 20px;
+  color: #000;
+    text-align: right;
+      }
+#settingsPanel h3 {
+  margin-top: 0;
+  font-size: 1.2rem;
+  color: #2c3e50;
+  margin-bottom: 15px;
+}
+
+/* プルダウンと開始ボタンを横並びに */
+#settingsPanel > div[style*="display:flex"] {
+  display: flex !important;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+    input, button {
+      padding: 6px 10px;
+      font-size: 1rem;
+      border-radius: 5px;
+    }
+    .colored-name {
+      font-weight: bold;
+    }
+      #myHandName {
+  font-weight: bold;
+  text-shadow: 0.5px 0.5px 1px rgba(0,0,0,0.1);
+}
+      #modeSelect{
+min-height: 35px;
+min-width: 170px;
+  flex: 1; /* プルダウンを長く */
+  padding: 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+}
+#startGameBtn {
+  flex: 0 0 auto;
+  cursor: pointer;
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+#startGameBtn:hover {
+  background: #2ecc71;
+}
+/* オプション：左詰めの改行スタイルに戻す */
+#options {
+  text-align: left;
+  line-height: 1.6;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+#options label {
+  display: inline-block; /* 元の改行（<br>）を活かす */
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+/* フォーム・アップロードエリアの微調整 */
+#uploadArea p, #textArea p {
+  margin: 10px 0 5px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #555;
+}
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  padding: 8px;
+}
+.copy-deck-btn {
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #ccc;
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+.copy-deck-btn.success {
+    background: #eaffea;
+    border-color: #4CAF50;
+    color: #2e7d32;
+}
+ 
+.toTop{
+   padding:10px 0;
+    width:100%;
+    height:auto;
+    text-align: center;
+    border-top: 2px solid #ddd;
+    cursor: pointer;
+/*    background: #999;*/
+    color:#999;
+}
+.aboutLinks {
+    justify-content: center;
+    align-items: center;
+    padding: 5px 0;
+    font-size: 0.85rem;
+    gap: 15px;
+    border-top: 2px solid #ddd;
+}
+.aboutLinks a {
+    color: #666;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.aboutLinks a:hover {
+    color: #333;
+    text-decoration: underline;
+}
+.separator {
+    color: #ccc;
+}
+/* フッター */
+footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 0;
+/*    margin-top: 50px;*/
+    background: rgba(255, 255, 255, 0.8); /* ほんのり透ける白 */
+    border-top: 2px solid #ddd;
+    flex-direction: row; /* 横並びに変更 */
+    gap: 7px;
+}
+/* ロゴ画像の調整 */
+footer img {
+    height: 150px; /* 高さを固定してサイズを制御 */
+    width: auto;  /* アスペクト比を維持 */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); /* 軽い影で浮かせる */
+    transition: transform 0.3s ease;
+    margin:0 20px;
+}
+/* コピーライトテキスト */
+footer p {
+    color: #666;
+    font-size: 1.2rem;
+    margin-top: 36px;
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", sans-serif;
+    letter-spacing: 0.05em;
+}
+
+/* アバウト */
+#about {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+#contact .google-form-iframe {
+    width: 100%;
+    height: 950px; /* PCでのフォームの長さに合わせて微調整 */
+    display: block;
+    overflow: hidden; /* スクロールバーを強制非表示 */
+}
+
+/* タブレット向けレスポンシブ */
+@media (max-width: 1280px) {
+        body {
+      font-family: "Segoe UI", sans-serif;
+      background: #f8f9fa;
+      margin: 0;
+      padding: 8px;
+    }
+    body.createRoom {
+        padding:6px;
+    }
+/* 部屋作成画面、入室画面、部屋画面、アバウト画面 */
+   #createRoom, #login, #room, #about{
+      max-width: 100%;
+      margin: 0 auto;
+      background: white;
+      border-radius: 10px;
+      padding: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    
+    #topDetails{flex-direction: column;align-items: flex-start;}
+    .topDetailsPart{display:none;}
+        #UI {
+        display: flex !important;
+        flex-direction: column;
+    }
+/* UI内の無視される親たち */
+    .game-layout-wrapper,
+    .setup-layout-wrapper
+    {display: contents;}
+
+/* オーダー */
+    #lefts{order:1;width:100%;}
+    #field-container{order:2;width:100%;}
+    #hand-container{order:3;width:100%;}
+    #mochicotoriTextArea{order:4;width:100%;}
+    #chatArea{order:5;width:100%;}
+    #UI hr{order:6;width:100%;}
+    #settingsPanel{order:7;width:100%;}
+    #items{order:8;width:100%;}
+    .aboutLinks{order:10;width:100%;}
+    .toTop{order:9;width:100%;}
+    footer{order:11;width:100%;}
+    
+    /*  メインコンテンツとチャット */
+    #lefts, #chatArea {
+        width: 100%;
+        position: static;
+        flex: none;
+    }
+    #chatArea {
+        padding:0;
+        margin:0;
+        max-height:200px;
+    }
+    
+        /*  設定パネル */
+    #settingsPanel {
+        width: 100% !important;
+        flex: none !important;
+        position: static !important;
+        text-align: left;
+    }
+    
+}
+
+
+      /* --- 📱 スマホ向けレスポンシブ (768px以下) --- */
+@media (max-width: 768px) {
+
+/* 部屋作成画面 */
+/*#createRoom footer a{order:1}*/
+/*#createRoom footer p{order:2}*/
+footer img{
+    height:100px;
+    margin:0
+}
+#toriExplanation {
+        flex-direction: column; /* 縦並びに変更 */
+        gap: 10px;
+    }
+
+    #explanation {
+        width: 90%; /* 横幅いっぱい */
+        margin-right: 0;
+        margin-bottom: 15px; /* ロゴの上に隙間 */
+        transform-origin: bottom center; /* 下（ロゴ側）から広がるように */
+    }
+
+    /* スマホ用のツノ（下向きに変える） */
+    #explanation::before {
+        top: 100% !important;
+        left: 50% !important;
+        right: auto !important;
+        transform: translateX(-50%) !important;
+        border-color: rgba(40, 40, 40, 0.98) transparent transparent transparent !important;
+    }
+
+    /* スマホ用のアニメーション（下から上へ） */
+    @keyframes talkBubbleLeft {
+        0% { opacity: 0; transform: scale(0.8) translateY(10px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
+    }  
+    
+    #roomInfo{
+        font-size:0.94rem;
+    }
+    
+/*    場と手札*/
+        /* 7. #field のコンテナ設定をスマホ用に上書き */
+    #field {
+        display: flex;
+        flex-direction: row ; /* 横並びを強制 */
+        flex-wrap: wrap ;     /* カラム落ちさせる */
+        justify-content: flex-start; /* 左詰め */
+        gap: 2px;           /* カード同士の隙間 */
+        width: 100%;
+        
+    }
+    #field .card-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+    width : 90px;
+    min-width: 90px;
+    display : inline-block;
+    vertical-align : top;
+    margin : 5px;
+    text-align : center;
+}
+/*    #mochicotoriText{width:auto;}*/
+    /* 手札 */
+    #hand-container {
+        flex-direction: column; 
+                gap: 0px;
+        margin-top: 0px;
+    }
+    /* ターンボタン群 */
+    #turn-actions,
+    #exchange-controls { 
+/*    display: flex;*/
+        justify-content: center;
+    gap: 10px;
+        width:100%;
+    min-width: 120px;
+    padding-top: 0px;
+    flex-shrink: 0;
+    flex-direction:row;
+    order: 1;
+    }
+    #turn-actions button,
+    #exchange-controls button{
+        width: 45%;
+        height: auto;
+        font-size: 1rem;
+    }
+
+    /* 5. 手札エリア */
+    #hand-container > div:first-child {
+        width: 100%;
+        order: 2; /* 手札を下に配置 */
+    }
+    #gallery {
+        display: flex !important;
+        flex-wrap: wrap !important; /* カラム落ち */
+        justify-content: flex-start;
+        gap: 10px !important;
+    }
+    #gallery .card-text-inner {}
+
+    /* 6. カードサイズ（3枚並びを想定） */
+    #field .card, #gallery .card {
+/*        width: calc(33.33% - 10px) !important;*/
+        width: 80px;
+        max-width: 80px;
+        height: 80px;
+        max-height: 80px;
+        aspect-ratio: 1 / 1;
+    }
+    #field .card{margin-top:8px;}
+    #field .card-wrapper {
+        font-size: 1rem;
+    }
+/*
+    #field .card-text-inner, {
+    font-size: 0.8rem;    
+    }
+*/
+   #field .text-card.large-text .card-text-inner {
+  font-size: 2.2rem; /* 2~2.5remでお好みの大きさに */
+  font-weight: 900;  /* より太くしてカードらしく */
+  line-height: 1.1;
+}
+    .like-container{top:-5px;}
+    .like-badge{
+        font-size:0.7rem;
+    }
+    /* 入力フォームのズーム防止 */
+    input, select, textarea {
+        font-size: 16px;
+    }
+    #nameInput{
+/*        transform: scale(80%);*/
+        width:60%;
+    }
+/*リザルト画面*/
+    #Winners, #rateRanking, #Satisfaction{
+        
+    }
+    /* 勝者 */
+#resWinners {
+    font-size: 1.8rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    font-family: 'Hiragino Mincho ProN', 'serif';
+}
+    #resCardScroll{
+        gap:5px;
+        min-height:auto;
+    }
+    #resCardScroll .card-wrapper{
+        width: 70px ;
+        min-width: 70px;
+    }
+    #resCardScroll .card{
+        width:70px;
+        height:auto;
+    }
+    #resCardScroll .text-card {
+        font-size:.6rem;
+        width: 70px;  /* カード自体の幅 */
+        height: 70px; /* カード自体の高さ */
+    }
+    #resCardScroll .text-card.large-text .card-text-inner{
+    font-size: 1.2rem; 
+    }
+    #resCardScroll .card-text-inner{
+        font-size: 0.78rem;         
+    }
+
+    #resCardScroll .card-footer-text {
+        font-size: 0.6rem; /* テキストも少し小さく */
+    }
+
+    #resCardScroll .card-stars {
+        font-size: 0.7rem; /* 星も小さく */
+    }
+    #resCardScrollMsg {
+    font-size: 0.7rem;
+    color: #777;
+}
+    .ss-divider {
+        display: none; /* 「 | 」を消す */
+    }
+    .ss-mobile-br {
+        display: block; /* 改行を有効にする */
+    }
+    .ss-title {
+        line-height: 1.4; /* 改行した時に行間が詰まりすぎないよう調整 */
+    }
+/* ゲーム満足度 */
+    #avgScoreDisplay{
+    font-size: 2.2rem;
+    }
+    #resScoreDetails {
+    font-size: .8rem;
+    padding: 4px;
+    }
+/* ボタン群 */
+#resultButtonsArea{
+    margin-top:10px;
+}
+#showBoardBtn{
+    padding: 8px 8px;
+    font-size: .9rem;
+    cursor: pointer;
+    background: #555;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+#postXBtn{
+    font-size: .9rem;
+    background:#000;
+    color:white;
+    padding:4px 8px;
+    border-radius:5px;
+    border:none;
+    cursor:pointer;
+}
+#SSBtn{
+    font-size: .9rem;
+    background:#4CAF50;
+    color:white;
+    padding:4px 8px;
+    border-radius:5px;
+    border:none;
+    cursor:pointer;
+    margin-right:5px;
+}
+    
+    
+
+/* 評価モーダル内 */
+#ratingMediaContainer .text-card.large-text .card-text-inner {
+  font-size: 1.2rem; 
+  font-weight: 900;  /* より太くしてカードらしく */
+  line-height: 1.1;
+}
+/*　　バナー   */
+ .phase-banner {
+    width:60%;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    z-index: 10002;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+.phase-btn {
+    white-space: nowrap;
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10003;
+    padding: 15px 30px;
+/*    background: #4682b4;*/
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+    
+    
+    
+/* フッター */
+footer {
+    width:auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.8); /* ほんのり透ける白 */
+    border-top: 2px solid #ddd;
+    flex-direction: row; /* 横並びに変更 */
+    gap: 7px;
+}
+/* ロゴ画像の調整 */
+footer img {
+    height: 80px; /* 高さを固定してサイズを制御 */
+    width: auto;  /* アスペクト比を維持 */
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); /* 軽い影で浮かせる */
+    transition: transform 0.3s ease;
+}
+/* コピーライトテキスト */
+footer p {
+    color: #666;
+    font-size: 1rem;
+    margin-top: 14px;
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", sans-serif;
+    letter-spacing: 0.05em;
+}
+    
+    
+    /* アバウト画面全体の調整 */
+    #about {
+        padding: 15px;      /* PCより少しだけ余白を削る */
+        max-width: 100%;    /* 画面いっぱいに広げる */
+        line-height: 1.5;   /* スマホで見やすい行間 */
+        font-size: 0.95rem; /* 文字を少しだけ詰める */
+    }
+
+    #about h2 {
+        font-size: 1.4rem;  /* 見出しをスマホサイズに */
+    }
+
+    #about h3 {
+        font-size: 1.1rem;
+    }
+
+#contact .google-form-iframe {
+        height: 980px; /* スマホだと項目が伸びるので長めに設定 */
+    border: none;
+    overflow-y: auto; /* 必要ならスクロールさせる */
+    }
+}

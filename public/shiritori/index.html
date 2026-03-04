@@ -1,0 +1,3839 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>MOCHICOTORI(モチコトリ) - 持込画像しりとり</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    <link rel="stylesheet" href="../css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/7f39a6d40a.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    
+  <!-- 🟢 入室画面 -->
+<div id="login">
+    <div id="welcometoMochicotori" class="flex"><h1>MOCHICOTORI</h1><div class="welcometo">へ ようこそ！</div></div>
+    <p>名前を入力して入室してね(最大10文字)。</p>
+    <div id="enterRadio flex">
+        <label>
+            <input type="radio" name="joinRole" value="player" checked> 💥 参加者
+        </label>
+        <label>
+            <input type="radio" name="joinRole" value="observer"> 📣 観戦席
+        </label>
+    </div>
+    <div id="enterName" class="flex">
+    <input id="nameInput" placeholder="名前" maxlength="10" />
+    <button id="enterBtn">入室</button>
+    </div>
+    
+    <!-- 下部アイテム -->
+<!--<div class="toTop" title="上へ参ります">▲</div>-->
+<nav class="aboutLinks flex">
+<a target="_blank" rel="noopener" href="../about/about.html#privacy">プライバシーポリシー</a>
+<span class="../about/separator">|</span>
+<a target="_blank" rel="noopener" href="../about/about.html#contact">お問い合わせ</a>
+</nav>
+    <footer><a href="https://discord.gg/sUW5QC9eEQ" target="_blank"><i class="fa-brands fa-discord"></i></a><p>2026 フェレットのオンラインボドゲカフェ</p><a href="https://discord.gg/sUW5QC9eEQ" target="_blank"><img src="/img/FBC3.png"></a></footer>
+</div>
+
+   <!-- 🔵 部屋画面 -->
+<div id="room" style="display:none;">
+   
+<!--文字調整・いいね調整バナー-->
+<div id="decoNoticeBanner" class="phase-banner banner-deco" style="display:none;">
+    🔠 最後に文字を調整できます。
+</div>
+<div id="likeNoticeBanner" class="phase-banner banner-like" style="display:none;">
+    💖 最後に「いいね」の付け忘れはありませんか？...
+</div>
+<button id="finishDecoCheckBtn" class="phase-btn" style="display:none;">文字調整完了！</button>
+<button id="finishLikeCheckBtn" class="phase-btn" style="display:none;">いいね完了！</button>
+
+    
+    
+<div id="UI">
+<div class="game-layout-wrapper">
+
+    <div id="lefts">
+        <h2 id="roomTitle">
+            <div id="roomInfo">
+                <img id="topLogo" class="logo-Mochicotori block" src="../img/MOCHICOTORI.png" alt="ロゴ" title="下のゲーム設定からお好みのオプションを選んで開始を押すと、新しいゲームが始められるよ！">
+                <div id="topDetails">
+                <div id="topDetails" class="flex">
+                    <span><strong id="roomId"></strong></span>
+                    <span class="topDetailsPart" style="margin: 0 10px; color: #ccc;">|</span> 
+                    <span><span id="modeDisplay">-</span></span>
+                    <span class="topDetailsPart" style="margin: 0 10px; color: #ccc;">|</span> 
+                    <span id="phaseDisplay" style="font-weight: bold; color: #ffcc00;"></span>
+                </div>
+            </div>
+            </div>
+        </h2>
+        <div class="flex">
+        <p>デッキ残り：<span id="deckCount">0</span>枚</p>
+<!--            同期ボタン-->
+<div id="sync-refresh-btn" class="sync-btn" title="同期">
+    <span class="sync-icon"><i class="fa-solid fa-arrows-spin"></i></span>
+<!--    <span class="sync-btn-label">同期</span>-->
+</div>
+</div>
+        
+        <div class="member-container" style="display: flex; gap: 20px;">
+            <div>
+                <h4 id="btnBecomePlayer" style="cursor: pointer;">💥 参加者</h4>
+                <ul id="playerList"></ul>
+            </div>
+            <div>
+                <h4 id="btnBecomeObserver" style="cursor: pointer;">📣 観戦席</h4>
+                <ul id="observerList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="chatArea">
+        <ul id="messages"></ul>
+        <div style="margin-top: 5px; display: flex; ">
+    <input id="msgInput" autocomplete="off" placeholder="メッセージを入力" style="flex: 1;" />
+    <button id="sendBtn">送信</button>
+</div>
+        </div>
+
+</div>
+      
+<div id="field-container">
+    <h3>場のカード</h3>
+    <div id="field"></div>
+    </div> 
+      
+<div id="hand-container" class="flex">
+  <div style="flex-grow: 1;">
+    <div class="flex">
+        <span id="turnBadge" class="hidden" title="ターンプレイヤー">🃏</span>
+        <h4 id="hand-title"><span id="myHandName"></span>の手札</h4>
+    </div>
+    <div id="gallery"></div>
+  </div>
+
+  <div id="turn-actions" class="hidden">
+    <button id="pass-btn">パス</button>
+    <button id="exchange-start-btn">手札交換</button>
+    
+    <div id="exchange-controls" class="hidden">
+      <button id="exchange-confirm-btn">交換実行</button>
+      <button id="exchange-cancel-btn">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div id="mochicotoriTextArea" style="display:none;">
+  <input id="mochicotoriText" placeholder="しりとりを入力" />
+</div>
+        
+<hr>
+        
+<div class="setup-layout-wrapper">
+    <div id="items">
+            
+            <h2>ルール</h2>
+
+<h3>モチコトリ</h3>
+<p>任意の写真やイラストをデッキに使う、しりとりのゲーム。
+自分のターンになったら手札からカードを1枚選んで、単語や文章と一緒に出します(もちろん、しりとりルールに則って)。そのカードにふさわしい言葉かどうかを自分以外が判定。通過したら場に出せます。
+否決されたり「ん」で終わったら、ペナルティで1枚引きます。手札がなくなった人が現れたらその周で終わり。ゲーム終了時に手札がない人の勝ち！</p>
+
+<h3>ストーリー</h3>
+<p>画像デッキか文デッキを使います。任意のタイミングでカードを出していき、全員が全部出しきったときに物語や文として成立してたらクリア。
+文デッキなら文法ミスがないとか。好きなところでセンテンスを区切ってOKだし意味わからなくても可。おもろかったらクリアでいいとの説もある。
+どこまで相談していいとか何回まで手札交換アリとかはローカルで決めてね。<br>
+○成功例：アルミ缶/を/創造/された/神/と/花束/ある/ミカン<br>
+×失敗例：天/地/と/警官/と/猫/アルミ缶/は/を/は<br>
+サンプル文デッキ 
+<button class="copy-deck-btn" data-text="アルミ缶\nの\n上\nに\nある\nミカン\n吾輩\nは\n猫\nで\nある\n名前\nは\nまだ\nない\nはじめ\nに\n神\nは\n天\nと\n地\nと\nを\n創造\nされた\n花束\nみたい\nな\n恋\nを\nした\nアンドロイド\nは\n電気\n羊\nの\n夢\nを\n見る\nか\n？\n流れ\nよ\n我が\n涙\nと\n警官\nは\n言った">コマ切れ一般デッキ</button>
+<button class="copy-deck-btn" data-text="生きるべきか\n死ぬべきか\nそれが問題だ\n尼寺へ行け！\n復讐せよ\n亡霊が現れた\n毒を塗った剣\n悪臭がぷんぷんする\n裏切りだ！\nあまりに理不尽な\n狂ったふりをする\n運命の女神\n毒入りの杯\n愛していたのだ\n一度は\n脆き者よ\nその名は女\n恐ろしい秘密\n聞かなかったことにしよう\n誰だ？\nそこにいるのは\n静まれ、心よ\n地獄の門が開く\nカーテンの裏で\n刺し殺す\nネズミか？\n王冠を奪う\n不浄な欲望\n良心の呵責\nおやすみなさい\n王子様\n劇を始めよう\n証拠を掴むのだ\n天国へ行くか\n地獄へ落ちるか\n言葉、言葉、言葉\n本を読みふける\n真実はどこにある\n墓掘り人の歌\n髑髏を見つめる\n昔は生きていたのに\n忘れてください\nすべては幻\n残酷にならねばならない\n優しさゆえに\n時が狂っている\n俺が直してみせる\nあとの祭だ\n沈黙こそが\n最後だ">ハムレット・ドラマチックデッキ</button>
+<br>(混ぜて遊ぶのもおすすめ)(後者はハムレットでデッキ作ってとGoogle AI Geminiにお願いしたところ一晩でやってくれましたが滑っててもこいつのせいです)<br>
+<!--<button class="copy-deck-btn" data-text="ただの人間には\n興味ありません\nこの中に\n宇宙人\n未来人\n異世界人\n超能力者\nがいたら\nあたしのところに\n来なさい\n以上\nえるしつているか\nりんごしか食べない\n死神は\n手が赤い\nぶったね…\n二度もぶった…!!\n親父にも\nぶたれたこと\nないのに!!!\n奇跡も\n魔法も\nあるんだよ\nあきらめたら\nそこで\n試合終了ですよ\n私は\nやさしい王様に\nなるのだ！\n全部同じじゃないですか!?\nちがいますよ―っ\nこれだから\nしろうとは\nダメだ！\nもっと\nよく見ろ！\nみんなお待ちかね\nぺこらっぷ\n準備はできている？\nhurry up！\n3D\nも遂に登場\n自己紹介をどうぞ\n名前は「兎田ぺこら」ぺこ\n寂しがり屋\nとetc.\nバニーガールの芸人？\nアイドルとしての精神！\nHIKAKINの兄はSEIKIN\n触れてしまうよ逆鱗">ざく切りﾎﾟﾀｸデッキ</button>-->
+画像デッキの場合は、モチコトリで使うような写真やイラストよりも、前後の結びつきが少し強いものを用意するのがおすすめ。例えば、テーマを決めてみんなにそれに沿ったイラスト1枚と4コマ漫画を描いてもらい1コマずつにカットするとかね。外部お絵かきゲームの成果物を再利用してみるのも面白そう。<br>
+</p>
+
+<h3>ワード</h3>
+<p>自動生成の文字デッキを使う。ストーリーと同様、任意のタイミングでカードを出していき、全員が全部出しきったら終わり。もちろん、何の文字を持ってるかは言っちゃいけない。
+文字装飾機能があって、濁点、半濁点のつけ外しやカナ変換ができる。みんなで綺麗に出し切って装飾して言葉を完成させる協力ゲーム。</p>
+            
+<h3>チェーン</h3>
+<p>スピード勝負でしりとりします。ターン制じゃないから、自分の出したカードに自分で繋げてOK！最後のカードの最後の文字からはじめて、一緒に出すカードの文字や行／列で終わらせる。数字が書いてあるものは、その文字数なら末尾は何でもOK(7+は7文字以上)。
+<br>基本ルールは、3文字以上の単語で、できるだけ参加者みんなに通用する言葉を提出します。審査する側は知らない言葉が出てきたら容赦なくNGを押していいけど、条件に合った言葉が提出されてるかの審査は厳正にしてね。手札交換は、ゲーム中いつでも可能。ただし、自分の直前に手札交換したのが自分の場合はできない。
+<br>基本ルールに慣れてきたら、一般名詞縛りにしたり手札交換のタイミングは自由にして 1人何回まで/1ゲーム とか、ローカルで取り決めて遊ぶのもアリ！</p>
+            
+            </div>
+    <div id="settingsPanel">
+    <h3>⚙ ゲーム設定</h3>
+<div style="display:flex,justify-content:space-between;"> 
+<select id="modeSelect">
+  <option value="mochicotori">モチコトリ</option>
+  <option value="story">ストーリー</option>
+  <option value="word">ワード</option>
+  <option value="chain">チェーン</option>
+</select>
+    <button id="startGameBtn">開始</button>
+    </div>
+<div id="options">
+    
+<label><input type="radio" name="finishType" data-option="allOut" value="allOut">全員完走</label>
+<label><input type="radio" name="finishType" data-option="finalround" value="finalround">ファイナルラウンド</label>
+<label><input type="radio" name="finishType" data-option="instant" value="instant">1人完走</label>
+            <br>
+    
+  <label>
+    <input type="checkbox" id="optTurnBased" data-option="turnBased">
+    ターン制
+  </label><br>
+
+  <label>
+    <input type="checkbox" id="optShiritori" data-option="shiritori">
+    しりとり
+  </label><br>
+
+  <label>
+    <input type="checkbox" id="optVote" data-option="vote">
+    投票
+  </label>
+  <label>
+    <input type="checkbox" id="optStar5" data-option="star5">
+    ★5評価
+  </label><br>
+
+      <label>
+    <input type="checkbox" id="optPass" data-option="pass">
+    パス
+  </label>
+      <label>
+    <input type="checkbox" id="optExchange" data-option="exchange">
+    手札交換
+  </label><br>
+  <label>
+    <input type="checkbox" id="optLike" data-option="like">
+    いいね
+  </label>
+  <label>
+    <input type="checkbox" id="optDeco" data-option="deco">
+    文字装飾
+  </label><br>
+
+  <label>
+    <input type="checkbox" id="optScore100" data-option="score100">
+    100点満点評価
+  </label>
+</div>
+
+    <form id="createRoomForm" enctype="multipart/form-data">
+    <input type="hidden" name="mode" id="modeInput" value="mochicotori">
+        
+<div id="uploadArea">
+  <div id="storyDeckOptions">
+    <div class="gazoUp" style="cursor: pointer; transition: 0.2s;">
+      <p>画像デッキをセットしてください<br>(最大50枚):</p>
+      <input type="file" name="images" id="fileInput" multiple accept="image/*">
+    </div>
+  </div>
+
+  <div class="bunWrite" style="cursor: pointer; transition: 0.2s;">
+    <div id="textArea" style="display: none;">
+      <p>文デッキをセットしてください<br>（改行区切り、一行につき最大20字）:</p>
+<textarea name="textDeck" id="textDeckInput" rows="8" style="width: 80%; max-width: 400px;" placeholder="流れ&#10;よ&#10;我が&#10;涙&#10;と&#10;警官&#10;は&#10;言った..."></textarea>
+    </div>
+  </div>
+</div>
+        
+    <div id="wordArea" style="display: none;">
+      <p>💡 ワードモード<br>文字デッキが自動生成されます。</p>
+    </div>
+    <div id="chainArea" style="display: none;">
+      <p>💡 チェーンモード<br>チェーンデッキが自動生成されます。</p>
+    </div>
+
+  </form>
+    </div>
+</div>
+    
+<!-- 下部アイテム -->
+<div class="toTop" title="上へ参ります">▲</div>
+<nav class="aboutLinks flex">
+<a target="_blank" rel="noopener" href="../about/about.html#privacy">プライバシーポリシー</a>
+<span class="../about/separator">|</span>
+<a target="_blank" rel="noopener" href="../about/about.html#contact">お問い合わせ</a>
+</nav>
+    <footer><a href="https://discord.gg/sUW5QC9eEQ" target="_blank"><i class="fa-brands fa-discord"></i></a><p>2026 フェレットのオンラインボドゲカフェ</p><a href="https://discord.gg/sUW5QC9eEQ" target="_blank"><img src="/img/FBC3.png"></a></footer>
+    
+    
+    
+</div>
+    
+    
+    
+    
+<div id="modalOverlay" class="hidden">
+
+      <!-- 投票パネル-->
+    <div id="votePanel" class="hidden">
+        <h4 id="voteMsg" style="color: #333;">投票中...</h4>
+<div id="voteCandidate" style="margin: 10px auto; position: relative; width: 240px;">
+    <div id="voteSymbols"></div>
+    
+    <img id="voteImg" src="" style="width: 240px; height: 240px; object-fit: cover; border-radius: 8px; border: 2px solid #ccc; display: none;">
+    
+    <div id="voteTextCard" class="card text-card">
+        <div id="voteTextCardInner"></div>
+    </div>
+    
+    <p id="voteText"></p>
+</div>
+        <div id="voteButtons">
+            <button id="voteOkBtn">可 (OK)</button>
+            <button id="voteNgBtn">不可 (NG)</button>
+        </div>
+        <p id="voteProgress">0 / 0 人が投票済み</p>
+    </div>
+
+<!--  ★5評価パネル-->
+    <div id="ratingPanel" class="hidden">
+        <h4 id="ratingMsg">このカードを評価してください</h4>
+        <div id="ratingCandidate">
+<div id="ratingMediaContainer">
+    <img id="ratingImg" src="" >
+    <div id="ratingTextCard" class="card text-card">
+        <div id="ratingTextCardInner" class="card-text-inner"></div>
+    </div>
+</div>
+            <p id="ratingText"></p>
+        </div>
+<div id="ratingButtons" class="star-rating-input">
+    <span onclick="sendRating(1)">★</span>
+    <span onclick="sendRating(2)">★</span>
+    <span onclick="sendRating(3)">★</span>
+    <span onclick="sendRating(4)">★</span>
+    <span onclick="sendRating(5)">★</span>
+</div>
+        <p id="ratingProgress">0 / 0 人が評価済み</p>
+    </div>
+      </div>
+    
+<div id="gameEndModal" class="no-scrollbar">
+    <div style="background:#222; padding:20px; border-radius:20px; text-align:center; border: 1px solid #555; width: 95%; max-width: 800px; position: relative;">
+        
+        <div id="scoreInputSection">
+            <h2 style="color: #ffeb3b;">ゲーム終了！<br>採点してください</h2>
+            <div id="inputFormArea">
+                <select id="gameScoreSelect"></select> 点
+                <button onclick="submitGameScore()">送信</button>
+            </div>
+            <div id="sentMessage">送信しました。</div>
+            <p id="gameScoreStatus" style="color: #aaa;">0 / 0 人送信済み</p>
+        </div>
+            
+            <div id="finalResultSection" style="display:none;">
+    <h1 id="finalGameScoreResult" style="border-bottom: 2px solid #ffeb3b; padding-bottom: 10px;">RESULT</h1>
+            
+                <div id="globalScore" style="text-align: center; margin-bottom: 20px;"></div>
+                
+<div style="margin-top: 20px;">
+    <h3 id="Winners">🏆 勝者</h3>
+    <div id="resWinners"></div>
+    <div id="resAllPlayers" style="margin-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;"></div>
+</div>
+
+            <div style="margin-top: 20px; box-sizing: border-box;">
+                <div id="resCardScroll">
+                    </div>
+                <p id="resCardScrollMsg">← 横にスクロールできます →</p>
+            </div>
+
+            <div id="resStarArea" style="margin-top: 25px; border-top: 1px solid #444; padding-top: 10px;">
+                <h3 id="rateRanking">⭐ 個人評価ランキング</h3>
+                <div id="resStarList"></div>
+            </div>
+
+            <div id="resLikesArea" style="margin-top: 25px; border-top: 1px solid #444; padding-top: 10px;">
+                <h3>💖 獲得した「いいね」</h3>
+                <div id="resLikesList"></div>
+            </div>
+
+            <div id="resAvgArea" style="margin-top: 25px; border-top: 1px solid #444; padding-top: 10px;">
+                <h3 id="Satisfaction">📊 ゲーム満足度</h3>
+<div id="avgScoreDisplay"></div>
+                <div id="resScoreDetails"></div>
+            </div>
+
+<div id="resultButtonsArea">
+    <button id="showBoardBtn" onclick="hideResultAndShowField()" >盤面を確認する</button>
+    <button id="postXBtn" onclick="shareToX()" >𝕏 にポスト</button>
+    <button id="SSBtn" onclick="captureResult()" >📸</button>
+</div>
+                
+<div id="resultLogoArea" class="ss-logo-area">
+    <div class="ss-logo-container">
+        <div class="ss-logo-content">
+            <img src="../img/MOCHICOTORI.png" class="ss-logo-img">
+
+            <div class="ss-text-group">
+<div class="ss-title">
+    MOCHICOTORI 
+    <span class="ss-divider"> | </span> <br class="ss-mobile-br">          <span id="resCurrentModeName"></span>
+</div>
+                <div class="ss-subtitle">
+                    2026 フェレットのオンラインボドゲカフェ
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+                
+        </div>
+    </div>
+</div>
+    
+    
+<button id="reShowResultBtn" class="hidden" onclick="renderResultToUI(window.lastResultData, true)" >
+  📊 結果を見る
+</button>
+    </div>
+
+ <script src="/socket.io/socket.io.js"></script>
+<script>
+
+ // 🚩 追加：自分の状態を保持（トップレベルに追加）
+window.isObserver = false;
+    
+// 🟢 グローバル変数の宣言（一番上に置く）
+window.currentFieldData = [];
+window.lastResultData = null;
+const socket = io();
+
+let panelSettings = {};  // 設定パネル（UI）の見た目用
+let activeOptions = {};   // 🚩 実際のゲームルール用（開始時のみ更新）
+var myCurrentHand = [];　// 手札を一時保存しておく変数
+  let myAssignedColor = "#000"; // ★ 追加：自分の色を保持する変数
+    window.lastKnownPlayers = [];
+    
+const MODE_SETTINGS = {
+  mochicotori: {
+    label: 'モチコトリ',
+    defaults: { 
+      finishType: 'finalround', // 🚩 IDではなく、Radioのvalueをセット
+      turnBased: true, shiritori: true, vote: true, pass: true, exchange: true, 
+      like: true, deco: false, star5: false, score100: false 
+    },
+    // locksには name="finishType" そのものを指定する
+    locks: ['finishType', 'turnBased', 'shiritori', 'vote', 'pass', 'exchange', 'deco']
+  },
+  story: {
+    label: 'ストーリー',
+    defaults: { 
+      finishType: 'allOut', 
+      turnBased: false, shiritori: false, vote: false, pass: false, exchange: false, 
+      like: true, deco: false, star5: false, score100: true 
+    },
+    locks: ['finishType', 'turnBased', 'shiritori', 'vote', 'pass', 'deco']
+  },
+  word: {
+    label: 'ワード',
+    defaults: { 
+      finishType: 'allOut', 
+      turnBased: false, shiritori: false, vote: false, pass: false, exchange: false, 
+      like: false, deco: true, star5: false, score100: true 
+    },
+    locks: ['finishType', 'turnBased', 'shiritori', 'vote', 'pass', 'like', 'deco']
+  },
+  chain: {
+    label: 'チェーン',
+    defaults: { 
+      finishType: 'instant', 
+      turnBased: false, shiritori: true, vote: true, pass: false, exchange: true, 
+      like: false, deco: false, star5: false, score100: true 
+    },
+    locks: ['finishType', 'turnBased', 'shiritori', 'pass', 'exchange', 'vote', 'deco']
+  }
+};
+    
+    // --- チャット機能の実装 ---
+    
+// 1. 送信ボタンや入力欄を取得
+const sendBtn = document.getElementById('sendBtn');
+const msgInput = document.getElementById('msgInput');
+const messagesList = document.getElementById('messages');
+
+let isStarting = false; // 🚩 外側にフラグを置く
+    
+let isVoting = false; // 投票中フラグ
+
+let isGameEnded = false; // 🟢 ゲーム終了フラグ
+    let lastAlertMessage = "";
+let lastAlertTime = 0;
+    
+                // 🚩 フェーズが playing, rating, ended の時は decoバナーを強制的に隠す
+const cleanUpDecoUI = () => {
+    const decoIds = ['decoNoticeBanner', 'finishDecoCheckBtn'];
+    decoIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.display = 'none';
+            // el.remove(); // ← もし remove() を使っているなら style 参照でエラーが出るので display = 'none' を推奨
+        }
+    });
+};    
+    
+  const roomId = window.location.pathname.split('/').pop();
+  document.getElementById('roomId').textContent = roomId;
+
+    let isExchangeMode = false;
+let selectedCards = new Set();
+
+    const MODE_RULES = {
+  mochicotori: { label: 'モチコトリ' },
+  story: { label: 'ストーリー' },
+  word: { label: 'ワード' },
+  chain: { label: 'チェーン' }
+};
+    
+    
+//    共通関数
+
+// 🚩 モードやフェーズに合わせてUIを切り替える
+function syncRoomUI(state, force = false) {
+if (!state) return;
+    
+    // --- 🚩 最初に使う可能性のある DOM 要素をすべて取得しておく ---
+    const decoBanner = document.getElementById('decoNoticeBanner');
+    const finishDecoBtn = document.getElementById('finishDecoCheckBtn');
+    const likeNotice = document.getElementById('likeNoticeBanner');
+    const finishLikeBtn = document.getElementById('finishLikeCheckBtn');
+    const votePanel = document.getElementById('votePanel');
+    const ratingPanel = document.getElementById('ratingPanel');
+    const overlay = document.getElementById('modalOverlay');
+    const starArea = document.getElementById('ratingButtons');
+    const scoreArea = document.getElementById('score100InputArea');
+    
+    if (isManual === undefined) var isManual = false;
+    
+    // 🚩 【最強の防壁】
+    // 既にリザルト描画済み、またはフェーズが ended なのに、
+    // 古いフェーズ(playingやlikeCheck)のデータが届いたら即座に無視する。
+    if (window.isResultFinished || window.currentPhase === 'ended') {
+        if (state.phase !== 'ended') {
+            console.log("🚫 古いフェーズの同期をブロックしました:", state.phase);
+            return; 
+        }
+    }
+
+    // 現在のフェーズを更新（ここより下で currentPhase を使うため）
+    window.currentPhase = state.phase;
+    
+    const { mode, options, phase } = state;
+    const currentMode = mode || 'story';
+    const config = MODE_SETTINGS[currentMode];
+
+    // --- 1. プルダウン (modeSelect) の同期 ---
+    const modeSelect = document.getElementById('modeSelect');
+    if (modeSelect) {
+        modeSelect.value = currentMode;
+    }
+
+    // --- 2. モード名の表示更新 ---
+    const modeDisplay = document.getElementById('modeDisplay');
+    if (modeDisplay) {
+        const modeNames = { 'story': 'ストーリー', 'mochicotori': 'モチコトリ', 'word': 'ワード', 'chain': 'チェーン' };
+        modeDisplay.textContent = `${modeNames[currentMode] || currentMode}`;
+    }
+
+    if (config && options) {
+        // --- 3. ラジオボタン (finishType) の同期 ---
+        const finishKey = 'finishType';
+        const isFinishLocked = config.locks.includes(finishKey);
+        const targetValue = isFinishLocked ? config.defaults[finishKey] : options.finishType;
+
+        // name="finishType" を持つ全てのラジオボタンをループ
+        document.querySelectorAll('input[name="finishType"]').forEach(radio => {
+            radio.checked = (radio.value === targetValue);
+            radio.disabled = isFinishLocked;
+            if (radio.parentElement) {
+                radio.parentElement.style.opacity = isFinishLocked ? "0.6" : "1";
+            }
+        });
+
+// --- B. チェックボックスの同期 ---
+        const checkBoxMap = {
+            'optShiritori': 'shiritori',
+            'optTurnBased': 'turnBased',
+            'optVote': 'vote',
+            'optStar5': 'star5',
+            'optScore100': 'score100',
+            'optLike': 'like',
+            'optDeco': 'deco',
+            'optPass': 'pass',
+            'optExchange': 'exchange'
+        };
+
+        Object.keys(checkBoxMap).forEach(domId => {
+            const el = document.getElementById(domId);
+            if (!el) return;
+
+            const key = checkBoxMap[domId];
+            const isLocked = config.locks.includes(key);
+            
+            // ロックされているならデフォルト値、そうでなければサーバーの値を採用
+            const shouldCheck = isLocked ? config.defaults[key] : state.options[key];
+
+            el.checked = !!shouldCheck;
+            el.disabled = isLocked;
+
+            // 見た目の調整
+            if (el.parentElement) { 
+                el.parentElement.style.opacity = isLocked ? "0.6" : "1";
+            }
+        });
+    }
+
+    // --- 3. 以下、phaseDisplay や bunArea の処理（元のロジックを維持） ---
+    const phaseDisplay = document.getElementById('phaseDisplay');
+        // 🚩 モーダルが開いていない、かつリザルトデータがある場合のみボタンを出す
+    const modal = document.getElementById('gameEndModal');
+    const reShowBtn = document.getElementById('reShowResultBtn');
+
+    if (phaseDisplay) {
+        const obsPrefix = window.isObserver ? "【観戦】" : "";
+        
+        if (phase === 'decoCheck') {
+            phaseDisplay.innerText = obsPrefix + "文字調整中";
+            phaseDisplay.style.color = "#00BCD4";
+        } else if (phase === 'playing') {
+            phaseDisplay.innerText = obsPrefix + "プレイ中";
+            phaseDisplay.style.color = "#4CAF50";
+        } else if (phase === 'likeCheck') {
+            phaseDisplay.innerText = obsPrefix + "いいね調整";
+            phaseDisplay.style.color = "#FF9800";
+        } else if (phase === 'rating') {
+            phaseDisplay.innerText = "採点中";
+            phaseDisplay.style.color = "#E91E63";
+            // ここで lockAllInputs を呼ぶかは実装依存ですが、維持します
+            if (typeof lockAllInputs === 'function') lockAllInputs(true);
+        }  else if (phase === 'ended') {
+    phaseDisplay.innerText = "ゲーム終了";
+    phaseDisplay.style.color = "#F44336";
+
+
+if (modal) {
+    // 🚩 修正：手動表示、または「まだ自動開封していない」場合
+    if (isManual || !window.hasAutoOpenedResult) {
+    
+        modal.classList.remove('hidden');
+        modal.classList.add('flex'); // 👈 ここ！
+
+        if (reShowBtn) {
+            reShowBtn.classList.add('hidden');
+            reShowBtn.classList.remove('block', 'flex'); 
+        }
+        
+        // 自動表示したことを記録
+        if (!isManual) window.hasAutoOpenedResult = true;
+
+        console.log("✅ モーダルを表示しました (.flex付与)");
+    }
+}
+            
+            const mainArea = document.getElementById('field') || document.body; 
+            if (mainArea) {
+                mainArea.style.pointerEvents = 'none';
+                const exceptions = ['finalResultOverlay', 'gameEndModal', 'settings-panel', 'startGameBtn', 'reShowResultBtn', 'modalOverlay'];
+                exceptions.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.pointerEvents = 'auto';
+                });
+            }
+        }
+    }
+
+    // 文字調整（decoCheck）の表示切り替え
+if (phase === 'decoCheck') {
+    if (decoBanner) decoBanner.style.display = 'block';
+    if (finishDecoBtn) finishDecoBtn.style.display = window.isObserver ? 'none' : 'block';
+
+    // 🚩 観戦者のための追加修正：投票・評価パネルを強制的に非表示にする
+    if (window.isObserver) {
+        const votePanel = document.getElementById('votePanel');
+        const ratingPanel = document.getElementById('ratingPanel');
+        const overlay = document.getElementById('modalOverlay');
+
+        if (votePanel) {
+            votePanel.classList.remove('block', 'flex');
+            votePanel.classList.add('hidden');
+        }
+        if (ratingPanel) {
+            ratingPanel.classList.remove('block', 'flex');
+            ratingPanel.classList.add('hidden');
+        }
+        // 評価中(isRating)や投票中(isVoting)でないならオーバーレイも隠す
+        if (overlay && !window.isVoting && !window.isRating) {
+            overlay.classList.remove('flex');
+            overlay.classList.add('hidden');
+        }
+        console.log("👁 decoCheckフェーズかつ観戦者のため、不要なパネルを掃除しました");
+    }
+} else {
+// --- 3. バナーとボタンの制御（装飾・いいねフェーズ用） ---
+    const decoBanner = document.getElementById('decoNoticeBanner');
+    const finishDecoBtn = document.getElementById('finishDecoCheckBtn');
+    const likeNotice = document.getElementById('likeNoticeBanner');
+    const finishLikeBtn = document.getElementById('finishLikeCheckBtn'); // IDを確認してください
+
+    // 文字調整（decoCheck）の表示切り替え
+    if (phase === 'decoCheck') {
+        if (decoBanner) decoBanner.style.display = 'block';
+        if (finishDecoBtn) finishDecoBtn.style.display = window.isObserver ? 'none' : 'block';
+    } else {
+        if (decoBanner) decoBanner.style.display = 'none';
+        if (finishDecoBtn) finishDecoBtn.style.display = 'none';
+    }
+
+    // いいね調整（likeCheck）の表示切り替え
+    if (phase === 'likeCheck') {
+        if (likeNotice) likeNotice.style.display = 'block';
+        if (finishLikeBtn) finishLikeBtn.style.display = window.isObserver ? 'none' : 'block';
+    } else {
+        if (likeNotice) likeNotice.style.display = 'none';
+        if (finishLikeBtn) finishLikeBtn.style.display = 'none';
+    }
+}
+    
+    // --- 4. 文デッキエリアの制御（ストーリーモード専用） ---
+const bunArea = document.getElementById('bunArea'); 
+    const textDeckInput = document.getElementById('textDeckInput');
+
+    if (state.mode === 'story') {
+        if (bunArea) bunArea.style.display = 'block';
+        
+        if (textDeckInput && state.textDeck && state.textDeck.length > 0) {
+            const rawText = state.textDeck.map(line => line.replace(/^text:/, '')).join('\n');
+            textDeckInput.value = rawText;
+        }
+    } else {
+        // 🚩 修正：ストーリー以外のモード（ワード等）かつ「ゲーム中」ならクリア
+        // 🚩 フェーズが 'ended'（リザルト中）なら、リザルト描画を優先するため何もしない
+        if (state.phase !== 'ended') {
+            if (bunArea) bunArea.style.display = 'none';
+            if (textDeckInput) {
+                textDeckInput.value = ""; 
+                // console.log("🧹 モード外のため文デッキをクリアしました");
+            }
+        }
+    }
+    
+    // --- 5. 観戦者（isObserver）による開始制限 ---
+const settingsPanel = document.getElementById('settingsPanel');
+if (settingsPanel) {
+    if (window.isObserver) {
+        // 🚩 クリックや入力を物理的に「無視」させる
+        settingsPanel.style.pointerEvents = "none"; 
+        settingsPanel.style.opacity = "0.5";
+        settingsPanel.style.filter = "grayscale(1)"; // さらに「無効感」を出すなら
+        
+        document.getElementById('startGameBtn').disabled = true;
+        document.getElementById('fileInput').disabled = true;
+    } else {
+        settingsPanel.style.pointerEvents = "auto";
+        settingsPanel.style.opacity = "1";
+        settingsPanel.style.filter = "none";
+        
+        
+        document.getElementById('startGameBtn').disabled = false;
+        document.getElementById('fileInput').disabled = false;
+    }
+}
+    
+if (phase === 'rating') {
+    // 採点中かつ観戦者の場合、入力欄を隠す
+    const starArea = document.getElementById('ratingButtons');
+    const scoreArea = document.getElementById('score100InputArea');
+    const ratingMsg = document.getElementById('ratingMsg');
+
+    if (window.isObserver) {
+        if (starArea) starArea.style.display = 'none';
+        if (scoreArea) scoreArea.style.display = 'none';
+        if (ratingMsg) ratingMsg.innerText = "採点中を見守っています...";
+    } else {
+        // 🚩 観戦者じゃない場合は、オプションに応じて出す（戻し処理）
+        if (starArea) starArea.style.display = window.activeOptions.star5 ? 'flex' : 'none';
+        if (scoreArea) scoreArea.style.display = window.activeOptions.score100 ? 'block' : 'none';
+    }
+} else if (phase === 'ended') {
+    // 🚩 リザルト中は、採点パネルやメッセージを物理的に消す
+    const ratingPanel = document.getElementById('ratingPanel');
+    const starArea = document.getElementById('ratingButtons'); // 🚩 これが足りなかった
+    const scoreArea = document.getElementById('score100InputArea'); // 🚩 ついでにこれも確認
+
+    if (ratingPanel) {
+     ratingPanel.classList.remove('block','flex');   
+     ratingPanel.classList.add('hidden');   
+    }
+    if (starArea) starArea.style.display = 'none';   // これで ReferenceError 回避
+    if (scoreArea) scoreArea.style.display = 'none';
+    
+    // 🚩 採点モーダルが overlay を使っているなら隠す
+    const overlay = document.getElementById('modalOverlay');
+    if (overlay){
+        overlay.classList.remove('block','flex'); 
+        overlay.classList.add('hidden'); 
+    }
+}
+    
+    // 🚩 観戦者向けの最終防衛線：ゲーム終了フェーズ以外ではリザルトモーダルを絶対に開かない
+if (window.isObserver && phase !== 'ended') {
+    if (modal) {
+        modal.classList.remove('flex', 'block');
+        modal.classList.add('hidden');
+    }
+    // ついでにオーバーレイも掃除
+    if (overlay) {
+        overlay.classList.remove('flex', 'block');
+        overlay.classList.add('hidden');
+    }
+}    
+    
+} // syncRoomUI 終了
+      // デッキ切り替え（最小限）
+function selectStoryDeck(activeType) {
+    const gazo = document.querySelector('.gazoUp');
+    const bun = document.querySelector('.bunWrite');
+const gazoInput = document.getElementById('fileInput');
+  const bunInput = document.getElementById('textDeckInput');
+  const typeInput = document.getElementById('storyDeckType') || { value: '' };
+// 要素が存在しない場合は何もしない（エラー回避）
+    if (!gazo || !bun || !gazoInput || !bunInput) return;
+  typeInput.value = activeType;
+
+if (activeType === 'image') {
+    gazo.style.opacity = "1";
+    bun.style.opacity = "0.3";
+    // 🚩 外枠ではなく「入力欄」だけを操作不能にする
+    gazoInput.style.pointerEvents = "auto";
+    bunInput.style.pointerEvents = "none";
+    // 🚩 相手方（テキスト）の内容をリセット
+    bunInput.value = "";
+  } else {
+    gazo.style.opacity = "0.3";
+    bun.style.opacity = "1";
+    // 🚩 外枠ではなく「入力欄」だけを操作不能にする
+    gazoInput.style.pointerEvents = "none";
+    bunInput.style.pointerEvents = "auto";
+      // 🚩 相手方（テキスト）の内容をリセット
+    gazoInput.value = "";
+  }
+  }
+    
+function updateDeckUI(selectedMode) {
+    const uploadArea = document.getElementById('uploadArea');
+    const gazoUnit = document.getElementById('deck-upload-area');
+    const textUnit = document.getElementById('deck-text-area');
+    const textAreaInner = document.getElementById('textArea');
+    const wordArea = document.getElementById('wordArea');
+    const chainArea = document.getElementById('chainArea');
+
+    // 全て一旦隠す
+    [uploadArea, gazoUnit, textUnit, textAreaInner, wordArea, chainArea].forEach(el => {
+        if (el) el.style.display = 'none';
+    });
+
+    switch (selectedMode) {
+        case 'mochicotori':
+            if (uploadArea) uploadArea.style.display = 'block';
+            if (gazoUnit) gazoUnit.style.display = 'block';
+            selectStoryDeck('image'); 
+            break;
+
+        case 'story':
+            if (uploadArea) uploadArea.style.display = 'block';
+            if (gazoUnit) gazoUnit.style.display = 'block';
+            if (textUnit) textUnit.style.display = 'block';
+            if (textAreaInner) textAreaInner.style.display = 'block';
+            selectStoryDeck('image'); 
+            break;
+
+        case 'word':
+            if (wordArea) wordArea.style.display = 'block';
+            break; // ✅ これで chainArea が表示されるのを防ぐ
+
+        case 'chain':
+            if (chainArea) chainArea.style.display = 'block';
+            break;
+    }
+}
+    
+// チェックボックスとプルダウンを同期させるもの
+function applyMode(mode, options) {
+  const modeSelect = document.getElementById('modeSelect');
+  if (modeSelect) modeSelect.value = mode;
+
+  const setting = MODE_SETTINGS[mode];
+  if (!setting) return;
+
+  // --- 🚩 1. ロック状態の適用（RadioとCheckbox両方） ---
+  // finishType のロック
+  const finishTypeLocked = setting.locks.includes('finishType');
+  document.querySelectorAll('input[name="finishType"]').forEach(radio => {
+    radio.disabled = finishTypeLocked;
+    radio.parentElement.style.opacity = finishTypeLocked ? "0.5" : "1";
+  });
+
+  // Checkbox のロック
+  Object.keys(setting.defaults).forEach(key => {
+    const checkbox = document.querySelector(`input[data-option="${key}"]`);
+    if (checkbox) {
+      const isLocked = setting.locks.includes(key);
+      checkbox.disabled = isLocked;
+      checkbox.parentElement.style.opacity = isLocked ? "0.5" : "1";
+    }
+  });
+
+  // --- 🚩 2. チェック状態の決定 ---
+  const targetData = (options && Object.keys(options).length > 0) ? options : setting.defaults;
+
+  // A: Radioボタン (finishType) の反映
+  if (targetData.finishType) {
+    const targetRadio = document.querySelector(`input[name="finishType"][data-option="${targetData.finishType}"]`);
+    if (targetRadio) targetRadio.checked = true;
+  }
+
+  // B: Checkbox の反映
+  Object.keys(setting.defaults).forEach(key => {
+    // finishType は Checkbox ではないのでスキップ
+    if (key === 'finishType') return; 
+
+    const checkbox = document.querySelector(`input[data-option="${key}"]`);
+    if (checkbox) {
+      checkbox.checked = !!targetData[key];
+    }
+  });
+
+  console.log(options && Object.keys(options).length > 0 ? "📡 サーバー設定を反映" : "✨ モードデフォルトを反映");
+}
+    // roomState受信時、または設定が確定した直後に実行するUI更新ロジック
+function refreshActionButtons() {
+    // 1. 最新のオプションを安全に取得（空オブジェクトをデフォルトに）
+    const opts = window.activeOptions || {};
+    const phase = window.currentPhase; // 🚩 現在のフェーズを取得
+    const actualIsMyTurn = (window.currentTurnPlayerId === socket.id);
+    const isMyTurn = (window.currentTurnPlayerId === socket.id);
+        window.isMyTurnNow = isMyTurn;
+    // 同期のためにグローバルも更新しておく
+    window.isMyTurnNow = actualIsMyTurn;
+    const isObserver = window.isObserver;
+    
+console.log("🔘 ボタン更新詳細:", { 
+        isMyTurn: actualIsMyTurn, // 🚩 ここが true になれば解決
+        isObserver: window.isObserver,
+        opts_pass: opts.pass,
+        opts_turnBased: opts.turnBased,
+        opts_exchange: opts.exchange
+    });
+
+    const turnActions = document.getElementById('turn-actions');
+    const turnBadge = document.getElementById('turnBadge');
+    const exchangeStartBtn = document.getElementById('exchange-start-btn');
+    const passBtn = document.getElementById('pass-btn');
+
+
+    if (!turnActions) return;
+    
+// 🚩 最優先ガード：playingフェーズ以外、または観戦者は、跡形もなく隠す
+    if (phase !== 'playing' || isObserver) {
+        turnActions.classList.remove('flex', 'block');
+        turnActions.classList.add('hidden');
+        if (turnBadge) {
+            turnBadge.classList.remove('flex', 'block');
+            turnBadge.classList.add('hidden');
+        }
+        return; 
+    }
+
+    // --- これ以降は「playingフェーズ」かつ「参加者」であること確定 ---
+    const isTurnBased = (opts.turnBased !== false);
+    const shouldShowPanel = isTurnBased ? isMyTurn : true;
+
+    // 🚩 判定ロジックの修正
+        const shouldShowNotice = isTurnBased && actualIsMyTurn;
+if (shouldShowPanel) {
+        turnActions.classList.remove('hidden');
+        turnActions.classList.add('flex');
+        if (turnBadge && isTurnBased && isMyTurn) {
+             turnBadge.classList.remove('hidden');
+             turnBadge.classList.add('block');
+        }
+    
+    // 🚩 ボタンの「活性/非活性」を制御
+        [passBtn, exchangeStartBtn].forEach(btn => {
+            if (btn) {
+                if (phase === 'playing') {
+                    btn.disabled = false;
+                    btn.style.opacity = "1";
+                    btn.style.cursor = "pointer";
+                } else {
+                    btn.disabled = true;
+                    btn.style.opacity = "0.5"; // 半透明にして「押せない感」を出す
+                    btn.style.cursor = "not-allowed";
+                }
+            }
+        });
+
+// 2. 手札交換ボタンの制御
+    if (exchangeStartBtn) {
+        if (opts.exchange) {
+            exchangeStartBtn.classList.remove('hidden');
+        } else {
+            exchangeStartBtn.classList.add('hidden');
+        }
+    }
+        
+// 3. パスボタンの制御
+    if (passBtn) {
+        // ターン制であり、かつパス設定がONのときだけ出す
+        if (opts.pass && isTurnBased) {
+            passBtn.classList.remove('hidden');
+        } else {
+            passBtn.classList.add('hidden');
+        }
+    }
+        
+} else {
+        // 自分のターンでないとき
+        turnActions.classList.remove('block','flex');
+        turnActions.classList.add('hidden');
+
+    }
+    
+console.log(`🔍 最終判定(延期後): classes=${turnBadge ? turnBadge.className : 'no-element'}, isMyTurn=${isMyTurn}`);
+   
+}
+        // 「現在、評価ステップが必要な設定か」を判定するスマートな関数
+function isRatingRequired() {
+if (!window.activeOptions) return false; 
+
+    const star5 = window.activeOptions.star5;
+    const score100 = window.activeOptions.score100;
+    
+    return star5 || score100;
+}
+
+// 🔒 画面全体をロックする専用関数
+function setBoardLock(phase) {
+    const mainArea = document.getElementById('game-main-container') || document.body;
+    const handArea = document.getElementById('hand-area'); // 手札部分のID
+    const controls = document.querySelectorAll('.game-controls button'); // パス・交換など
+
+    // 🚩 修正：観戦者の場合は、フェーズに関わらず最強のロックをかける
+    if (window.isObserver) {
+        mainArea.style.pointerEvents = 'none';
+        // 観戦者でも設定パネルやリザルトは見れるように例外を設定
+        const obsExceptions = ['gameEndModal', 'settings-panel', 'reShowResultBtn', 'modalOverlay', 'ratingPanel'];
+        obsExceptions.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.pointerEvents = 'auto';
+        });
+        return; // 観戦者はここで処理終了
+    }
+    
+    if (phase === 'playing') {
+        // --- 通常プレイ中：すべて自由 ---
+        mainArea.style.pointerEvents = 'auto';
+        mainArea.style.filter = 'none';
+    } 
+    else if (phase === 'likeCheck') {
+        // --- いいね確認中：カード提出・パスのみ禁止 ---
+        // 手札や操作ボタンだけを個別にロックする
+        if (handArea) handArea.style.pointerEvents = 'none';
+        controls.forEach(btn => btn.style.pointerEvents = 'none');
+        
+        // 場（field）や設定ボタン、完了ボタンは触れるように残す
+        mainArea.style.pointerEvents = 'auto'; 
+    }
+    else if (phase === 'rating' || phase === 'result') {
+        // --- 評価中・結果表示：基本すべてロック ---
+        mainArea.style.pointerEvents = 'none';
+        
+        // モーダルや設定、開始ボタンのみ例外として許可
+        const exceptions = ['gameEndModal', 'settings-panel', 'startGameBtn', 'reShowResultBtn', 'finalRatingModal'];
+        exceptions.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.pointerEvents = 'auto';
+        });
+    }
+}
+    // room.js のどこか、または socket.on の外に定義しておく
+function syncSettingsPanelUI(state) {
+    if (!state) return;
+    
+    const bunArea = document.getElementById('textArea');
+    const uploadArea = document.getElementById('uploadArea');
+    const gazoUnit = document.getElementById('deck-upload-area'); // 🚩これも取得
+    const wordArea = document.getElementById('wordArea');
+    const chainArea = document.getElementById('chainArea');
+
+    // --- 🚩 1. 全初期化 ---
+    [uploadArea, gazoUnit, bunArea, wordArea, chainArea].forEach(el => {
+        if (el) el.style.display = 'none';
+    });
+
+    // --- 🚩 2. モード別表示 ---
+    if (state.mode === 'story' || state.mode === 'mochicotori') {
+        if (uploadArea) uploadArea.style.display = 'block';
+        if (gazoUnit) gazoUnit.style.display = 'block'; // 🚩明示的に出す
+        if (state.mode === 'story' && bunArea) {
+            bunArea.style.display = 'block';
+        }
+    } else if (state.mode === 'word') {
+        if (wordArea) wordArea.style.display = 'block';
+    } else if (state.mode === 'chain') {
+        if (chainArea) chainArea.style.display = 'block';
+    }
+
+    // --- 🚩 3. 強制上書きガード ---
+    // 他の関数（updateDeckUIなど）が変な動きをしても、ここで最後にとどめを刺す
+    if (state.mode === 'word' || state.mode === 'chain') {
+        if (uploadArea) uploadArea.style.display = 'none';
+        if (gazoUnit) gazoUnit.style.display = 'none';
+    }
+
+    // --- 🚩 4. フェーズ固有の処理 ---
+    if (state.phase === 'playing') {
+        const textInput = document.getElementById('textDeckInput');
+        if (textInput) textInput.value = ""; 
+    } else {
+        if (state.mode === 'story' && state.textDeck?.length > 0) {
+            selectStoryDeck('text');
+            const textInput = document.getElementById('textDeckInput');
+            if (textInput) textInput.value = state.textDeck.map(t => t.replace(/^text:/, '')).join('\n');
+        } else if (state.mode === 'story' || state.mode === 'mochicotori') {
+            selectStoryDeck('image');
+        }
+    }
+}
+    // 🚩 decoCheck用のUI抹殺関数
+function hideDecoCheckUI() {
+    const banner = document.getElementById('decoNoticeBanner');
+    const btn = document.getElementById('finishDecoCheckBtn');
+    if (banner) banner.style.display = 'none';
+    if (btn) btn.style.display = 'none';
+}
+    
+    // 🚩 いいね調整UI（バナーと終了ボタン）を完全に抹殺する関数
+function hideLikeCheckUI() {
+    const banner = document.getElementById('likeNoticeBanner');
+    const btn = document.getElementById('finishLikeCheckBtn');
+    if (banner) banner.style.display = 'none';
+    if (btn) btn.style.display = 'none';
+    console.log("🧹 いいね調整UIを非表示にしました");
+}
+    
+function addFinishLikeButton() {
+    if(document.getElementById('finishLikeCheckBtn')) return;
+    const finishBtn = document.createElement('button');
+    finishBtn.id = "finishLikeCheckBtn";
+    finishBtn.textContent = "いいね完了！";
+    finishBtn.style = "position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:9999; padding:15px 40px; background:#4CAF50; color:white; border:none; border-radius:30px; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px rgba(0,0,0,0.5);";
+finishBtn.onclick = () => {
+    socket.emit('finishLikeCheck'); // サーバーに完了を通知
+    finishBtn.disabled = true;
+    finishBtn.textContent = "他の人を待っています...";
+    finishBtn.style.background = "#888";
+};
+    document.body.appendChild(finishBtn);
+}
+
+// --- 🟢 修正：設定を収集する関数 ---
+function collectSettings() {
+    const opts = {};
+    
+    // 1. すべてのチェックボックスを取得
+    const checkboxes = document.querySelectorAll('#options input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        const key = cb.getAttribute('data-option');
+        if (key) {
+            opts[key] = cb.checked;
+        }
+    });
+
+    // 2. 🚩 ラジオボタン（終了条件：finishType）を取得
+    const finishTypeNode = document.querySelector('input[name="finishType"]:checked');
+    if (finishTypeNode) {
+        opts.finishType = finishTypeNode.value; // ここで 'instant' または 'allOut' が入る
+    }
+
+    // 3. ターン制がオフなら、パス機能を強制的に無効化して送る
+    if (!opts.turnBased) {
+        opts.pass = false;
+    }
+
+    // 4. モードを取得
+    const selectedMode = document.getElementById('modeSelect').value;
+    opts.mode = selectedMode;
+
+    return opts;
+}
+
+    // 数値を星の見た目に変換するヘルパー関数
+function createStarDisplay(avg) {
+    if (avg === null || avg === undefined) return "";
+    var score = parseFloat(avg);
+    var fullStars = Math.floor(score); // 小数点以下切り捨て
+    
+    // 星の文字列を生成
+    var starString = "";
+    for (var i = 0; i < fullStars; i++) { starString += "★"; }
+    for (var j = 0; j < (5 - fullStars); j++) { starString += "☆"; }
+
+    // HTML文字列を結合して返す
+    return '<div class="star-rating">' +
+                starString + ' ' + score.toFixed(1) +
+           '</div>';
+}
+    
+// 🟢 評価を送信
+function sendRating(stars) {
+    socket.emit('castRating', stars);
+    // ボタンだけを隠し、メッセージを変えて待機させる
+    document.getElementById('ratingButtons').style.display = 'none';
+    document.getElementById('ratingMsg').textContent = "送信しました。全員の完了を待っています...";
+}
+
+function showResultModal() {
+    const modal = document.getElementById('gameEndModal');
+    const reShowBtn = document.getElementById('reShowResultBtn');
+
+if (modal) {
+            modal.classList.remove('hidden'); 
+            modal.classList.add('flex');     
+    }
+if (reShowBtn) {
+            reShowBtn.classList.remove('block','flex'); 
+            reShowBtn.classList.add('hidden');     
+    }
+}
+
+function renderResultToUI(data, isManual = false) {
+    console.log("🚀 [Render] 開始: data=", data);
+    if (!data) return;
+
+    // 🚩 1. 設定の取得（しりとりがオンかどうか）
+    const isShiritori = !!window.activeOptions?.shiritori;
+    const winnersSectionIds = ['Winners', 'resWinners']; // 勝者に関するID
+
+    // 🚩 2. 表示・非表示の初期制御
+    ['resCardScroll', 'resStarArea', 'resLikesArea', 'resAvgArea'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('hidden');
+    });
+
+    // しりとりモードなら表示、そうでなければ隠す
+    winnersSectionIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            if (isShiritori) {
+                el.classList.remove('hidden');
+                el.style.display = ''; // デフォルトに戻す
+            } else {
+                el.classList.add('hidden');
+                el.style.display = 'none'; // 確実に消す
+            }
+        }
+    });
+
+    // 要素取得
+    const winnersTitleEl = document.getElementById('Winners');
+    const winnersEl = document.getElementById('resWinners');
+    const scrollArea = document.getElementById('resCardScroll');
+
+    // セクション切り替え
+    const scoreSection = document.getElementById('scoreInputSection');
+    const finalSection = document.getElementById('finalResultSection');
+    if (scoreSection) scoreSection.style.display = 'none';
+    if (finalSection) finalSection.style.display = 'block';
+
+    const modeNameEl = document.getElementById('resCurrentModeName');
+if (modeNameEl) {
+    const currentMode = window.activeOptions?.mode || 'word';
+    const modeMap = { 
+        'mochicotori': 'モチコトリモード',  
+        'story': 'ストーリーモード', 
+        'word': 'ワードモード',
+        'chain': 'チェーンモード' 
+    };
+    modeNameEl.innerText = modeMap[currentMode] || currentMode;        
+            }
+// 🚩 3. 勝者データの書き込み ＆ 全員の表示
+const allPlayersEl = document.getElementById('resAllPlayers'); // 追加
+
+if (winnersEl) {
+    // A. 勝者の表示（しりとりオンの場合のみ強調）
+    if (isShiritori) {
+        if (winnersTitleEl) winnersTitleEl.style.display = 'block';
+        winnersEl.style.display = 'block';
+        
+        let winnersList = data.winners || [];
+        if (winnersList.length === 0 && data.players) {
+            winnersList = data.players.filter(p => p.handCount === 0);
+        }
+        const names = winnersList.map(w => (typeof w === 'string' ? w : w.name));
+        const htmlContent = names.length > 0 ? names.join(' & ') : "なし";
+        winnersEl.innerHTML = `<span style="color:#FFD700 !important;">${htmlContent}</span>`;
+    } else {
+        // しりとり以外なら「勝者」という見出し自体を隠す
+        if (winnersTitleEl) winnersTitleEl.style.display = 'none';
+        winnersEl.style.display = 'none';
+    }
+
+// B. 🚩 参加者全員の書き出し（「参加者：」も含めて横並び）
+if (allPlayersEl && data.players) {
+    const labelHtml = `<span style="color: #aaa; font-size: 0.8em; margin-right: 5px;">参加者：</span>`;
+    
+    const playerSpans = data.players.map(p => {
+        return `<span style="color: ${p.color || '#888'}; font-weight: bold; font-size: 0.9em;">${p.name}</span>`;
+    }).join('<span style="color:#666; margin: 0 4px;">/</span>');
+
+    allPlayersEl.innerHTML = `
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px;">
+            ${labelHtml}
+            ${playerSpans}
+        </div>
+    `;
+}
+    
+}
+
+    // 🚩 4. カード一覧描画 
+if (scrollArea) {
+    // ここが重要！掃除ロジックで付けられた「非表示」を解除する
+    scrollArea.classList.remove('hidden'); 
+    scrollArea.style.display = 'flex'; // または 'block'
+
+    scrollArea.innerHTML = ""; 
+    if (data.field && data.field.length > 0) {
+        // 🚩 現在のモードを特定（window.activeOptions から取得）
+        const isAutoDeck = (window.activeOptions?.mode === 'word' || window.activeOptions?.mode === 'chain');
+        const sizeClass = isAutoDeck ? 'large-text' : '';
+
+        scrollArea.innerHTML = data.field.map(f => {
+            const isGhost = f.rejected === true;
+            const ghostStyle = isGhost ? 'opacity: 0.7; filter: grayscale(40%);' : 'opacity: 1;';
+            const imgSrc = (f.card && f.card.startsWith('/')) ? f.card : '/' + f.card;
+            const isText = typeof f.card === 'string' && f.card.startsWith('text:');
+            const content = isText ? f.card.replace('text:', '') : '';
+
+// 🚩 修正版：改行と中央揃えを両立させるスタイル
+const mediaHtml = isText 
+// mediaHtml の生成部分
+? `<div class="card text-card ${sizeClass} no-scrollbar" style="border-color: ${f.color};">
+    <div class="card-text-inner">${content}</div>
+   </div>`
+: `<img src="${imgSrc}" class="card image-card" style="border-color: ${f.color};">`;
+return `
+    <div class="card-wrapper" style="${ghostStyle}">
+        ${mediaHtml}
+        <div class="card-footer-text">${f.text || ''}</div>
+        <div class="card-stars">${f.starAverage ? createStarDisplay(f.starAverage) : ''}</div>
+    </div>`;
+        }).join('');
+    } else {
+        scrollArea.innerHTML = "<p style='color:#ccc;'>プレイデータがありません</p>";
+    }
+}
+
+    try { renderRankings(data); } catch (e) {}
+    
+const modal = document.getElementById('gameEndModal');
+    const reShowBtn = document.getElementById('reShowResultBtn');
+
+    if (modal) {
+        // 手動クリック(isManual)、または、まだ一度も閉じていない場合
+        const shouldShowModal = isManual || (window.hasClosedResult !== true);
+
+        if (shouldShowModal) {
+            // 🚩 1. モーダルを表示する（クラス除去 + スタイル適用）
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            // 🚩 2. ボタンは隠す
+            if (reShowBtn) reShowBtn.classList.remove('block','flex');
+            if (reShowBtn) reShowBtn.classList.add('hidden');
+            
+            console.log("✅ リザルトモーダルを表示しました");
+        } else {
+            // すでに閉じた後なら、モーダルを隠してボタンを出す
+            modal.classList.remove('block','flex');
+            modal.classList.add('hidden');
+            if (reShowBtn) reShowBtn.classList.remove('hidden');
+            if (reShowBtn) reShowBtn.classList.add('block');
+            
+            console.log("🚫 自動表示をスキップ（再表示ボタンを待機中）");
+        }
+    }
+} // 関数の終端
+      
+function renderRankings(data) {
+    const opts = data.options || window.activeOptions || {};
+    
+// ⭐ 星評価
+const starArea = document.getElementById('resStarArea');
+if (starArea) {
+    const opts = window.activeOptions || {};
+    starArea.style.display = opts.star5 ? 'block' : 'none';
+    
+    const list = document.getElementById('resStarList');
+    if (list && data.players && data.players.length > 0) {
+        // スコア順にソート
+        const sorted = [...data.players].sort((a, b) => (b.starAvg || 0) - (a.starAvg || 0));
+
+        // --- 🥇 1位の表示 ---
+        let html = `<div id="firstofStar">
+                        👑 1位 ${sorted[0].name} (⭐${(sorted[0].starAvg || 0).toFixed(1)})
+                    </div>`;
+
+        // --- 🥈 2位以下の表示 (横並び / スコアをカッコ囲み) ---
+        if (sorted.length > 1) {
+            html += `<div id="secondorLowerofStar">`;
+            
+            for (let i = 1; i < sorted.length; i++) {
+                const p = sorted[i];
+                html += `<span style="white-space: nowrap;">
+                            ${i + 1}位 ${p.name} (<span style="color: #ffeb3b;">⭐</span>${(p.starAvg || 0).toFixed(1)})
+                         </span>`;
+            }
+            html += `</div>`;
+        }
+
+        list.innerHTML = html;
+    }
+}
+
+    // ❤️ いいね (ここも同様に防御)
+    const likesArea = document.getElementById('resLikesArea');
+    if (likesArea) {
+        likesArea.style.display = opts.like ? 'block' : 'none';
+        const list = document.getElementById('resLikesList');
+        if (list && data.players && data.players.length > 0) {
+            const sorted = [...data.players].sort((a,b) => (b.likes||0)-(a.likes||0));
+            list.innerHTML = sorted.map((p,i) => `${p.name || '不明'}(${p.likes||0}件)`).join(' | ');
+        }
+    }
+
+    // 📊 100点満点
+    const avgArea = document.getElementById('resAvgArea');
+    if (avgArea) {
+        avgArea.style.display = opts.score100 ? 'block' : 'none';
+        const avgEl = document.getElementById('avgScoreDisplay');
+        const detailEl = document.getElementById('resScoreDetails');
+        if (avgEl) avgEl.innerHTML = `${(data.globalAvg || 0).toFixed(1)}<span>点</span>`;
+        if (detailEl && data.scoreDetails && Array.isArray(data.scoreDetails)) { // 🚩 配列チェック
+            detailEl.innerHTML = "内訳: " + data.scoreDetails.map(s => `${s.name || '?'}(${s.score || 0}点)`).join(' / ');
+        }
+    }
+}
+    
+function hideResultAndShowField() {
+    const modal = document.getElementById('gameEndModal');
+    const reShowBtn = document.getElementById('reShowResultBtn');
+
+    if (modal){
+      modal.classList.remove('block','flex');
+      modal.classList.add('hidden');
+        console.log("📦 Modal現状:", {
+            classList: Array.from(modal.classList),
+            computedStyleDisplay: window.getComputedStyle(modal).display,
+            inlineStyleDisplay: modal.style.display
+        });
+            console.log("リザルトモーダルを非アクティブにしました");
+    } 
+// 🚩 修正：データがある場合のみ「閉じた」フラグを立てる
+    if (window.lastResultData) {
+        window.hasClosedResult = true; 
+        window.hasAutoOpenedResult = true; 
+    }
+
+    if (isGameEnded || window.hasAutoOpenedResult) {
+        if (reShowBtn) {
+            reShowBtn.classList.remove('hidden');
+            reShowBtn.classList.add('block');
+            console.log("結果を見るボタンをアクティブにしました");
+        }
+    }
+}
+    
+function renderMyHand(handCards) {
+    if (handCards) {
+        myCurrentHand = handCards;
+    } else if (myCurrentHand) {
+        handCards = myCurrentHand;
+    } else {
+        return;
+    }
+    
+    const gallery = document.getElementById('gallery');
+    if (!gallery) return;
+
+    // 🚩 観戦者なら中身を空に
+    if (window.isObserver) {
+       gallery.innerHTML = '';
+        gallery.innerHTML = '<p style="color: #888; padding: 20px;">手札はありません(観戦席のため)</p>';
+        return;
+    }
+
+    gallery.innerHTML = '';
+    // --- ここで最新の activeOptions を参照してサイズを決定 ---
+    var isAutoDeck = (window.activeOptions && (window.activeOptions.mode === 'word' || window.activeOptions.mode === 'chain'));
+    var sizeClass = isAutoDeck ? 'large-text' : '';
+
+    handCards.forEach(function(cardData) {
+        var el;
+        var isText = typeof cardData === 'string' && cardData.indexOf('text:') === 0;
+
+        if (isText) {
+            var content = cardData.replace('text:', '');
+            el = document.createElement('div');
+            el.className = 'card hand-card text-card ' + sizeClass;
+            el.innerHTML = '<div class="card-text-inner">' + content + '</div>';
+        } else {
+            el = document.createElement('img');
+            var srcPath = (cardData.indexOf('http') === 0) ? cardData : '/' + cardData;
+            el.src = srcPath;
+            el.className = 'card hand-card image-card';
+        }
+
+        el.dataset.path = cardData;
+
+        // --- クリックイベント（カード提出ロジック） ---
+el.onclick = function() {
+    if (window.isObserver) return;
+    if (isGameEnded) return;
+
+    // 🚩 修正：DOMの display 状態を見るのをやめる
+    // 1. 自分のターンかどうか（ターン制の場合）
+    if (window.activeOptions.turnBased && !window.isMyTurnNow) {
+        return alert('今はあなたのターンではありません');
+    }
+
+    // 2. 投票中、または評価中かどうか（論理フラグで判定）
+    // window.isVoting は投票開始時に true, voteFinished で false になる
+    // window.isRating も同様に管理すべき
+    if (window.isVoting || window.isRating) {
+        // どちらが原因か一目でわかるように詳細をコンソールに出す
+    console.warn(`🚫 提出ブロック中: ${window.isVoting ? '投票中(isVoting)' : ''} ${window.isRating ? '評価中(isRating)' : ''}`);
+        return alert('投票・評価が終わるまで待ってね');
+    }
+            
+            if (typeof isExchangeMode !== 'undefined' && isExchangeMode) {
+                if (selectedCards.has(cardData)) {
+                    selectedCards.delete(cardData);
+                    el.classList.remove('selected');
+                } else {
+                    selectedCards.add(cardData);
+                    el.classList.add('selected');
+                }
+                return;
+            }
+
+            var cardPath = el.dataset.path;
+            if (activeOptions.shiritori) {
+                var textInput = document.getElementById('mochicotoriText');
+                var inputArea = document.getElementById('mochicotoriTextArea');
+                if (inputArea && inputArea.style.display === 'none') {
+                    inputArea.style.display = 'block';
+                    window.selectedCardPath = cardPath; 
+                    return; 
+                }
+                if (!textInput.value.trim()) return alert('しりとりを入力してください');
+                socket.emit('playCard', { card: cardPath, text: textInput.value.trim() });
+                textInput.value = '';
+            } else {
+                console.log("🚀 送信:", cardPath);
+                socket.emit('playCard', { card: cardPath, text: "" });
+            }
+        };
+        gallery.appendChild(el);
+    });
+}
+
+function submitGameScore() {
+    const select = document.getElementById('gameScoreSelect');
+    if (!select) return;
+    const score = select.value;
+    socket.emit('castGameScore', score);
+    
+    document.getElementById('inputFormArea').style.display = 'none';
+    document.getElementById('sentMessage').style.display = 'block';
+}
+    // フェーズ開始時の共通掃除関数
+function clearPreviousPhaseUI() {
+    const ids = ['likeNoticeBanner', 'finishLikeCheckBtn', 'likeNoticeOverlay'];
+    ids.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.remove();
+    });
+}
+    
+function shareToX() {
+    // 🚩 観戦者はシェアできないようにガード
+    if (window.isObserver) return;
+    
+    const modeDisplayEl = document.getElementById('modeDisplay');
+    const modeName = modeDisplayEl ? modeDisplayEl.textContent : "モチコトリ";
+    
+    // 100点評価がオン かつ 数字が存在する場合のみ点数を入れる
+    const isScoreOn = (activeOptions && activeOptions.score100);
+    let scoreText = "";
+    
+    if (isScoreOn) {
+        const scoreVal = document.getElementById('avgScoreDisplay').textContent;
+        scoreText = `今回のゲーム満足度は ${scoreVal} でした！\n`;
+    }
+
+    const roomUrl = window.location.origin; // 部屋作成ページURL
+    const message = `MOCHICOTORI(モチコトリ) - 持込画像しりとり/${modeName}モードで遊びました！\n${scoreText}#モチコトリ #ボードゲーム\n自前の画像を持ち込んで友達と遊ぼう: ${roomUrl}`;
+    
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`, '_blank');
+}
+    
+async function captureResult() {
+    const target = document.getElementById('finalResultSection');
+    if (!target) return;
+
+    // 🚩 window.activeOptions からしりとり設定を取得しておく
+    const isShiritori = !!window.activeOptions?.shiritori;
+    const currentMode = window.activeOptions?.mode || 'word';
+
+    try {
+        const canvas = await html2canvas(target, {
+            backgroundColor: "#222",
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            onclone: (clonedDoc) => {
+                const cTarget = clonedDoc.getElementById('finalResultSection');
+                const cButtons = clonedDoc.getElementById('resultButtonsArea');
+                const cScroll = clonedDoc.getElementById('resCardScroll');
+                const cWinnersName = clonedDoc.getElementById('resWinners'); // 元のコードの cWinners
+                const cWinnersTitle = clonedDoc.getElementById('Winners');    // 🏆見出し
+                const cModeName = clonedDoc.getElementById('resCurrentModeName');
+
+                // 🚩 1. モード名表示
+                if (cModeName) {
+                    const modeMap = { 
+                        'mochicotori': 'モチコトリモード',  
+                        'story': 'ストーリーモード', 
+                        'word': 'ワードモード',
+                        'chain': 'チェーンモード' 
+                    };
+                    cModeName.innerText = modeMap[currentMode] || currentMode;
+                }
+
+                // 🚩 2. 不要なボタン類を消す
+                if (cButtons) cButtons.style.display = 'none';
+                if (cScroll && cScroll.nextElementSibling && cScroll.nextElementSibling.tagName === 'P') {
+                    cScroll.nextElementSibling.style.display = 'none';
+                }
+
+                // 🚩 3. 勝者エリアの表示制御
+                if (!isShiritori) {
+                    // しりとりオフなら見出しも名前も消す
+                    if (cWinnersTitle) cWinnersTitle.style.display = 'none';
+                    if (cWinnersName) cWinnersName.style.display = 'none';
+                } else {
+                    // しりとりオンならフォントを整える
+                    if (cWinnersName) {
+                        cWinnersName.style.fontFamily = "'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', sans-serif";
+                        cWinnersName.style.fontWeight = "900";
+                        cWinnersName.style.color = "#FFD700";
+                        cWinnersName.style.textShadow = "none";
+                    }
+                }
+
+                // 🚩 4. 全体の高さ制限解除
+                if (cTarget) {
+                    cTarget.style.maxHeight = 'none';
+                    cTarget.style.height = 'auto';
+                    cTarget.style.overflow = 'visible';
+                    cTarget.style.width = '800px';
+                    
+                    const style = clonedDoc.createElement('style');
+                    style.innerText = `#finalResultSection::-webkit-scrollbar { display: none !important; }`;
+                    clonedDoc.head.appendChild(style);
+                }
+
+                // 🚩 5. カード折り返し設定
+                if (cScroll) {
+                    cScroll.style.flexWrap = 'wrap';
+                    cScroll.style.whiteSpace = 'normal';
+                    cScroll.style.height = 'auto';
+                    cScroll.style.overflow = 'visible';
+                    cScroll.style.justifyContent = 'flex-start';
+                }
+                
+                const cAllPlayers = clonedDoc.getElementById('resAllPlayers');
+if (cAllPlayers) {
+    cAllPlayers.style.display = 'block'; // flexだと崩れる場合があるため、コンテナとして確実に表示
+    cAllPlayers.style.marginTop = '15px';
+    cAllPlayers.style.textAlign = 'center';
+}
+            }
+        });
+
+        const link = document.createElement('a');
+        link.download = `MOCHICOTORI_${currentMode}.png`;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+
+    } catch (err) {
+        console.error("Capture Error:", err);
+    }
+}
+
+function initScoreSelect() {
+    const scoreSelect = document.getElementById('gameScoreSelect');
+    if (scoreSelect) {
+        scoreSelect.innerHTML = ''; // 掃除
+        for (let i = 100; i >= 0; i--) { // 1点刻み
+            const opt = document.createElement('option');
+            opt.value = i;
+            opt.textContent = i + "点";
+            if (i === 80) opt.selected = true;
+            scoreSelect.appendChild(opt);
+        }
+        console.log("📏 1点刻みプルダウンを生成しました");
+    }
+}
+
+function updateModeDisplay(mode) {
+  document.getElementById('modeDisplay').textContent =
+    MODE_RULES[mode]?.label ?? '-';
+}  
+  
+function lockAllInputs(isLocked) {
+  console.log("UIロック状態変更:", isLocked);
+
+  // 🚩 1. ロック対象のIDリスト（あなたのコードの実際のIDに合わせました）
+  const ids = [
+    'exchange-start-btn',   // 手札交換開始
+    'pass-btn',             // パス
+    'mochicotoriText',       // しりとり入力欄
+    'mochicotoriTextArea',       // しりとり入力欄の親要素
+    'exchange-confirm-btn', // 交換確定
+    'exchange-cancel-btn'   // キャンセル
+  ];
+
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.disabled = isLocked; // 物理ロック
+      el.style.opacity = isLocked ? "0.4" : "1";
+      el.style.pointerEvents = isLocked ? "none" : "auto";
+    }
+  });
+
+  // 🚩 2. 手札エリア（gallery）の見た目
+  const gallery = document.getElementById('gallery');
+  if (gallery) {
+    gallery.style.pointerEvents = isLocked ? "none" : "auto";
+    gallery.style.opacity = isLocked ? "0.6" : "1"; // 👈 ここで0.6を適用
+  }
+
+  // 🚩 3. 場のカード（フィールド）の見た目
+  // ゲーム終了時は「いいね」も「削除」もできないように、場全体を触れなくする
+  const field = document.getElementById('field');
+  if (field) {
+    field.style.pointerEvents = isLocked ? "none" : "auto";
+    // 場は「眺める」ものなので、透明度は下げすぎず「0.9」程度でロックを表現
+    field.style.filter = isLocked ? "grayscale(50%)" : "none";
+  }
+}
+
+    // 🟢 カード全体を描画する独立した関数を追加
+function renderAllCards(fieldCards) {
+const container = document.getElementById('field'); // あなたのコードのIDに合わせてください
+    if (!container) {
+        console.warn("⚠️ 描画先の要素(#field)が見つかりません。リザルト画面表示中などは無視してOKです。");
+        return;
+    }
+    container.innerHTML = '';
+
+  // 🚩 1. グローバルから現在の状態を取得
+const currentPhase = window.currentPhase || ''; 
+  const currentActiveOptions = window.activeOptions || {};
+  const isObserver = window.isObserver || false;
+
+  // 🎨 名簿から色対応表を作成
+  const playerColorMap = {};
+  if (window.lastKnownPlayers) {
+    window.lastKnownPlayers.forEach(p => {
+      playerColorMap[p.id] = p.color;
+    });
+  }
+
+  fieldCards.forEach((data, index) => {
+    const { name, card, color, text, rejected, likes } = data;
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'card-wrapper';
+    
+    // 🚩 2. いいね調整中なら「クリックできる」見た目にする
+    if (currentPhase === 'likeCheck' && !isObserver) {
+        wrapper.style.cursor = 'pointer';
+        wrapper.title = "クリックして「いいね」を切り替え";
+    }
+
+    const visualBox = document.createElement('div');
+    if (rejected) visualBox.style.opacity = '0.4';
+
+    const isTextCard = typeof card === 'string' && card.startsWith('text:');
+
+    if (isTextCard) {
+const content = card.replace('text:', '');
+  const textCardEl = document.createElement('div');
+  
+  // 🚩 修正：モード判定でクラス付与
+  const isAutoDeck = (currentActiveOptions.mode === 'word' || currentActiveOptions.mode === 'chain');
+  const sizeClass = isAutoDeck ? 'large-text' : '';
+  
+  textCardEl.className = `card text-card ${sizeClass}`;
+  textCardEl.style.width = '130px';
+  textCardEl.style.height = '130px';
+      textCardEl.style.border = `3px solid ${color}`;
+      textCardEl.style.backgroundColor = '#fff';
+      textCardEl.style.display = 'flex';
+      textCardEl.style.alignItems = 'center';
+      textCardEl.style.justifyContent = 'center';
+      textCardEl.style.fontWeight = 'bold';
+textCardEl.innerHTML = `<div class="card-text-inner">${content}</div>`;
+  visualBox.appendChild(textCardEl);
+    } else {
+      const imgEl = document.createElement('img');
+      imgEl.src = card.startsWith('http') ? card : '/' + card;
+      imgEl.className = 'card';
+      imgEl.style.width = '100%';
+      imgEl.style.height = 'auto';
+      imgEl.style.border = `3px solid ${color}`;
+      visualBox.appendChild(imgEl);
+    }
+
+    if (text) {
+      const p = document.createElement('p');
+      p.textContent = text;
+      p.style.fontSize = '12px';
+      p.style.margin = '5px 0';
+      visualBox.appendChild(p);
+    }
+    
+    wrapper.appendChild(visualBox);
+
+      // 🚩 修正：観戦者でない場合のみ、ホバー時のカーソルを pointer にする
+    if (currentPhase === 'likeCheck' && !isObserver) {
+        wrapper.style.cursor = 'pointer';
+        wrapper.title = "クリックして「いいね」を切り替え";
+    }
+      
+    const likeContainer = document.createElement('div');
+    likeContainer.className = 'like-container';
+
+    if (likes && likes.length > 0) {
+      likes.forEach(playerId => {
+        const heart = document.createElement('span');
+        heart.className = 'like-badge';
+        heart.textContent = '♥';
+        heart.style.color = playerColorMap[playerId] || color || '#888';
+        likeContainer.appendChild(heart);
+      });
+    }
+    wrapper.appendChild(likeContainer);
+
+    if (data.voteResults && data.voteResults.length > 0) {
+      const voteResultDiv = document.createElement('div');
+      voteResultDiv.style.marginTop = "5px";
+      voteResultDiv.style.fontSize = "18px";
+      data.voteResults.forEach(res => {
+        const span = document.createElement('span');
+        span.textContent = res.choice === 'ok' ? '○' : '×';
+        span.style.color = res.color;
+        span.style.margin = "0 2px";
+        span.style.fontWeight = "bold";
+        voteResultDiv.appendChild(span);
+      });
+      visualBox.appendChild(voteResultDiv);
+    }
+
+    if (data.starAverage !== undefined && data.starAverage !== null) {
+      try {
+        const starDiv = document.createElement('div');
+        if (typeof createStarDisplay === 'function') {
+          const html = createStarDisplay(data.starAverage);
+          if (html) starDiv.innerHTML = html;
+        } else {
+          starDiv.textContent = '⭐' + data.starAverage;
+        }
+        visualBox.appendChild(starDiv);
+      } catch (e) {
+        console.warn("カードの星表示でエラーが発生しました:", e);
+      }
+    }
+      
+// 🚩 クリックイベント：観戦者は即時遮断
+    wrapper.onclick = (e) => {
+        if (window.isObserver) return; // 🚩 最強のガード
+
+    // 🚩 修正：プレイ中、または「文字調整フェーズ」なら装飾を許可
+    const canDecorate = (currentPhase === 'playing' || currentPhase === 'decoCheck');
+
+    if (isTextCard && canDecorate) {
+        if (window.activeOptions?.mode === 'word' || window.activeOptions?.textDecoration) {
+            socket.emit('toggleTextDecoration', { cardIndex: index });
+            console.log(`🔠 カード ${index} の装飾をリクエスト（Phase: ${currentPhase}）`);
+            return; 
+        }
+    }
+
+    // いいねの処理 (likeCheckフェーズでも動くように)
+    const canLike = (currentPhase === 'playing' || currentPhase === 'likeCheck');
+    if (canLike && currentActiveOptions.like) {
+        socket.emit('toggleLike', { cardIndex: index });
+    }
+};
+
+// 🚩 field ではなく container を使う
+    container.appendChild(wrapper); 
+  });
+
+  // 🚩 修正：ここも container に統一
+  if (currentPhase === 'likeCheck') {
+    container.style.pointerEvents = window.isObserver ? 'none' : 'auto'; 
+    container.style.filter = 'none';
+    container.style.opacity = '1';
+  }
+}
+    
+  // 🎨 メッセージ描画用関数（ここが色分けの肝）
+function renderSingleMessage(msg, ul) {
+    if (!msg || !ul) return;
+    const li = document.createElement('li');
+    const data = (typeof msg === "object") ? msg : { text: msg };
+
+    if (data.text && data.text.startsWith('📢')) {
+      // 📢 システム通知
+      li.textContent = data.text;
+    } else if (data.color && data.text) {
+      // 色付け処理
+      if (data.text.includes(': ')) {
+        const parts = data.text.split(': ');
+        const name = parts.shift();
+        li.innerHTML = `<span style="color:${data.color}; font-weight:bold;">${name}</span>: ${parts.join(': ')}`;
+      } else if (data.text.includes(' さん')) {
+        const parts = data.text.split(' さん');
+        const name = parts.shift();
+        li.innerHTML = `<span style="color:${data.color}; font-weight:bold;">${name}</span> さん${parts.join(' さん')}`;
+      } else {
+        li.textContent = data.text;
+      }
+    } else {
+      li.textContent = data.text || data;
+    }
+
+    ul.prepend(li); // 新しい順なので上に追加
+  }
+
+function refreshRoleUI(currentIsObserver) {
+    // 引数があればそれを使う、なければグローバルを見る
+    const isObs = (currentIsObserver !== undefined) ? currentIsObserver : (window.isObserver || false);
+    
+    const btnToPlayer = document.getElementById('btnBecomePlayer');
+    const btnToObserver = document.getElementById('btnBecomeObserver');
+    
+    if (!btnToPlayer || !btnToObserver) return;
+
+    if (isObs) {
+        // --- 自分が「観戦者」のとき ---
+        // 観戦席ボタン：半透明・クリック不可
+        btnToObserver.style.opacity = "0.5";
+        btnToObserver.style.pointerEvents = "none";
+        btnToObserver.style.cursor = "default";
+
+        // 参加者ボタン：くっきり・クリック可
+        btnToPlayer.style.opacity = "1";
+        btnToPlayer.style.pointerEvents = "auto";
+        btnToPlayer.style.cursor = "pointer";
+    } else {
+        // --- 自分が「参加者」のとき ---
+        // 観戦席ボタン：くっきり・クリック可
+        btnToObserver.style.opacity = "1";
+        btnToObserver.style.pointerEvents = "auto";
+        btnToObserver.style.cursor = "pointer";
+
+        // 参加者ボタン：半透明・クリック不可
+        btnToPlayer.style.opacity = "0.5";
+        btnToPlayer.style.pointerEvents = "none";
+        btnToPlayer.style.cursor = "default";
+    }
+}
+
+/**
+ * 🚩 プレイヤー・観戦者リスト更新（唯一の共通関数）
+ * 役割：HTML上の ID: playerList と observerList を最新の players 状態で描き直す
+ */
+function refreshPlayerListUI(players) {
+// 🚩 修正：リザルト画面が表示されているなら、プレイヤーリストの更新を完全に停止する
+    // これにより、DOMの再生成（リセット）と下線の引き直しを阻止します。
+//    if (window.currentPhase === 'ended' || window.isResultFinished) {
+//        return; 
+//    }
+    
+// 🚩 確実に最新の起家IDを取得
+    const firstId = String(window.currentFirstPlayerId || "").trim();
+    // 🚩 HTML要素の生成
+    const serialized = JSON.stringify(players) + firstId; // 起家が変わった時も再描画対象にする  
+    const handTitle = document.getElementById('hand-title');
+    const isTurnBased = !!(window.activeOptions && (window.activeOptions.turnBased || window.activeOptions.opts_turnBased));
+    
+  if (!players || !Array.isArray(players) || players.length === 0) return;
+
+    console.log("🔍 下線引き直前チェック:", {
+    targetId: window.currentTurnPlayerId,
+    isTurnBased: isTurnBased,
+    foundElements: document.querySelectorAll('#playerList li').length
+});
+    
+    // リストの構造（人数や名前）が変わった時だけ innerHTML を書き換える
+    if (window.lastRenderedState !== serialized) {
+        const pUl = document.getElementById('playerList');
+        const oUl = document.getElementById('observerList');
+        if (!pUl || !oUl) return;
+
+        pUl.innerHTML = '';
+        oUl.innerHTML = '';
+        console.log("🎨 HTML要素を再生成しました");  
+        
+players.forEach((p) => {
+                const li = document.createElement('li');
+                li.dataset.id = String(p.id); // 🚩 比較ミス防止のため文字列に固定
+    
+    // 🚩 比較ログを出して犯人を特定
+    const ThisIsFirst = (String(p.id) === String(window.currentFirstPlayerId));
+    if (ThisIsFirst) console.log("✨ 👑描画対象を発見:", p.name);
+    
+                const isFirst = (String(p.id).trim() === firstId && firstId !== "");
+                const isObs = !!p.isObserver;
+                const dName = p.name || "Unknown";
+                const dColor = p.color || "#333";
+                const cCount = (p.cards !== undefined && p.cards !== null) ? p.cards : (p.hand ? p.hand.length : 0);
+    
+    // 🚩 ここで厳密に比較
+    
+                if (isObs) {
+                    li.innerHTML = `<div class="player-info observer-info" style="color: #888; padding: 5px;">${dName}</div>`;
+                    oUl.appendChild(li);
+} else {
+     // 🚩 さらにターン制なら起家バッジを表示する。
+    const badgeVisibility = isTurnBased ? 'inline-flex' : 'hidden';
+
+    li.innerHTML = `
+        <div class="player-info flex">
+            <span class="player-name" style="color: ${dColor};">
+                ${isFirst ? `<span class="chi-chaBadge ${badgeVisibility}" title="起家">東</span>` : ''}
+                ${dName}
+            </span>
+            <span class="card-count"> (${cCount}枚)</span>
+        </div>
+    `;
+    pUl.appendChild(li);
+}
+            });
+            window.lastRenderedState = serialized;
+        }
+
+
+    
+//    ターンプレイヤーのマークアップ
+    const allLis = document.querySelectorAll('#playerList li');
+    const targetId = String(window.currentTurnPlayerId || "").trim();
+
+// 🚩 ターン通知
+const turnBadge = document.getElementById('turnBadge');
+const turnActions = document.getElementById('turn-actions'); // パネルも一緒に制御
+
+if (turnBadge) {
+    // roomState側で確定させている window.isMyTurnNow と window.isObserver を直接参照する
+    // window.currentPhase が playing であることも条件に加えるとより安全です
+    const isPlaying = (window.currentPhase === 'playing');
+    const shouldShow = (isPlaying && isTurnBased && window.isMyTurnNow && !window.isObserver);
+
+    if (shouldShow) {
+        console.log("📢 refreshPlayerListUI: 自分のターンのためバナーを表示状態に固定します");
+        turnBadge.classList.remove('hidden');
+        turnBadge.classList.add('block');
+        // 他の要因で消されないよう style も添える
+        turnBadge.style.display = 'block';
+    } else {
+        turnBadge.classList.remove('block', 'flex');        
+        turnBadge.classList.add('hidden');
+        turnBadge.style.display = 'none';
+    }
+}
+
+    // 🚩 5. [下線引き]
+    console.log("🔍 下線引き実行:", {
+        targetId: window.currentTurnPlayerId,
+        isTurnBased: isTurnBased,
+        foundElements: allLis.length
+    });
+
+allLis.forEach((li) => {
+    li.classList.remove('active-turn-border');
+    
+    // 🚩 修正：ターゲットIDが存在し、かつ li のデータIDと完全に一致するかチェック
+    const liId = String(li.dataset.id || "").trim();
+
+    if (isTurnBased && targetId && liId === targetId) {
+        console.log("✨ 下線を同期成功:", liId);
+        li.classList.add('active-turn-border');
+    }
+});
+}
+ // 🚩 ログイン画面で「観戦者として入室」ボタンを押した時
+function joinAsObserver() {
+    const nameInput = document.getElementById('nameInput');
+    const name = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : "観戦者";
+    
+    // 1. サーバーへ「最初から観戦者として入りたい」と通知
+    // (まだ入室前なら joinRoom で observer フラグを送るか、入室直後に switchRole を送る)
+    socket.emit('switchRole', { targetRole: 'observer', name: name });
+    
+    // 2. ★重要★ 色を待たずに画面を切り替える
+    switchToRoomUI(name, "#888888");
+}
+
+// 🚩 共通の画面切り替え関数を作っておくと便利です
+function switchToRoomUI(name, color) {
+    const loginDiv = document.getElementById('login');
+    const roomDiv = document.getElementById('room');
+    if (!loginDiv || !roomDiv) return;
+
+    loginDiv.style.display = 'none';
+    roomDiv.style.display = 'block';
+
+    const nameSpan = document.getElementById('myHandName');
+    if (nameSpan) {
+        nameSpan.innerText = name;
+        nameSpan.style.color = color;
+    }
+    console.log(`✅ 画面を切り替えました (Role: ${color === "#888888" ? 'Observer' : 'Player'})`);
+}
+    
+if (sendBtn && msgInput) {
+    // 2. 送信ボタンをクリックした時の処理
+    sendBtn.addEventListener('click', () => {
+        const text = msgInput.value.trim();
+        if (text) {
+            // サーバーへメッセージを飛ばす
+            socket.emit('message', { text: text });
+            msgInput.value = ''; // 入力欄を空にする
+        }
+    });
+
+    // 3. Enterキーを押した時も送信ボタンをクリックしたことにする
+    msgInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendBtn.click();
+        }
+    });
+}
+    
+      // クリックイベントの登録
+document.querySelector('.gazoUp').addEventListener('click', () => selectStoryDeck('image'));
+document.querySelector('.bunWrite').addEventListener('click', () => selectStoryDeck('text'));    
+    
+// 🟢 ターン情報の更新受信
+socket.on('turnUpdate', ({ turnIndex, currentPlayerId, currentPlayerName }) => {
+// 🚩 1. グローバル変数の更新（これが最優先）
+    window.currentTurnIndex = turnIndex;
+    window.currentTurnPlayerId = currentPlayerId;
+    window.isMyTurnNow = (currentPlayerId === socket.id && !window.isObserver);
+
+    // 🚩 2. プレイヤーリストの下線などを更新
+    if (window.lastPlayersData) { 
+        refreshPlayerListUI(window.lastPlayersData);
+    }
+
+    // 🚩 3. ターン情報のテキスト更新
+    const turnInfoEl = document.getElementById('turnInfo'); 
+    if (turnInfoEl) {
+        if (turnIndex !== -1 && currentPlayerId) {
+            turnInfoEl.style.display = 'block';
+            turnInfoEl.innerText = window.isObserver ? 
+                `${currentPlayerName} さんのターンを観戦中` : 
+                `${currentPlayerName} さんのターンです`;
+        } else {
+            turnInfoEl.style.display = 'none';
+        }
+    }
+
+    // 🚩 4. 【重要】ボタンの表示・非表示判定を専門関数に丸投げする
+    // ここで直接 turnActions.classList.add('flex') とか書かない！
+    refreshActionButtons();
+});
+
+// 🟢 手札交換モードの切り替え
+document.getElementById('exchange-start-btn').addEventListener('click', () => {
+    isExchangeMode = true;
+    selectedCards.clear();
+    document.getElementById('exchange-start-btn').classList.add('hidden');
+    document.getElementById('pass-btn').classList.add('hidden'); // 開始時は問答無用で隠してOK
+    document.getElementById('exchange-controls').classList.remove('hidden');
+    document.getElementById('exchange-controls').classList.add('flex');
+});
+
+// 🟢 キャンセル
+document.getElementById('exchange-cancel-btn').addEventListener('click', () => {
+    const opts = window.activeOptions || {};
+    isExchangeMode = false;
+    selectedCards.clear();
+    document.querySelectorAll('.hand-card').forEach(el => el.classList.remove('selected'));
+    
+    document.getElementById('exchange-controls').classList.remove('block','flex');
+    document.getElementById('exchange-controls').classList.add('hidden');
+    document.getElementById('exchange-start-btn').classList.remove('hidden');
+
+    // 🚩 修正：パス設定がONかつターン制の時だけパスボタンを再表示する
+    const shouldShowPass = opts.pass && opts.turnBased;
+    if (shouldShowPass) {
+        document.getElementById('pass-btn').classList.remove('hidden');
+    } else {
+        document.getElementById('pass-btn').classList.add('hidden');
+    }
+});
+
+// 🟢 実行
+document.getElementById('exchange-confirm-btn').addEventListener('click', () => {
+    const opts = window.activeOptions || {};
+    if (selectedCards.size === 0) return alert("交換するカードを選んでください");
+    
+    socket.emit('exchangeCards', Array.from(selectedCards));
+    
+    isExchangeMode = false;
+    selectedCards.clear();
+    document.getElementById('exchange-controls').classList.remove('block','flex');
+    document.getElementById('exchange-controls').classList.add('hidden');
+    document.getElementById('exchange-start-btn').classList.remove('hidden');
+
+if (opts.pass) {
+        document.getElementById('pass-btn').classList.remove('hidden');
+    }
+});
+//});
+
+socket.emit('watchRoom', roomId);
+  
+// 🚀 入室ボタン
+document.getElementById('enterBtn').onclick = () => {
+    const name = document.getElementById('nameInput').value.trim();
+    if (!name) return alert('名前を入力してね');
+
+    // ラジオボタンの値を取得 (player or observer)
+    const role = document.querySelector('input[name="joinRole"]:checked').value;
+
+    // 1. サーバーへ入室情報を送信
+    socket.emit('joinRoom', { name, roomId, requestedRole: role });
+
+    // 🚩 2. 観戦者の場合のみ、ここで自力で画面を切り替える
+    if (role === 'observer') {
+        // 画面をログインからルームへ
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('room').style.display = 'block';
+        document.getElementById('roomId').textContent = roomId;
+
+        // 名前と色のセット（観戦者はグレー固定）
+        const nameSpan = document.getElementById('myHandName');
+        if (nameSpan) {
+            nameSpan.innerText = name + " (観戦)";
+            nameSpan.style.color = "#888888";
+            nameSpan.style.fontWeight = "bold";
+        }
+        
+        // 観戦フラグを立てておく
+        window.isObserver = true;
+        console.log("📣 観戦者としてUIを切り替えました");
+    }
+};
+
+// 🚩 満員や判定中で参加できなかった時の誘導
+socket.on('joinErrorNeedObserver', ({ reason }) => {
+    if (confirm(`${reason}現在は参加できません。観戦席に入りますか？`)) {
+        const nameInput = document.getElementById('nameInput');
+        const name = nameInput ? nameInput.value.trim() : "Unknown";
+        
+        // 🚩 roomIdの取得（HTML要素 strong id="roomId" から文字列を抽出）
+        const roomIdEl = document.getElementById('roomId');
+        const rId = roomIdEl ? roomIdEl.innerText.trim() : "";
+
+        // サーバーへ送信
+        socket.emit('joinRoom', { 
+            name: name, 
+            roomId: rId, 
+            requestedRole: 'observer' 
+        });
+
+        // 🚩 修正：HTMLの実際のID名（login / room）を指定する
+        const loginSection = document.getElementById('login');
+        const roomSection = document.getElementById('room');
+
+        if (loginSection) loginSection.style.display = 'none';
+        if (roomSection) roomSection.style.display = 'block';
+    }
+});
+    
+// 🚩 参加者/観戦者リストの見出しクリックでの切り替え
+document.getElementById('btnBecomePlayer').onclick = () => {
+    if (confirm("参加者になりますか？")) {
+        socket.emit('switchRole', { targetRole: 'player' });
+    }
+};
+
+document.getElementById('btnBecomeObserver').onclick = () => {
+    if (confirm("観戦席に移りますか？")) {
+        socket.emit('switchRole', { targetRole: 'observer' });
+    }
+};
+
+socket.on('updatePlayers', (players) => {
+    if (!players) return;
+    
+    // 🚩 refreshPlayerListUIが参照する変数名をこれに統一
+    window.lastKnownPlayers = players; 
+
+    // refreshPlayerListUI を呼ぶ
+    // 内部で window.lastKnownPlayers と serialized (起家ID込) を比較して再描画してくれます
+    refreshPlayerListUI(players);
+
+    console.log("👥 プレイヤーリストを更新しました", players.length + "名");
+});
+
+// 🚩 追加：サーバーから入室が許可（色が割り当てられた）されたら画面を切り替える
+socket.on('assignColor', (color) => {
+    const name = document.getElementById('nameInput').value.trim() || "プレイヤー";
+    myAssignedColor = color;
+    switchToRoomUI(name, color); // 上で作った共通関数を呼ぶ
+});
+    
+socket.on('errorMessage', (msg) => {
+    const now = Date.now();
+    
+    // 🚩 判定: 同じメッセージが短時間に届いたら、2通目は完全に無視する
+    if (msg === lastAlertMessage && (now - lastAlertTime) < 2000) {
+        console.log("🚫 重複メッセージをブロックしました:", msg);
+        return; 
+    }
+
+    // 情報を記録
+    lastAlertMessage = msg;
+    lastAlertTime = now;
+
+    // 表示（❌を付けて1回だけ出す）
+    alert('❌ ' + msg);
+});
+
+// 🕓 チャット履歴受信
+socket.on('chatHistory', (history) => {
+    const ul = document.getElementById('messages');
+    ul.innerHTML = '';
+    history.forEach(msg => {
+      renderSingleMessage(msg, ul);
+    });
+  });
+
+  // 💬 メッセージ受信（新しい順：上に prepend）
+socket.removeAllListeners('message');
+  socket.on('message', msg => {
+    const ul = document.getElementById('messages');
+    renderSingleMessage(msg, ul);
+  });
+
+    // 🚩 新設：入室に失敗した時だけ画面を戻す
+socket.on('joinError', (msg) => {
+    alert('❌ 入室できませんでした\n' + msg);
+    
+    // 入室画面を表示し、ゲーム画面を隠す
+//    document.getElementById('login-screen').style.display = 'block';
+//    document.getElementById('game-screen').style.display = 'none';
+    const loginScreen = document.getElementById('login-screen'); 
+if (loginScreen) {
+    loginScreen.style.display = 'block'; 
+}
+    const gameScreen = document.getElementById('game-screen'); 
+if (gameScreen) {
+    gameScreen.style.display = 'none'; 
+}
+});
+    
+socket.on('dealCards', function(hand) {
+    isVoting = false; 
+    isGameEnded = false;
+    
+    // 1. まずは届いた手札を描画（この時点ではまだ文字が大きいかも）
+    renderMyHand(hand); 
+
+    // 2. 念のため最新の部屋設定（モード情報）をサーバーに要求
+    socket.emit('requestRoomState');
+});
+    
+// 🟢 過去の場を再現
+socket.on('updateField', (data) => {
+    // 🚩 どんな形でデータが来ても「配列」を抽出する
+    const fieldData = Array.isArray(data) ? data : (data.field || []);
+    
+    console.log("🖼️ 場のデータを受信:", fieldData.length, "件", fieldData);
+    
+    // 🚩 2人プレイ時、データが届いているのに描画されないのを防ぐ
+    if (typeof renderAllCards === 'function') {
+        renderAllCards(fieldData);
+    } else {
+        console.error("❌ renderAllCards関数が見つかりません");
+    }
+});
+  // 🃏 誰かがカードを出した時
+socket.on('cardPlayed', (data) => {
+  // データを保存用配列に追加して、全体を再描画する関数を呼ぶだけにする
+  window.currentFieldData.push(data);
+  renderAllCards(window.currentFieldData);
+});
+
+socket.on('cardAccepted', (card) => {
+  const gallery = document.getElementById('gallery');
+  [...gallery.children].forEach(img => {
+    if (img.src.endsWith(card)) {
+      img.remove();
+    }
+  });
+});
+    
+//    同期ボタン
+document.getElementById('sync-refresh-btn').onclick = () => {
+    console.log("🛠️ 手動同期を実行します...");
+    
+    // 1. サーバーに最新の状態を要求（これは観戦者でも必要）
+    socket.emit('requestRoomState'); 
+    
+    // 2. 観戦者かどうかの判定を最優先にする
+    const isObserver = window.isObserver || false; 
+
+    if (window.activeOptions) {
+        const inputArea = document.getElementById('illustoriTextArea');
+if (inputArea) {
+    // 🚩 観戦者は絶対NG。参加者かつ、しりとりONの時だけ出す。
+    const isShiritoriOn = !!window.activeOptions.shiritori;
+    if (!window.isObserver && isShiritoriOn) {
+        inputArea.style.display = 'block';
+    } else {
+        inputArea.style.display = 'none';
+    }
+}
+    }
+    
+    // 🚩 追加：もし「自分の手札」エリアなどがあれば、それも観戦者なら隠す処理を入れるとより安全
+    const myHandArea = document.getElementById('myHandArea');
+    if (myHandArea && isObserver) {
+        myHandArea.style.display = 'none';
+    }
+};    
+    
+// 🚩 追加：ゲーム画面でもクリックで切り替えられるようにイベント登録（DOM読み込み後）
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.gazoUp')) selectStoryDeck('image');
+    if (e.target.closest('.bunWrite')) selectStoryDeck('text');
+});    
+    // 🚀 ページ読み込み時の初期化処理（1回だけ実行）
+document.addEventListener('DOMContentLoaded', () => {
+    
+    // 文字調整完了ボタン
+    const decoBtn = document.getElementById('finishDecoCheckBtn');
+    if (decoBtn) {
+        decoBtn.onclick = () => {
+            console.log("📤 finishDecoCheck を送信");
+            socket.emit('finishDecoCheck');
+            
+            // 🚩 修正：消さずに「待機中」に切り替える
+            decoBtn.innerText = "待機中...";
+            decoBtn.disabled = true;
+            decoBtn.style.backgroundColor = "#888";
+            decoBtn.style.cursor = "default";
+        };
+    }
+
+    // いいね完了ボタン
+    const likeBtn = document.getElementById('finishLikeCheckBtn');
+    if (likeBtn) {
+        likeBtn.onclick = () => {
+            console.log("📤 finishLikeCheck を送信");
+            socket.emit('finishLikeCheck');
+            
+            // 🚩 修正：消さずに「待機中」に切り替える
+            likeBtn.innerText = "待機中...";
+            likeBtn.disabled = true;
+            likeBtn.style.backgroundColor = "#888";
+            likeBtn.style.cursor = "default";
+        };
+    }
+});
+            
+// 即切り替え担当
+document.getElementById('modeSelect').addEventListener('change', (e) => {
+    const newMode = e.target.value;
+    updateDeckUI(newMode);　// デッキ登録を即切り替える
+    applyMode(newMode, null);　// チェックボックスをモードのデフォルトにする
+});
+
+//トップへスクロール
+document.querySelectorAll('.toTop').forEach(button => {
+    button.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+});
+//　クリップボードにコピー    
+document.querySelectorAll('.copy-deck-btn').forEach(button => {
+    button.addEventListener('click', async () => {
+        // 🚩 修正ポイント：文字列の中の「\n」を本物の改行コードに変換する
+        let textToCopy = button.getAttribute('data-text').replace(/\\n/g, '\n');
+        
+        const originalText = button.textContent;
+
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            
+            button.textContent = "✅ コピー完了！";
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        } catch (err) {
+            alert("コピーに失敗しました");
+        }
+    });
+});
+    
+socket.on('gameScoreUpdate', (data) => {
+    if (!data) return;
+    
+    // 🚩 すでにリザルト描画が完了しているなら、採点進捗画面を出す必要は一切ない
+    if (window.isResultFinished) {
+        console.log("🚫 リザルト表示中のため、採点進捗更新をスルーします");
+        return;
+    }
+    
+    const { votedCount, totalPlayers } = data;
+    
+    // 🚩 もしすでに最終リザルトが出ているなら、進捗更新は無視する
+    const finalSection = document.getElementById('finalResultSection');
+    if (finalSection && finalSection.style.display === 'block') return;
+
+    if (window.isObserver) return; 
+
+    const modal = document.getElementById('gameEndModal');
+    const scoreSection = document.getElementById('scoreInputSection');
+    const statusText = document.getElementById('gameScoreStatus');
+
+    // 🚩 採点中のみ表示させる
+if (modal) {
+    // 🚩 「flexクラスを持っていない」＝「非表示」とみなして付与する
+    if (modal.classList.contains('hidden')) {
+        modal.classList.remove('hidden'); // hiddenがあれば消す
+        modal.classList.add('flex');      // flexを付与して表示
+    }
+}
+    if (scoreSection) scoreSection.style.display = 'block';
+    
+    if (statusText) {
+        statusText.textContent = `${votedCount} / ${totalPlayers} 人が送信済み`;
+    }
+});
+
+// 4. 全員の点数が揃って、結果が送られてきた時の処理
+socket.on('gameScoreResult', (average) => {
+    document.getElementById('gameScoreStatus').style.display = 'none'; // ステータスを消す
+    document.getElementById('finalGameScoreResult').style.display = 'block'; // 結果を出す
+    document.getElementById('avgScoreDisplay').textContent = average; // 平均値を表示
+});
+    
+    
+// 🚩 前回のフェーズとモードを記憶するための変数（関数の外に定義）
+let lastProcessedPhase = "";
+let lastProcessedMode = "";
+
+socket.on('roomState', (state) => {
+    console.log("📡 受信データ:", state); // ← state.firstPlayerId があるかチェック！
+if (!state) return;
+
+// --- 🚩 A. 自分の役割を最優先で確定させる ---
+    const myData = state.players ? state.players.find(p => p.id === socket.id) : null;
+    
+    if (myData) {
+        window.isObserver = (myData.isObserver === true);
+        
+        // 🚩 サーバーの状態をローカル変数に同期させる（ここに書く！）
+        window.hasFinishedLikeCheck = !!myData.hasFinishedLikeCheck;
+        window.hasFinishedDecoCheck = !!myData.hasFinishedDecoCheck;
+
+        // 🚩 ついでに：もしフェーズが playing に戻っていたら強制リセット（念のため）
+        if (state.phase === 'playing') {
+            window.hasFinishedLikeCheck = false;
+            window.hasFinishedDecoCheck = false;
+        }
+    } else if (typeof window.isObserver === 'undefined') {
+        window.isObserver = true; 
+    }
+
+    window.currentFirstPlayerId = state.firstPlayerId;
+    window.activeOptions = state.options;
+    window.currentTurnPlayerId = state.currentPlayerId;
+    
+    // ID比較で自分のターンかを確定
+    window.isMyTurnNow = (String(state.currentPlayerId) === String(socket.id));
+    // ------------------------------------
+
+// 🚩 その後に描画を呼ぶ
+if (state.players) {
+    window.lastKnownPlayers = state.players;
+    refreshPlayerListUI(state.players); 
+}
+
+    // --- 1. グローバル定数・変数の同期 ---
+    const { mode, options, phase, players, currentPlayerId } = state;
+    // 🚩 モードもフェーズも変わっていないなら、重い掃除や初期化をスキップする
+    const isStateChanged = (lastProcessedPhase !== phase || lastProcessedMode !== mode);
+    window.currentPhase = phase;
+    window.isfinalround = !!state.finalround; 
+    
+    // 自分自身のデータと観戦状態の取得
+if (myData) {
+    const nameSpan = document.getElementById('myHandName');
+    if (nameSpan) {
+        const displayColor = window.isObserver ? "#888888" : (myData.color || "#888888");
+        const suffix = window.isObserver ? " (観戦)" : "";
+        nameSpan.innerText = myData.name + suffix;
+        nameSpan.style.color = displayColor;
+    }
+}
+
+    // オプション情報の統合と更新
+    const latestOptions = { ...(options || {}), mode: mode };
+    window.activeOptions = latestOptions;
+    if (typeof activeOptions !== 'undefined') {
+        Object.assign(activeOptions, latestOptions);
+    }
+
+// --- 場の描画 ---
+if (state.field) {
+    // 🚩 修正：評価中・投票中のカードを field に混ぜるのをやめる
+    // 投票中のカードは「投票パネル」で見せるため、ここには不要です。
+    if (typeof renderAllCards === 'function') {
+        renderAllCards(state.field); // tempField ではなく state.field を渡す
+    } else {
+        console.error("❌ renderAllCardsが見つかりません");
+    }
+}
+    
+if (myData && myData.hand) {
+        renderMyHand(myData.hand); 
+    } else {
+        // 手札がない場合のみ、現在の観戦フラグに従って描画
+        renderMyHand();
+    }
+// 🚩 修正後：確定したフラグを直接渡す
+refreshRoleUI(window.isObserver);
+
+        // --- 2. ★ 専門関数によるUI一括同期 ---
+    // ここでチェックボックスの強制OFFやロックが実行されます
+    syncRoomUI(state, true);
+    
+    // --- 4. モード・フェーズに応じた表示エリアの制御 ---
+    const wordArea = document.getElementById('wordArea');
+    const chainArea = document.getElementById('chainArea');
+    const uploadArea = document.getElementById('uploadArea');
+    const inputArea = document.getElementById('mochicotoriTextArea');
+
+    if (wordArea) wordArea.style.display = (mode === 'word') ? 'block' : 'none';
+    if (chainArea) chainArea.style.display = (mode === 'chain') ? 'block' : 'none';
+    
+    if (uploadArea) {
+        uploadArea.style.display = (mode === 'word' || mode === 'chain') ? 'none' : 'block';
+    }
+
+if (inputArea) {
+    const isShiritoriOn = !!latestOptions.shiritori;
+    // 冒頭で決めた isObs を使うことで、判定のブレをなくす
+    if (!window.isObserver && isShiritoriOn) { 
+        inputArea.style.display = 'block';
+    } else {
+        inputArea.style.display = 'none';
+    }
+}
+
+// --- 5. バナー・リザルト・クリーンアップ処理 ---
+const modal = document.getElementById('gameEndModal');
+const reShowBtn = document.getElementById('reShowResultBtn');
+
+if (isStateChanged) { // 🚩 ここでガード！モードかフェーズが変わった時だけ掃除する
+    if (phase === 'playing') {
+        // プレイ中のUI掃除
+        ['finalResultOverlay', 'likeNoticeBanner', 
+         'finishLikeCheckBtn', 'decoNoticeBanner', 'finishDecoCheckBtn',
+         'resStarArea', 'resLikesArea', 'resAvgArea',
+        ].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        });
+if (modal) modal.classList.remove('block','flex');
+if (modal) modal.classList.add('hidden');
+if (reShowBtn) reShowBtn.classList.remove('block','flex');
+if (reShowBtn) reShowBtn.classList.add('hidden');
+        
+// 🚩 古い「turnActions.classList.add('flex')」などの記述を削除し、
+// 以下の呼び出し1本に絞る
+if (typeof refreshActionButtons === 'function') {
+    refreshActionButtons();
+}
+
+// 最後に状態を保存
+lastProcessedPhase = window.currentPhase;
+lastProcessedMode = state.mode;
+console.log('📡 同期完了: Mode=' + state.mode + ', Phase=' + window.currentPhase);
+    }
+
+    // 文入力欄（BunArea）の同期（モード変更時や初期化時のみ）
+    const bunArea = document.getElementById('textArea') || document.getElementById('bunArea');
+    if (bunArea && mode === 'story') {
+        if (phase !== 'playing' && state.textDeck && state.textDeck.length > 0) {
+            const textInput = document.getElementById('textDeckInput');
+            if (textInput) {
+                textInput.value = state.textDeck.map(t => t.replace(/^text:/, '')).join('\n');
+            }
+        }
+    }
+    updateDeckUI(mode); 
+}
+
+    // 装飾バナー・いいねバナーの個別制御
+// --- 文字調整（デコ）バナーの制御 ---
+const dNB = document.getElementById('decoNoticeBanner');
+const fDB = document.getElementById('finishDecoCheckBtn');
+
+if (phase === 'decoCheck' && !window.isObserver) {
+    if (dNB) dNB.style.display = 'block'; // バナー枠は出す
+    if (fDB) {
+        fDB.style.display = 'block'; // ボタン要素自体は常に出す
+        if (window.hasFinishedDecoCheck) {
+            // 🚩 完了済みの場合は「待機中」に固定
+            fDB.innerText = "待機中...";
+            fDB.disabled = true;
+            fDB.style.backgroundColor = "#888";
+            fDB.style.cursor = "default";
+        } else {
+            // 🚩 未完了の場合は「完了ボタン」として機能
+            fDB.innerText = "文字調整完了！";
+            fDB.disabled = false;
+            fDB.style.backgroundColor = ""; // 元の色（緑系）
+            fDB.style.cursor = "pointer";
+        }
+    }
+} else {
+    if (dNB) dNB.style.display = 'none';
+    if (fDB) fDB.style.display = 'none';
+}
+
+// --- いいねバナーの制御 ---
+const lNB = document.getElementById('likeNoticeBanner');
+const fLB = document.getElementById('finishLikeCheckBtn');
+
+if (phase === 'likeCheck' && !window.isObserver && latestOptions.like) {
+    if (lNB) lNB.style.display = 'block';
+    if (fLB) {
+        fLB.style.display = 'block';
+        if (window.hasFinishedLikeCheck) {
+            // 🚩 完了済みの場合は「待機中」に固定
+            fLB.innerText = "待機中...";
+            fLB.disabled = true;
+            fLB.style.backgroundColor = "#888";
+            fLB.style.cursor = "default";
+        } else {
+            // 🚩 未完了の場合は「完了ボタン」として機能
+            fLB.innerText = "いいね完了！";
+            fLB.disabled = false;
+            fLB.style.backgroundColor = "#d2be32";
+            fLB.style.cursor = "pointer";
+        }
+    }
+} else {
+    if (lNB) lNB.style.display = 'none';
+    if (fLB) fLB.style.display = 'none';
+}
+    
+// --- 🚩 評価中/投票中データの同期 ---
+const ratingData = state.currentRating;
+const voteData = state.currentVote;
+const ratingPanel = document.getElementById('ratingPanel');
+const votePanel = document.getElementById('votePanel');
+const overlay = document.getElementById('modalOverlay');
+
+// 1. 中身の更新（データがあれば常に更新はしておく）
+if (ratingData) syncRatingState(ratingData);
+if (voteData) {
+    const voteDataForUI = {
+        ...voteData,
+        totalVoters: voteData.voters ? voteData.voters.length : 0
+    };
+    syncVotingState(voteDataForUI);
+}
+
+// 2. 表示の制御（観戦者の場合は強制非表示）
+// 🚩 条件：データが存在し、かつ「自分は観戦者ではない」時のみ表示
+const shouldShowRating = ratingData && !window.isObserver;
+const shouldShowVote = voteData && !window.isObserver;
+
+if (shouldShowRating) {
+    if (ratingPanel) {
+        ratingPanel.classList.remove('hidden');
+        ratingPanel.classList.add('block');
+    }
+    if (votePanel){
+        votePanel.classList.remove('block','flex');
+        votePanel.classList.add('hidden');
+    } 
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+    }
+} else if (shouldShowVote) {
+    if (ratingPanel) {
+        ratingPanel.classList.remove('block','flex');
+        ratingPanel.classList.add('hidden');
+    }
+    if (votePanel) {
+        votePanel.classList.remove('hidden');
+        votePanel.classList.add('block');
+    }    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+    }
+} else {
+    // どちらでもない、または「観戦者のため非表示」の場合
+    if (ratingPanel) {
+        ratingPanel.classList.remove('block','flex');
+        ratingPanel.classList.add('hidden');
+    }
+    if (votePanel) {
+        votePanel.classList.remove('block','flex');
+        votePanel.classList.add('hidden');
+    }
+    // 🚩 ただし、ゲーム終了（ended）フェーズでリザルト表示中の場合はオーバーレイを消さない
+    if (state.phase !== 'ended') {
+        if (overlay) {
+        overlay.classList.remove('block','flex');
+        overlay.classList.add('hidden');
+        }
+    }
+    
+    window.isVoting = false; 
+    if (typeof isVoting !== 'undefined') isVoting = false; 
+}
+    
+//    デッキ更新
+const deckCountEl = document.getElementById('deckCount');
+if (deckCountEl) {
+    // サーバーから送られてくる deckCount を最優先、なければ 0
+    deckCountEl.textContent = state.deckCount ?? 0;
+}
+
+if (phase === 'ended') {
+    const resultToRender = state.lastResultData || window.lastResultData;
+
+if (resultToRender) {
+        // 🚩 修正：すでに自動開封済み、もしくは「閉じた」フラグがあるなら自動では開かない
+        if (window.hasAutoOpenedResult === true || window.hasClosedResult === true) {
+            console.log("🚫 リザルト表示をスキップ（フラグ保持済み）");
+            
+            // モーダルが閉じていても「再表示ボタン」だけは確実に出しておく
+            if (reShowBtn) reShowBtn.classList.remove('hidden');
+            if (reShowBtn) reShowBtn.classList.add('block');
+        } else {
+            console.log('🏆 初回リザルト描画');
+            renderResultToUI(resultToRender);
+            window.hasAutoOpenedResult = true;
+        }
+    }
+    
+    if (!state.lastResultData) {
+        console.log("⌛ リザルト待ち...");
+        setTimeout(() => {
+            // 0.1秒後に再試行、またはサーバーにリザルトを再要求する
+        }, 100);
+    }
+}
+    else if (phase === 'playing') {
+    window.hasAutoOpenedResult = false;
+    window.lastResultData = null; // 古いデータも一掃
+}
+
+    // デコ掃除
+    if (phase !== 'decoCheck') cleanUpDecoUI();
+
+    const sCheck = document.getElementById('shiritoriCheck');
+const tCheck = document.getElementById('turnBasedCheck');
+// 🚩 修正後
+console.log("🕵️ DOM最終確認:", {
+    mode: state.mode, // ✅ state オブジェクトから直接取る
+    shiritoriChecked: document.getElementById('optShiritori')?.checked ?? 'not found',
+    turnBasedChecked: document.getElementById('optTurnBased')?.checked ?? 'not found'
+});
+    
+//    ターンバッジ & パス・手札交換ボタン
+// ターンバッジとアクションボタンの表示更新を専門関数に完全委託し、最後に状態を保存
+if (typeof refreshActionButtons === 'function') {
+    refreshActionButtons();
+}
+lastProcessedPhase = phase;
+lastProcessedMode = mode;
+console.log('📡 同期完了: Mode=' + mode + ', Phase=' + phase);
+    
+// 手札交換・パスボタンの更新を実行
+    if (typeof refreshActionButtons === 'function') {
+        refreshActionButtons();
+    }
+    
+// 🚩 関数の最後で現在の状態を保存
+lastProcessedPhase = phase;
+lastProcessedMode = mode;
+    
+    console.log('📡 同期完了: Mode=' + mode + ', Phase=' + phase + ', Shiritori=' + latestOptions.shiritori);
+});
+
+    
+// 🚩 新設：起家情報だけを個別に受け取る
+socket.on('firstPlayerUpdate', ({ firstPlayerId }) => {
+    console.log("👑 起家が更新されました:", firstPlayerId);
+    
+    // 1. グローバル変数を更新（これで refreshPlayerListUI が 👑 の位置を正しく判定できる）
+    window.currentFirstPlayerId = firstPlayerId;
+
+    // 2. 既存のプレイヤーリストを再描画
+    // window.lastKnownPlayers は roomState で保存されているはずなので、それを使います
+    if (typeof refreshPlayerListUI === 'function' && window.lastKnownPlayers) {
+        // serialized が ID を含んでいるため、HTMLの再生成が走り、👑 が正しい位置に付きます
+        refreshPlayerListUI(window.lastKnownPlayers);
+    }
+});
+    
+socket.on('showNoticeModal', ({ text }) => {
+    // 既存のモーダルがあれば使い回すか、簡易的なalert/toastを作る
+    var notice = document.createElement('div');
+    // 🚩 バッククォートを排除し、通常の引用符と結合を使用
+    notice.style.position = 'fixed';
+    notice.style.top = '20%';
+    notice.style.left = '50%';
+    notice.style.transform = 'translate(-50%, -50%)';
+    notice.style.background = 'rgba(0,0,0,0.8)';
+    notice.style.color = 'white';
+    notice.style.padding = '20px';
+    notice.style.borderRadius = '10px';
+    notice.style.zIndex = '10000';
+    notice.style.textAlign = 'center';
+    notice.style.border = '2px solid #ff5722';
+
+    // 🚩 修正：innerHTMLのバッククォートを排除
+    notice.innerHTML = '<p>' + text + '</p><button onclick="this.parentElement.remove()" style="margin-top:10px;">閉じる</button>';
+    document.body.appendChild(notice);
+
+    // 3秒後に自動で消す
+    setTimeout(function() { 
+        if(notice && notice.parentElement) notice.remove(); 
+    }, 3000);
+    
+    // 🚩 「いいね調整中(likeCheck)」専用の特殊処理（既存ロジック維持）
+    if (typeof phase !== 'undefined' && phase === 'likeCheck' && !window.isObserver) {
+        lockAllInputs(true); 
+        var fieldEl = document.getElementById('field');
+        if (fieldEl) {
+            fieldEl.style.pointerEvents = 'auto'; 
+            fieldEl.style.filter = 'none'; 
+            var buttons = fieldEl.querySelectorAll('button');
+            buttons.forEach(function(btn) {
+                btn.disabled = false;
+            });
+            console.log("🔓 いいね調整中のため、場のボタンを物理解放しました");
+        }
+    }
+});
+    
+socket.on('startVote', (data) => {
+// 🚩 リザルト中なら無視する
+    if (window.currentPhase === 'ended' || window.isResultFinished) return;
+//    観戦者でも無視する
+    if (window.isObserver) {
+        console.log("👁 観戦中：投票イベントを無視します");
+        return;
+    }
+    console.log("🔥 [EVENT] startVoteを受信しました！", data);
+    
+if (!data) {
+        window.isVoting = false;
+    }
+    syncVotingState(data);
+});
+// 1. 投票開始の受信
+function syncVotingState(data) {
+    console.log("📦 [syncVotingState] 実行中...", data);
+
+    const votePanel = document.getElementById('votePanel');
+    const overlay = document.getElementById('modalOverlay');
+    
+    const btns = document.getElementById('voteButtons'); // 投票ボタンの親要素
+    const msg = document.getElementById('voteMsg');  // メッセージ表示用
+    const progEl = document.getElementById('voteProgress'); // 「〇/〇人が投票済み」用
+    
+    // 🚩 最低限の修正：観戦者の場合はパネルを閉じて即終了
+    if (!data || window.isRating || window.isObserver) {
+        window.isVoting = false;
+        if (votePanel) {
+            votePanel.classList.remove('block', 'flex');
+            votePanel.classList.add('hidden');
+        }
+        // 他に表示中のパネル（評価等）がなければオーバーレイも隠す
+        if (!window.isRating && overlay && window.currentPhase !== 'ended') {
+            overlay.classList.remove('flex');
+            overlay.classList.add('hidden');
+        }
+        console.log("🗳️ 観戦者またはデータなしのため投票パネルを閉じました");
+        return; 
+    }    
+    
+    const voteImg = document.getElementById('voteImg');
+    const voteTextCard = document.getElementById('voteTextCard');
+    const voteInner = document.getElementById('voteTextCardInner');
+    const isText = typeof data.card === 'string' && data.card.startsWith('text:');
+    const textEl = document.getElementById('voteText');
+    const path = getSafePath(data.card);
+    const votedCount = data.votes ? Object.keys(data.votes).length : 0;
+    let totalVoters = data.totalVoters;
+    const participants = window.lastKnownPlayers ? window.lastKnownPlayers.filter(p => !p.isObserver) : [];
+    
+
+
+console.log("🗳️ 正真正銘の投票開始: isVoting = true");
+
+    // 🚩 1. 自分自身の状態を判定
+    const isObserver = !!window.isObserver;
+    const isMeSubmitter = (data.submitterId === socket.id);
+    const hasVoted = data.votes && data.votes[socket.id];
+
+    // 🚩 2. メッセージとボタンの表示制御
+    if (btns) btns.style.display = 'none'; // 基本は隠す
+
+    if (isObserver) {
+        if (msg) msg.textContent = (data.submitterName || "誰か") + "さんのカードを審査中...";
+    } else if (isMeSubmitter) {
+        if (msg) msg.textContent = "あなたのカードを審査中...";
+    } else if (hasVoted) {
+        if (msg) msg.textContent = "投票を送信しました。待機中...";
+    } else {
+        // まだ投票していない参加者の場合のみボタンを出す
+        if (msg) msg.textContent = (data.submitterName || "誰か") + "さんが提出";
+        if (btns) btns.style.display = 'block';
+    }
+
+if (isText) {
+    voteImg.style.display = 'none';
+    voteTextCard.style.display = 'flex';
+    voteInner.textContent = data.card.replace('text:', '');
+} else {
+        if (voteTextCard) voteTextCard.style.display = 'none';
+        if (voteImg) {
+            voteImg.style.display = 'block';
+            
+            // 🚩 修正：外部サイトに頼らず、JSでその場でエラー対応する
+            voteImg.onerror = () => {
+                voteImg.onerror = null; 
+                voteImg.style.display = 'none'; // 画像を隠す
+                
+                // 代わりにテキストカード側を表示して「画像なし」と出す
+                if (voteTextCard && voteInner) {
+                    voteTextCard.style.display = 'flex';
+                    voteInner.textContent = "画像が見つかりません";
+//                    voteInner.style.color = "#888";
+                }
+                console.warn("🖼️ 画像の読み込みに失敗しました（外部サイトも使用しません）");
+            };
+
+            if (path) {
+                voteImg.src = path;
+            } else {
+                // パスが最初から空なら、即座にエラー処理を走らせる
+                voteImg.dispatchEvent(new Event('error'));
+            }
+        }
+    }
+
+    if (textEl) textEl.textContent = data.text || "";
+
+    // 🚩 4. 進捗の表示更新
+    // totalVotersが不明な場合のフォールバック
+    if (!totalVoters || totalVoters === 0) {
+        totalVoters = Math.max(0, participants.length - 1);
+    }
+    if (progEl) {
+        progEl.textContent = votedCount + " / " + totalVoters + " 人が投票済み";
+    }
+
+    // 🚩 5. パネル表示を強制
+    if (votePanel) {
+        votePanel.classList.remove('hidden');
+        votePanel.classList.add('block');
+    }
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+    }
+}
+          
+// 同期でも投票でも使える「安全なパス生成」
+function getSafePath(rawPath) {
+    if (!rawPath || typeof rawPath !== 'string' || rawPath === 'undefined') return ''; 
+    if (rawPath.startsWith('http') || rawPath.startsWith('/')) return rawPath;
+    return '/' + rawPath;
+}         
+// OKボタン
+document.getElementById('voteOkBtn').onclick = () => {
+    socket.emit('castVote', 'ok');
+    document.getElementById('voteButtons').style.display = 'none'; 
+    document.getElementById('voteMsg').textContent = "投票しました。待機中...";
+};
+
+// NGボタン
+document.getElementById('voteNgBtn').onclick = () => {
+    socket.emit('castVote', 'ng');
+    document.getElementById('voteButtons').style.display = 'none';
+    document.getElementById('voteMsg').textContent = "投票しました。待機中...";
+};
+    
+// --- voteFinished イベントを追加 ---
+socket.on('voteFinished', (data) => {
+    window.isVoting = false; 
+    const msg = document.getElementById('voteMsg');
+    const btns = document.getElementById('voteButtons');
+    const votePanel = document.getElementById('votePanel');
+    const overlay = document.getElementById('modalOverlay');
+
+    if (btns) btns.style.display = 'none';
+
+    if (data.success) {
+        msg.innerHTML = `<span style="color:green; font-weight:bold;">✅ 承認！ (${data.okCount}対${data.ngCount})</span>`;
+    } else {
+        msg.innerHTML = `<span style="color:red; font-weight:bold;">❌ 却下... (${data.okCount}対${data.ngCount})</span>`;
+    }
+
+            // 判定フラグのリセット
+window.isVoting = false;
+    
+setTimeout(function() {
+        // 1. モーダルを閉じる
+        if (votePanel) {
+            votePanel.classList.remove('block','flex');
+            votePanel.classList.add('hidden');
+        }
+        if (overlay) {
+            overlay.classList.remove('block','flex');
+            overlay.classList.add('hidden');
+        }
+
+        console.log("🗳️ 投票完了：自動で最新の状態をリクエストします");
+
+        // 🚩 【ここが重要！】同期ボタンと同じことを自動で実行
+        // サーバーに「最新の roomState を全員に送って！」と頼む
+        socket.emit('requestRoomState'); 
+
+        // 判定フラグを完全にリセット
+        window.isVoting = false;
+        
+    }, 10); // 演出が終わるのを待ってから自動同期
+});
+
+// 3. 進行状況の更新
+socket.on('voteUpdate', (data) => {
+  document.getElementById('voteProgress').textContent = 
+    `${data.votedCount} / ${data.totalVoters} 人が投票済み`;
+});
+
+// --- 文字調整フェーズ開始 ---
+socket.on('startDecoCheck', ({ field }) => {
+    const banner = document.getElementById('decoNoticeBanner');
+    const btn = document.getElementById('finishDecoCheckBtn');
+    
+    if (!window.isObserver) {
+        if (banner) banner.style.display = 'block';
+        if (btn) {
+            btn.style.display = 'block';
+
+            // 🚩 ここが重要：現在の完了フラグを見て描画（再入室時など）
+            if (window.hasFinishedDecoCheck) {
+                btn.innerText = "待機中...";
+                btn.disabled = true;
+                btn.style.backgroundColor = "#888";
+            } else {
+                btn.innerText = "文字調整完了！";
+                btn.disabled = false;
+                btn.style.backgroundColor = "#4682b4";
+            }
+
+            btn.onclick = () => {
+                console.log("📤 finishDecoCheck を送信");
+                socket.emit('finishDecoCheck');
+                // 🚩 display = 'none' にせず、待機中に変える
+                window.hasFinishedDecoCheck = true; 
+                btn.innerText = "待機中...";
+                btn.disabled = true;
+                btn.style.backgroundColor = "#888";
+            };
+        }
+    }
+    
+    if (typeof renderAllCards === 'function') renderAllCards(field);
+});
+
+// --- いいね確認フェーズ開始 ---
+socket.on('startLikeCheck', ({ field }) => {
+    const banner = document.getElementById('likeNoticeBanner');
+    const btn = document.getElementById('finishLikeCheckBtn');
+    
+    if (!window.isObserver) {
+        if (banner) banner.style.display = 'block';
+        if (btn) {
+            btn.style.display = 'block';
+
+            // 🚩 ここが重要：現在の完了フラグを見て描画
+            if (window.hasFinishedLikeCheck) {
+                btn.innerText = "待機中...";
+                btn.disabled = true;
+                btn.style.backgroundColor = "#888";
+            } else {
+                btn.innerText = "いいね完了！";
+                btn.disabled = false;
+                btn.style.backgroundColor = "#d2be32";
+            }
+
+            btn.onclick = () => {
+                console.log("📤 finishLikeCheck を送信");
+                socket.emit('finishLikeCheck');
+                // 🚩 display = 'none' にせず、待機中に変える
+                window.hasFinishedLikeCheck = true;
+                btn.innerText = "待機中...";
+                btn.disabled = true;
+                btn.style.backgroundColor = "#888";
+            };
+        }
+    }
+    
+    if (typeof renderAllCards === 'function') renderAllCards(field);
+});
+    
+document.getElementById('startGameBtn').onclick = async (e) => {
+    // 1. 二重クリック防止
+    console.log("🔥 開始ボタンが物理的に押されました。isStarting:", isStarting);
+    if (isStarting) return; 
+    isStarting = true; 
+
+    if (e) e.preventDefault();
+
+    // 2. 入力値の取得
+    const selectedMode = document.getElementById('modeSelect').value;
+    const fileInput = document.getElementById('fileInput');
+    const files = fileInput ? fileInput.files : []; 
+    const textDeckInput = document.getElementById('textDeckInput'); 
+    const currentTextValue = textDeckInput ? textDeckInput.value.trim() : "";
+    
+    // 設定とプレイヤー情報の準備
+    const options = collectSettings();
+    window.activeOptions = options; 
+    const myName = document.getElementById('myHandName').innerText;
+    const myColor = (typeof myAssignedColor !== 'undefined') ? myAssignedColor : "#888";
+
+    // -------------------------------------------------------------------------
+    // 🛡️ ガードロジック（デッキ継承事故防止 & 文字数チェック）
+    // -------------------------------------------------------------------------
+const specialModes = ['story', 'word', 'chain'];
+    if (!specialModes.includes(selectedMode)) {
+        const prevMode = (typeof activeOptions !== 'undefined' && activeOptions) ? activeOptions.mode : null;
+        if (files.length === 0 && prevMode === 'story') {
+            alert('❌ 新しいデッキを用意してください');
+            isStarting = false;
+            return;
+        }
+    }
+
+    // 20文字制限
+    if (currentTextValue.length > 0) {
+        if (currentTextValue.split('\n').some(line => line.length > 20)) {
+            alert("1行は20文字以内にしてください。");
+            isStarting = false;
+            return;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // 📤 送信処理（画像ありならPOST、なしならSocket）
+    // -------------------------------------------------------------------------
+    if (files.length > 0) {
+        // 画像あり送信 (POST)
+        const formData = new FormData();
+        formData.append('color', myColor);
+        formData.append('roomId', roomId);
+        formData.append('mode', selectedMode);
+        formData.append('options', JSON.stringify(options));
+        formData.append('name', myName);
+        formData.append('textDeck', currentTextValue); 
+
+        for (const f of files) {
+            formData.append('images', f);
+        }
+
+        try {
+            const res = await fetch('/update-deck-and-start', { method: 'POST', body: formData });
+            if (!res.ok) throw new Error();
+            console.log("✅ 画像＋文デッキでの開始に成功");
+        } catch (err) {
+            alert("通信エラーが発生しました");
+            isStarting = false;
+            return;
+        }
+    } else {
+        // 画像なし送信 (Socket)
+        console.log("📤 Socketで開始（文デッキまたは既存デッキ）");
+        socket.emit('startGame', {
+            roomId: roomId,
+            mode: selectedMode, 
+            textDeck: currentTextValue, 
+            options: options,
+            name: myName,
+            color: myColor
+        });
+    }
+
+    // -------------------------------------------------------------------------
+    // ✨ UIリセット & 後始末
+    // -------------------------------------------------------------------------
+    if (textDeckInput) textDeckInput.value = ""; 
+    if (fileInput) fileInput.value = ""; 
+
+    isGameEnded = false;
+    isVoting = false;
+    lockAllInputs(false); 
+    
+    const settingsPanel = document.getElementById('settings-panel');
+    if (settingsPanel) settingsPanel.style.display = 'none';
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    console.log("🚀 送信完了");
+
+    // 最後にフラグを解除（1秒後）
+    setTimeout(() => { isStarting = false; }, 1000);
+};
+    
+socket.on('settingsUpdated', ({ mode, options }) => {
+  console.log('🔄 設定パネルの同期:', options);
+  if (options) {
+    Object.keys(options).forEach(key => {
+      const cb = document.querySelector(`input[data-option="${key}"]`);
+      if (cb) cb.checked = options[key];
+    });
+  }
+  // 🚩 入室直後などのために、モードに応じたチェックボックスの「有効/無効」だけ更新
+  applyMode(mode); 
+});
+socket.on('phaseUpdated', (phase) => {
+    console.log("フェーズ変更:", phase);
+    window.currentPhase = phase; 
+    
+    // 1. バナー類を一旦すべて隠す（初期化）
+    const banners = ['decoNoticeBanner', 'finishDecoCheckBtn', 'likeNoticeBanner', 'finishLikeCheckBtn'];
+    banners.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+    
+    const mainArea = document.getElementById('game-main-container');
+    const phaseDisplay = document.getElementById('phaseDisplay');
+    const handArea = document.getElementById('gallery');
+    const reShowBtn = document.getElementById('reShowResultBtn');
+
+    // 2. 入力ロックの管理
+    const isActivePhase = (phase === 'playing' || phase === 'decoCheck' || phase === 'likeCheck');
+    lockAllInputs(!isActivePhase); 
+
+    // 3. フェーズごとの処理
+    if (phase === 'playing') {
+        // --- プレイ中 ---
+        if (phaseDisplay) {
+            phaseDisplay.innerText = "プレイ中";
+            phaseDisplay.style.color = "#4CAF50";
+            refreshActionButtons()
+        }
+        if (handArea) {
+            handArea.style.pointerEvents = 'auto';
+            handArea.style.opacity = '1';
+        }
+        if (mainArea) {
+            mainArea.style.pointerEvents = 'auto';
+            mainArea.style.filter = 'none';
+        }
+
+        // 🚩 観戦者ならしりとり入力欄を確実に隠す
+    const inputArea = document.getElementById('mochicotoriTextArea');
+    if (inputArea && window.isObserver) {
+        inputArea.style.display = 'none';
+    }
+        
+        refreshActionButtons();
+        
+        // 🚩 重要：次のラウンドのためにフラグをリセット
+        window.hasFinishedLikeCheck = false; 
+        
+    } else if (phase === 'decoCheck') {
+        // --- 文字調整 ---
+        if (phaseDisplay) {
+            phaseDisplay.innerText = "文字調整";
+            phaseDisplay.style.color = "#4682b4";
+        }
+        const fDB = document.getElementById('finishDecoCheckBtn');
+        const dNB = document.getElementById('decoNoticeBanner');
+        if (dNB) dNB.style.display = 'block';
+if (window.hasFinishedDecoCheck) {
+                fDB.innerText = "待機中...";
+                fDB.disabled = true;
+                fDB.style.backgroundColor = "#888";
+            } else {
+                fDB.innerText = "文字調整完了！";
+                fDB.disabled = false;
+                fDB.style.backgroundColor = "#4682b4";
+            }
+
+            fDB.onclick = () => {
+                console.log("📤 finishDecoCheck を送信");
+                socket.emit('finishDecoCheck');
+                window.hasFinishedDecoCheck = true; // 自分のフラグを立てる
+                // 🚩 修正：style.display = 'none' は削除！！
+                fDB.innerText = "待機中...";
+                fDB.disabled = true;
+                fDB.style.backgroundColor = "#888";
+            };
+
+    } else if (phase === 'likeCheck') {
+        // --- いいね確認 ---
+        if (phaseDisplay) {
+            phaseDisplay.innerText = "いいね確認";
+            phaseDisplay.style.color = "#d2be32";
+        }
+        
+        // 🚩 観戦者はボタンを出さない
+        if (window.isObserver) return;
+
+        const fLB = document.getElementById('finishLikeCheckBtn');
+        const lNB = document.getElementById('likeNoticeBanner');
+        if (lNB) lNB.style.display = 'block';
+        if (fLB) {
+            fLB.style.display = 'block';
+if (window.hasFinishedLikeCheck) {
+                fLB.innerText = "待機中...";
+                fLB.disabled = true;
+                fLB.style.backgroundColor = "#888";
+            } else {
+                fLB.innerText = "いいね完了！";
+                fLB.disabled = false;
+                fLB.style.backgroundColor = "#d2be32";
+            }
+
+            fLB.onclick = () => {
+                console.log("📤 finishLikeCheck を送信");
+                socket.emit('finishLikeCheck');
+                window.hasFinishedLikeCheck = true; // 自分のフラグを立てる
+                // 🚩 修正：style.display = 'none' は削除！！
+                fLB.innerText = "待機中...";
+                fLB.disabled = true;
+                fLB.style.backgroundColor = "#888";
+            };
+        }
+    } else if (phase === 'rating') {
+        // --- 採点中 ---
+        if (phaseDisplay) {
+            phaseDisplay.innerText = "採点中";
+            phaseDisplay.style.color = "#E91E63";
+        }
+
+} else if (phase === 'ended') {
+    if (phaseDisplay) {
+        phaseDisplay.innerText = "ゲーム終了";
+        phaseDisplay.style.color = "#F44336";
+    }
+
+    // 🚩 修正：state ではなく window に保存されたデータを使う
+    if (window.lastResultData) {
+        console.log("🏁 フェーズ確定：保存済みのデータでリザルトを描画します");
+        renderResultToUI(window.lastResultData);
+        
+        // 🚩 描画後に、改めてモーダルが「flex」であることをダメ押しで保証
+        const modal = document.getElementById('gameEndModal');
+        if (modal) modal.classList.remove('hidden');
+        if (modal) modal.classList.add('flex');
+    } else {
+        console.warn("⚠️ リザルトデータがまだ届いていません");
+    }
+}
+
+    // 4. 再描画処理（中間フェーズ共通）
+    const isIntermediate = (phase === 'decoCheck' || phase === 'likeCheck' || phase === 'rating');
+    if (isIntermediate) {
+        if (handArea) {
+            handArea.style.pointerEvents = 'none';
+            handArea.style.opacity = '0.6';
+        }
+        if (typeof renderAllCards === 'function' && window.lastFieldData) {
+            renderAllCards(window.lastFieldData);
+        }
+    }
+});
+        // --- 🟢 パスボタンの動作追加 ---
+document.getElementById('pass-btn').addEventListener('click', () => {
+  if (!window.isMyTurnNow) return alert("あなたのターンではありません");
+    console.log(socket);
+  if (confirm("パスして次の人に回しますか？")) {
+    socket.emit('passTurn'); // サーバー側に passTurn イベントがある前提
+  }
+});
+
+socket.on('startRate', (data) => {
+    if (window.currentPhase === 'ended' || window.isResultFinished) return;
+    
+    // 🚩 観戦者（isObserver）なら、採点処理（syncRatingState）を実行せずに終了
+    if (window.isObserver) {
+        console.log("👁 観戦中：評価をスキップします");
+        return; 
+    }
+    
+    console.log("🔥 [EVENT] startRateを受信しました！", data);
+    if (!data) {
+        window.isRating = false;
+    }
+    syncRatingState(data);
+});
+
+socket.on('startVote', (data) => {
+    if (window.currentPhase === 'ended' || window.isResultFinished) return;
+    
+    // 🚩 観戦者（isObserver）なら、投票処理（syncVotingState）を実行せずに終了
+    if (window.isObserver) {
+        console.log("👁 観戦中：投票をスキップします");
+        return;
+    }
+    
+    console.log("🔥 [EVENT] startVoteを受信しました！", data);
+    if (!data) {
+        window.isVoting = false;
+    }
+    syncVotingState(data);
+});
+    
+function syncRatingState(state) {
+    console.log('syncRatingState処理に入っています', state);
+    
+    const ratingPanel = document.getElementById('ratingPanel');
+    const overlay = document.getElementById('modalOverlay');
+    
+    // 🚩 最低限の修正：観戦者またはデータなしの場合はパネルを閉じて即終了
+    if (!state || window.isObserver) {
+        window.isRating = false;
+        if (ratingPanel) {
+            ratingPanel.classList.remove('block', 'flex');
+            ratingPanel.classList.add('hidden');
+        }
+        // 他に表示中のパネル（投票等）がなければオーバーレイも隠す
+        if (!window.isVoting && overlay && window.currentPhase !== 'ended') {
+            overlay.classList.remove('flex');
+            overlay.classList.add('hidden');
+        }
+        return;
+    }
+    
+    const votePanel = document.getElementById('votePanel');
+    const msg = document.getElementById('ratingMsg');
+    const starContainer = document.getElementById('ratingButtons');
+    const score100Container = document.getElementById('score100InputArea');
+    const progEl = document.getElementById('ratingProgress');
+    const imgEl = document.getElementById('ratingImg');
+    const textCardEl = document.getElementById('ratingTextCard'); 
+    const isObserver = !!window.isObserver;
+    const isMeSubmitter = (state.submitterId === socket.id);
+    const hasVoted = state.ratings && state.ratings[socket.id];
+    const cardData = state.card;
+    const isText = typeof cardData === 'string' && cardData.startsWith('text:');
+    const useStar = window.activeOptions.star5;
+    const useScore100 = window.activeOptions.score100;
+    const participants = window.lastKnownPlayers ? window.lastKnownPlayers.filter(p => !p.isObserver) : [];
+
+
+    window.isRating = true;
+    // 🚩 追加: 投票フラグを折り、投票パネルを確実に隠す
+    window.isVoting = false;
+    if (votePanel){
+        votePanel.classList.remove('block','flex');
+        votePanel.classList.add('hidden');
+    }
+
+    // 🚩  評価パネルとオーバーレイを確実に表示する
+    if (ratingPanel) {
+        ratingPanel.classList.remove('hidden');
+        ratingPanel.classList.add('block');
+    }
+    if (overlay) {
+        overlay.classList.remove('hidden');
+        overlay.classList.add('flex');
+    }
+
+    // メッセージ更新など
+    if (starContainer) starContainer.style.display = 'none';
+    if (score100Container) score100Container.style.display = 'none';
+
+    if (isObserver) {
+        if (msg) msg.textContent = state.submitterName + "さんのカードをみんなが評価中です...";
+    } else if (isMeSubmitter) {
+        if (msg) msg.textContent = "あなたのカードです。みんなの評価を待っています...";
+    } else if (hasVoted) {
+        if (msg) msg.textContent = "評価を送信しました。待機中...";
+    } else {
+        if (msg) msg.textContent = `${state.submitterName}さんのカードを評価してください`;
+        if (starContainer) starContainer.style.display = useStar ? 'flex' : 'none';
+        if (score100Container) score100Container.style.display = useScore100 ? 'block' : 'none';
+    }
+
+    if (isText) {
+        if (imgEl) imgEl.style.display = 'none';
+        if (textCardEl) {
+            textCardEl.style.display = 'flex';
+            const inner = document.getElementById('ratingTextCardInner');
+            if (inner) inner.textContent = cardData.replace('text:', '');
+        }
+    } else {
+        if (textCardEl) textCardEl.style.display = 'none';
+        if (imgEl) {
+            imgEl.style.display = 'block';
+            imgEl.src = '/' + cardData; 
+            imgEl.onerror = () => { imgEl.src = '/img/no-image.png'; }; 
+        }
+    }
+
+    if (document.getElementById('ratingText')) {
+        document.getElementById('ratingText').textContent = state.text || "";
+    }
+
+    // 進捗計算
+    const votedCount = Object.keys(state.ratings || {}).length;
+    let totalVoters = state.totalVoters;
+    if (!totalVoters || totalVoters === 0) {
+        totalVoters = Math.max(0, participants.length - 1);
+    }
+    if (progEl) {
+        progEl.textContent = votedCount + " / " + totalVoters + " 人が評価済み";
+    }
+}
+// 🟢 評価フェーズが完全に終了した時
+socket.on('ratingFinished', function(data) { 
+    console.log("⭐ 評価終了を受信しました");
+    window.isRating = false;
+    
+    // 終わったはずの提出者IDを記憶
+    const finishedId = data.submitterId; 
+
+    // 演出のために1.5秒待ってから消す
+    setTimeout(function() {
+        // 🚩 【超重要】もしタイマー待機中に「次の人」の評価が始まっていたら何もしない
+        if (window.currentRating && window.currentRating.submitterId !== finishedId) {
+            console.log("⚠️ 既に次の評価が始まっているため、パネルのクローズをキャンセルします");
+            return;
+        }
+
+        // --- ここから消去処理 ---
+        var ratingPanel = document.getElementById('ratingPanel');
+        var overlay = document.getElementById('modalOverlay');
+        if (ratingPanel) {
+            ratingPanel.classList.remove('block','flex');
+            ratingPanel.classList.add('hidden');
+        }
+        if (overlay){
+            overlay.classList.remove('block','flex');
+            overlay.classList.add('hidden');
+        } 
+        // UIの解放
+        if (typeof refreshActionButtons === 'function') {
+            refreshActionButtons();
+        }
+        if (window.currentPhase === 'playing') {
+            lockAllInputs(false);
+        }
+        
+        console.log("🔓 評価パネルを閉じ、操作を解放しました");
+    }, 1500);
+});
+
+socket.on('finalResult', (data) => {
+    console.log("📥 リザルトデータを受信・保存しました");
+    window.lastResultData = data; 
+
+    // フェーズが ended なら描画を試みる
+    // (renderResultToUI 側の判定で、開くか開かないかが決まる)
+    if (window.currentPhase === 'ended') {
+        renderResultToUI(data, false); 
+    }
+});
+    
+socket.on('resetResultFlags', () => {
+    console.log("♻️ リザルトフラグをリセットしました（次戦準備）");
+    window.hasClosedResult = false;
+    window.hasAutoOpenedResult = false;
+    window.lastResultData = null;
+    
+    // ついでに再表示ボタンも隠しておく
+    const reShowBtn = document.getElementById('reShowResultBtn');
+    if (reShowBtn) {        
+    reShowBtn.classList.remove('block','flex');
+    reShowBtn.classList.add('hidden');
+    }
+    
+    // モーダルが開きっぱなしなら閉じる
+    const modal = document.getElementById('gameEndModal');
+    if (modal){
+    modal.classList.remove('block','flex');
+    modal.classList.add('hidden');
+    }
+});
+    
+socket.on('startFinalRating', ({ totalPlayers }) => {
+    console.log("📏 採点フェーズUI構築開始");
+
+// 🚩 最優先：観戦者ならモーダル自体を開かない、あるいは入力欄をスキップする
+    if (window.isObserver) {
+        console.log("🕵️ 観戦者のため、採点UIの表示をスキップしました");
+        // もし「みんなが採点中であること」を知らせたいなら、ここで別の軽い通知を出す程度にする
+        return; 
+    }    
+    const modal = document.getElementById('gameEndModal');
+
+    // 🚩 3. 表示の切り替え（ここは安全な関数で）
+    const safeDisplay = (id, val) => { const el = document.getElementById(id); if(el) el.style.display = val; };
+    
+if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex'); 
+    // 🕵️ 状態の検証ログ
+        console.log("📦 Modal現状:", {
+            classList: Array.from(modal.classList),
+            computedStyleDisplay: window.getComputedStyle(modal).display,
+            inlineStyleDisplay: modal.style.display
+        });
+}
+    safeDisplay('scoreInputSection', 'block');
+    safeDisplay('finalResultSection', 'none');
+    safeDisplay('inputFormArea', 'block');
+    safeDisplay('sentMessage', 'none');
+
+    // 🚩 4. セレクトボックスの生成（100点〜0点）
+initScoreSelect(); // 👈 呼び出し
+
+    // 🚩 5. 進捗テキスト更新
+    const statusText = document.getElementById('gameScoreStatus');
+    if (statusText) statusText.textContent = `0 / ${totalPlayers} 人が送信済み`;
+});
+    
+    // 新しく追加する受信イベント
+socket.on('gameStartedNotify', (data) => {
+    // 1. ゲーム終了フラグをリセット
+    isGameEnded = false;
+
+    // 2. 全ての入力ロックを解除（パス・手札交換・しりとり入力など）
+    lockAllInputs(false);
+
+    // 3. リザルト画面やボタンを強制非表示
+        const modal = document.getElementById('gameEndModal');
+        if (modal) modal.classList.remove('block','flex');
+        if (modal) modal.classList.add('hidden');
+    const reShowBtn = document.getElementById('reShowResultBtn');
+    if (reShowBtn) reShowBtn.classList.remove('block','flex');
+    if (reShowBtn) reShowBtn.classList.add('hidden');
+
+    // 4. アナウンスを表示
+    addLog(`<span style="color:${data.color}; font-weight:bold;">🚩 ${data.name}</span> さんがゲームを開始しました！`);
+});
+    
+    // 🚩 サーバーからの「ボタン押せ」命令に反応する
+socket.on('forceClickSync', () => {
+    const syncBtn = document.getElementById('sync-refresh-btn');
+    if (syncBtn) {
+        console.log("🚀 サーバーからの命令で同期ボタンを強制実行します");
+        syncBtn.click();
+    }
+});
+
+window.hasAutoOpenedResult = false; // 自動表示済みか
+window.isResultShowing = false;    
+    
+// 🟢 すべての初期化を1つのリスナーに統合
+window.addEventListener('DOMContentLoaded', () => {
+    console.log("🚀 ページ読み込み完了：初期化を開始します");
+
+    // 1. 各要素の取得
+    const modeSelect = document.getElementById('modeSelect');
+    const uploadArea = document.getElementById('uploadArea');
+    const gazoArea = document.querySelector('.gazoUp');
+    const bunArea = document.querySelector('.bunWrite');
+
+    // 2. プルダウンやUIの初期生成
+    if (typeof initScoreSelect === 'function') initScoreSelect();
+
+    if (modeSelect) {
+        const initialMode = modeSelect.value;
+        // モードに応じたUI（デッキ表示やチェックボックス）の初期化
+        if (typeof updateDeckUI === 'function') updateDeckUI(initialMode);
+        if (typeof applyMode === 'function') applyMode(initialMode);
+        
+        // 🚩 初期表示の微調整
+        if (uploadArea) {
+            uploadArea.style.display = (initialMode === 'word' || initialMode === 'chain') ? 'none' : 'block';
+        }
+    }
+
+    // 3. クリックイベントの一括登録
+    if (gazoArea) {
+        gazoArea.addEventListener('click', () => {
+            selectStoryDeck('image');
+            console.log('🖼️ gazoAreaをクリック：画像入力に切り替え');
+        });
+    }
+
+    if (bunArea) {
+        bunArea.addEventListener('click', () => {
+            selectStoryDeck('text');
+            console.log('📝 bunAreaをクリック：テキスト入力に切り替え');
+        });
+    }
+
+});
+</script>    
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</body>
+</html>

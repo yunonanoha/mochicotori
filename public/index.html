@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+  <title>MOCHICOTORI(モチコトリ) - 持込画像しりとり</title>
+<meta name="description" content="MOCHICOTORIは、代表者が持ち込んだ画像群を使って遊ぶしりとりゲームの「モチコトリ」をはじめ、しりとり対戦ゲーム2種 + 言葉や物語を完成させる協力ゲーム2種 の全4モードを完全無料・ログイン不要で遊べるブラウザパーティーゲーム(ボードゲーム/カードゲーム)サイトだよ！URLを共有して友達とオンラインプレイ！PC・スマホ・タブレットすべてに対応しています。">
+<meta property="og:title" content="MOCHICOTORI(モチコトリ) - 持込画像しりとり">
+<meta property="og:description" content="MOCHICOTORIは、代表者が持ち込んだ画像群を使って遊ぶしりとりゲームの「モチコトリ」をはじめ、しりとり対戦ゲーム2種 + 言葉や物語を完成させる協力ゲーム2種 の全4モードを完全無料・ログイン不要で遊べるブラウザパーティーゲーム(ボードゲーム/カードゲーム)サイトだよ！URLを共有して友達とオンラインプレイ！PC・スマホ・タブレットすべてに対応しています。">
+<!--1200 × 630 pxの画像 XなどSNSに表示される-->
+<meta property="og:url" content="https://mochicotori.com/">
+<meta property="og:image" content="https://mochicotori.com/img/ogimg6.jpg">
+<meta name="twitter:image" content="https://mochicotori.com/img/ogimg6.jpg">
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://kit.fontawesome.com/7f39a6d40a.js" crossorigin="anonymous"></script>
+    </head>
+<body class="createRoom">
+<div id="createRoom">
+<div id="toriExplanation" class="flex"> 
+    <h1 style="margin: 0; font-size: 1.5rem;">MOCHICOTORI</h1>    
+    <p id="explanation" class="hidden" onclick="handleToggleExplanation(event)">MOCHICOTORIは、代表者が持ち込んだ画像群を使って遊ぶしりとりゲームの「モチコトリ」をはじめ、しりとり対戦ゲーム2種 + 言葉や物語を完成させる協力ゲーム2種 の全4モードを完全無料・ログイン不要で遊べるブラウザパーティーゲーム(ボードゲーム)サイトだよ！</p>
+<img class="logo-Mochicotori" src="img/MOCHICOTORI.png" alt="MOCHICOTORI(モチコトリ) - 持込画像しりとり フレンドにURLを共有して4モードのパーティーゲームを無料でプレイ！" title="MOCHICOTORI" onclick="handleToggleExplanation(event)">
+</div>
+  <div class="mode-container">
+    <div class="mode-btn active" data-mode="mochicotori">モチコトリ</div>
+    <div class="mode-btn" data-mode="story">ストーリー</div>
+    <div class="mode-btn" data-mode="word">ワード</div>
+    <div class="mode-btn" data-mode="chain">チェーン</div>
+  </div>
+      
+    <form id="createRoomForm" enctype="multipart/form-data">
+    <input type="hidden" name="mode" id="modeInput" value="mochicotori"> <div id="uploadArea">
+        
+        <div id="storyDeckOptions">
+            <div class="gazoUp">
+      <p>画像デッキをセットしてください:</p>
+      <input type="file" name="images" id="fileInput" multiple accept="image/*"><br><br>
+    </div>
+            </div>
+        
+        <div class="bunWrite">
+    <div id="textArea" style="display: none;">
+      <p>文デッキをセットしてください（改行区切り、一行につき最大20字）:</p>
+<textarea name="textDeck" id="textDeckInput" rows="8" style="width: 80%; max-width: 400px;"
+  placeholder="流れ&#10;よ&#10;我が&#10;涙&#10;と&#10;警官&#10;は&#10;言った..."></textarea>
+        <br><br>
+    </div>
+            </div>
+        </div>
+        
+    <div id="wordArea" style="display: none;">
+      <p>💡 ワードモード：文字デッキが自動生成されます。</p>
+    </div>
+            <div id="chainArea" style="display: none;">
+      <p>💡 チェーンモード<br>チェーンデッキが自動生成されます。</p>
+    </div>
+
+    <button type="submit">部屋を作成</button>
+  </form>
+
+  <div id="roomLink"></div>
+    
+<!-- 下部アイテム -->    
+<nav class="aboutLinks flex">
+<a target="_blank" rel="noopener" href="../about/about.html#privacy">プライバシーポリシー</a>
+<span class="../about/separator">|</span>
+<a target="_blank" rel="noopener" href="../about/about.html#contact">お問い合わせ</a>
+</nav>
+<footer><p>2026 フェレットのオンラインボドゲカフェ</p><a href="https://discord.gg/sUW5QC9eEQ" target="_blank"><i class="fa-brands fa-discord"></i></a>
+<!--<a href="https://discord.gg/sUW5QC9eEQ" target="_blank"><img src="/img/FBC3.png"></a>-->
+    </footer>
+    
+</div>
+  <script>
+const modeButtons = document.querySelectorAll('.mode-btn');
+  const modeInput = document.getElementById('modeInput');
+  const roomLinkDiv = document.getElementById('roomLink');
+  
+  const uploadArea = document.getElementById('uploadArea');
+  const textArea = document.getElementById('textArea'); // 🚩 変数名をHTMLのIDと合わせる
+  const wordArea = document.getElementById('wordArea');
+  const chainArea = document.getElementById('chainArea');
+
+  // デッキ切り替え（最小限）
+  function selectStoryDeck(activeType) {
+    const gazo = document.querySelector('.gazoUp');
+    const bun = document.querySelector('.bunWrite');
+const gazoInput = document.getElementById('fileInput');
+  const bunInput = document.getElementById('textDeckInput');
+  const typeInput = document.getElementById('storyDeckType') || { value: '' };
+// 要素が存在しない場合は何もしない（エラー回避）
+    if (!gazo || !bun || !gazoInput || !bunInput) return;
+      
+  typeInput.value = activeType;
+
+if (activeType === 'image') {
+    gazo.style.opacity = "1";
+    bun.style.opacity = "0.3";
+    // 🚩 外枠ではなく「入力欄」だけを操作不能にする
+    gazoInput.style.pointerEvents = "auto";
+    bunInput.style.pointerEvents = "none";
+    // 🚩 相手方（テキスト）の内容をリセット
+    bunInput.value = "";
+  } else {
+    gazo.style.opacity = "0.3";
+    bun.style.opacity = "1";
+    // 🚩 外枠ではなく「入力欄」だけを操作不能にする
+    gazoInput.style.pointerEvents = "none";
+    bunInput.style.pointerEvents = "auto";
+      // 🚩 相手方（テキスト）の内容をリセット
+    gazoInput.value = "";
+  }
+  }
+
+  // モード切り替え
+modeButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    modeButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    
+    const selectedMode = btn.dataset.mode;
+    modeInput.value = selectedMode;
+
+    // 表示リセット
+    uploadArea.style.display = 'none';
+    textArea.style.display = 'none';
+    wordArea.style.display = 'none';
+    chainArea.style.display = 'none';
+
+    if (selectedMode === 'mochicotori') {
+        uploadArea.style.display = 'block';
+        // モチコトリは画像固定
+        selectStoryDeck('image'); 
+    } else if (selectedMode === 'story') {
+        uploadArea.style.display = 'block'; 
+        textArea.style.display = 'block'; // 文入力エリアを表示
+        // 初期状態はどちらか選べるようにする（例：画像を選択状態に）
+        selectStoryDeck('image'); 
+    } else if (selectedMode === 'word') {
+        wordArea.style.display = 'block';
+    } else if (selectedMode === 'chain') {
+        chainArea.style.display = 'block';
+    }
+  });
+});
+　//  説明トグル
+function handleToggleExplanation(event) {
+    // クリックされたイベントが親要素（div）に伝わるのを阻止する
+    if (event) {
+        event.stopPropagation();
+    }
+
+    const exp = document.getElementById('explanation');
+    if (exp) {
+        exp.classList.toggle('hidden');
+    }
+}
+  // クリックイベントの登録
+  document.querySelector('.gazoUp').addEventListener('click', () => selectStoryDeck('image'));
+  document.querySelector('.bunWrite').addEventListener('click', () => selectStoryDeck('text'));
+
+// 🚀 部屋作成フォーム送信
+document.getElementById('createRoomForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  
+  // 現在 active になっているボタンからモードを取得
+  const activeBtn = document.querySelector('.mode-btn.active');
+  const selectedMode = activeBtn ? activeBtn.dataset.mode : 'mochicotori';
+
+
+    try {
+      // 文字数チェックを先に行う
+      const selectedMode = modeInput.value;
+      const textDeckValue = document.getElementById('textDeckInput').value || "";
+
+      // ストーリーモードかつ文入力の場合のみチェック
+      if (selectedMode === 'story' && textDeckValue.trim() !== "") {
+        const lines = textDeckValue.split('\n');
+        if (lines.some(line => line.length > 20)) {
+          alert("文デッキの各行は20文字以内にしてください。");
+          return;
+        }
+      }
+
+          const formData = new FormData(e.target);
+  // 🚩 サーバーへ送る mode を確実に現在の選択に合わせる
+  formData.set('mode', selectedMode);
+        
+      const res = await fetch('/create-room', { method: 'POST', body: formData });
+      const data = await res.json();
+
+      if (data.roomUrl) {
+        const fullUrl = `${window.location.origin}${data.roomUrl}`;
+
+        roomLinkDiv.innerHTML = `
+          ✅ 部屋が作成されました！（クリックで新しいタブが開きます）<br>
+          <div class="innnerRoomLink">
+            <a href="${fullUrl}" target="_blank">${fullUrl}</a>
+            <button id="copyBtn" type="button">📋 コピー</button>
+          </div>
+          一緒に遊ぶ友達にこのURLをシェアしよう！
+        `;
+
+        document.getElementById('copyBtn').addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(fullUrl);
+            const btn = document.getElementById('copyBtn');
+            btn.textContent = "✅ コピーしました！";
+            setTimeout(() => (btn.textContent = "📋 コピー"), 2000);
+          } catch (err) {
+            alert("コピーに失敗しました");
+          }
+        });
+      } else {
+        roomLinkDiv.textContent = `❌ エラー: ${data.error || "不明なエラー"}`;
+      }
+    } catch (error) {
+      console.error("Fetch Error:", error);
+      roomLinkDiv.textContent = "❌ サーバー接続に失敗しました。";
+    }
+  }); // 👈 ここで正しくイベントリスナーを閉じています
+      
+      
+      // 🚩 最後にこれを追加しておくと、ページ読み込み時に正しい表示になります
+  window.addEventListener('load', () => {
+    // 初期の mochicotori 状態を反映
+    const initialMode = modeInput.value;
+    uploadArea.style.display = 'block'; 
+      
+      
+      // 🚩 追加：エリア自体をクリックした時に中身を切り替える設定
+const gazoArea = document.querySelector('.gazoUp');
+const bunArea = document.querySelector('.bunWrite');
+
+gazoArea.addEventListener('click', () => {
+    selectStoryDeck('image');
+    console.log('gazoAreaをクリックした');
+});
+
+bunArea.addEventListener('click', () => {
+    selectStoryDeck('text');
+    console.log('bunAreaをクリックした');
+
+});
+  });
+  </script>
+</body>
+</html>

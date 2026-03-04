@@ -1,0 +1,22 @@
+---
+import AboutLinks from '../astro/AboutLinks.astro';
+const { title } = Astro.props; // 各ページからタイトルを受け取る
+---
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title} | サイト名</title>
+  </head>
+  <body>
+    <nav>共通ヘッダー（必要なら）</nav>
+    
+    <main>
+      <slot /> </main>
+
+    <AboutLinks />
+    
+    <footer>
+      <p>&copy; 2024 サイト名</p>
+    </footer>
+  </body>
+</html>
