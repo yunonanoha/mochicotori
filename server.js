@@ -12,9 +12,8 @@ const server = http.createServer(app);
 const io = socketIo(server);
 
 app.use((req, res, next) => {
-  const host = req.get('host');
-  // onrender.com でアクセスしてきた場合のみ、独自ドメインへリダイレクト
-  if (host.includes('onrender.com')) {
+  // hostnameだけでなく、独自ドメインじゃない場合は全部飛ばすという考え方
+  if (req.hostname.includes('onrender.com')) {
     return res.redirect(301, `https://mochicotori.com${req.originalUrl}`);
   }
   next();
