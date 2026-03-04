@@ -8,8 +8,6 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
 
 app.use((req, res, next) => {
   // hostnameだけでなく、独自ドメインじゃない場合は全部飛ばすという考え方
@@ -18,6 +16,14 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const server = http.createServer(app);
+const io = socketIo(server);
 
 // ✅ サーバー側：クライアントと完全に同期させたモード設定
 const MODE_SETTINGS = {
@@ -82,11 +88,6 @@ const MODE_SETTINGS = {
     }
   }
 };
-
-app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 
 // 📁 アップロード設定
