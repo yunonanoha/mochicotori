@@ -79,7 +79,14 @@ app.use(express.static('public'));
 app.use('/uploads', express.static('uploads'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use((req, res, next) => {
+  const host = req.get('host');
+  // onrender.com でアクセスしてきた場合のみ、独自ドメインへリダイレクト
+  if (host.includes('onrender.com')) {
+    return res.redirect(301, `https://mochicotori.com${req.originalUrl}`);
+  }
+  next();
+});
 
 // 📁 アップロード設定
 const upload = multer({ dest: 'uploads/' });
@@ -91,7 +98,7 @@ const PLAYER_COLORS = [
     "#2E7D32", // 3: 濃いグリーン（フォレスト）
     "#7B1FA2", // 4: 高貴なパープル
     "#E65100", // 5: 鮮明なオレンジ（アンバー）
-    "#263238"  // 6: 深いチャコール（締め色）
+    "#ee79c7"  // 6: ピンク
 //        "#4a5568", // ダークスレートブルー
 //        "#2d3748", // チャコールグレーに近いネイビー
 //        "#744210", // 深みのあるウッドブラウン
