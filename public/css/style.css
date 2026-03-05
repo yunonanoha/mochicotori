@@ -329,6 +329,11 @@ align-items:flex-end;
     margin-top:30px;
 }
 
+#copyRoomIdWrapper:hover strong {
+    color: #ffcc00; /* ロゴの phaseDisplay と色を合わせると統一感が出ます */
+    text-decoration: underline;
+}
+
 @keyframes card-slide-up {
     0% {
         opacity: 0;

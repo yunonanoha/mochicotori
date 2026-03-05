@@ -14,6 +14,15 @@
 </script>
   <meta charset="UTF-8">
   <title>MOCHICOTORI(モチコトリ) - 持込画像しりとり</title>
+<meta name="description" content="MOCHICOTORIは、代表者が持ち込んだ画像群を使って遊ぶしりとりゲームの「モチコトリ」をはじめ、しりとり対戦ゲーム2種 + 言葉や物語を完成させる協力ゲーム2種 の全4モードを完全無料・ログイン不要で遊べるブラウザパーティーゲーム(ボードゲーム/カードゲーム)サイトだよ！URLを共有して友達とオンラインプレイ！PC・スマホ・タブレットすべてに対応しています。">
+<meta property="og:title" content="MOCHICOTORI(モチコトリ) - 持込画像しりとり">
+<meta property="og:description" content="MOCHICOTORIは、代表者が持ち込んだ画像群を使って遊ぶしりとりゲームの「モチコトリ」をはじめ、しりとり対戦ゲーム2種 + 言葉や物語を完成させる協力ゲーム2種 の全4モードを完全無料・ログイン不要で遊べるブラウザパーティーゲーム(ボードゲーム/カードゲーム)サイトだよ！URLを共有して友達とオンラインプレイ！PC・スマホ・タブレットすべてに対応しています。">
+<!--1200 × 630 pxの画像 XなどSNSに表示される-->
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:url" content="https://mochicotori.com/">
+<meta property="og:image" content="https://mochicotori.com/img/ogimg6.jpg">
+<meta name="twitter:image" content="https://mochicotori.com/img/ogimg6.jpg">
+    
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     <link rel="stylesheet" href="../css/style.css">
@@ -87,7 +96,10 @@
                 <img id="topLogo" class="logo-Mochicotori block" src="../img/MOCHICOTORI.png" alt="ロゴ" title="下のゲーム設定からお好みのオプションを選んで開始を押すと、新しいゲームが始められるよ！">
                 <div id="topDetails">
                 <div id="topDetails" class="flex">
-                    <span><strong id="roomId"></strong></span>
+                    <span id="copyRoomIdWrapper" style="cursor: pointer; position: relative;" title="クリックでURLをコピー">
+    <strong id="roomId"></strong>
+    <span id="copyMessage" style="display: none; position: absolute; top: -25px; left: 0; background: #333; color: #fff; font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; white-space: nowrap;">コピーしました！</span>
+</span>
                     <span class="topDetailsPart" style="margin: 0 10px; color: #ccc;">|</span> 
                     <span><span id="modeDisplay">-</span></span>
                     <span class="topDetailsPart" style="margin: 0 10px; color: #ccc;">|</span> 
@@ -176,7 +188,7 @@
 ×失敗例：天/地/と/警官/と/猫/アルミ缶/は/を/は<br>
 サンプル文デッキ 
 <button class="copy-deck-btn" data-text="アルミ缶\nの\n上\nに\nある\nミカン\n吾輩\nは\n猫\nで\nある\n名前\nは\nまだ\nない\nはじめ\nに\n神\nは\n天\nと\n地\nと\nを\n創造\nされた\n花束\nみたい\nな\n恋\nを\nした\nアンドロイド\nは\n電気\n羊\nの\n夢\nを\n見る\nか\n？\n流れ\nよ\n我が\n涙\nと\n警官\nは\n言った">コマ切れ一般デッキ</button>
-<button class="copy-deck-btn" data-text="生きるべきか\n死ぬべきか\nそれが問題だ\n尼寺へ行け！\n復讐せよ\n亡霊が現れた\n毒を塗った剣\n悪臭がぷんぷんする\n裏切りだ！\nあまりに理不尽な\n狂ったふりをする\n運命の女神\n毒入りの杯\n愛していたのだ\n一度は\n脆き者よ\nその名は女\n恐ろしい秘密\n聞かなかったことにしよう\n誰だ？\nそこにいるのは\n静まれ、心よ\n地獄の門が開く\nカーテンの裏で\n刺し殺す\nネズミか？\n王冠を奪う\n不浄な欲望\n良心の呵責\nおやすみなさい\n王子様\n劇を始めよう\n証拠を掴むのだ\n天国へ行くか\n地獄へ落ちるか\n言葉、言葉、言葉\n本を読みふける\n真実はどこにある\n墓掘り人の歌\n髑髏を見つめる\n昔は生きていたのに\n忘れてください\nすべては幻\n残酷にならねばならない\n優しさゆえに\n時が狂っている\n俺が直してみせる\nあとの祭だ\n沈黙こそが\n最後だ">ハムレット・ドラマチックデッキ</button>
+<button class="copy-deck-btn" data-text="生きるべきか\n死ぬべきか\nそれが問題だ\n尼寺へ行け！\n復讐せよ\n亡霊が現れた\n毒を塗った剣\n悪臭がぷんぷんする\n裏切りだ！\nあまりに理不尽な\n狂ったふりをする\n運命の女神\n毒入りの杯\n愛していたのだ\n一度は\n脆き者よ\nその名は女\n恐ろしい秘密\n聞かなかったことにしよう\n誰だ？\nそこにいるのは\n静まれ、心よ\n地獄の門が開く\nカーテンの裏で\n刺し殺す\nネズミか？\n王冠を奪う\n不浄な欲望\n良心の呵責\nおやすみなさい\n王子様\n劇を始めよう\n証拠を掴むのだ\n天国へ行くか\n地獄へ落ちるか\nオフィーリア\n本を読みふける\n真実はどこにある\n墓掘り人の歌\n髑髏を見つめる\n昔は生きていたのに\n忘れてください\nすべては幻\n残酷にならねばならない\n優しさゆえに\n時が狂っている\n俺が直してみせる\nあとの祭だ\n沈黙こそが\n最後だ">ハムレット・ドラマチックデッキ</button>
 <br>(混ぜて遊ぶのもおすすめ)(後者はハムレットでデッキ作ってとGoogle AI Geminiにお願いしたところ一晩でやってくれましたが滑っててもこいつのせいです)<br>
 <!--<button class="copy-deck-btn" data-text="ただの人間には\n興味ありません\nこの中に\n宇宙人\n未来人\n異世界人\n超能力者\nがいたら\nあたしのところに\n来なさい\n以上\nえるしつているか\nりんごしか食べない\n死神は\n手が赤い\nぶったね…\n二度もぶった…!!\n親父にも\nぶたれたこと\nないのに!!!\n奇跡も\n魔法も\nあるんだよ\nあきらめたら\nそこで\n試合終了ですよ\n私は\nやさしい王様に\nなるのだ！\n全部同じじゃないですか!?\nちがいますよ―っ\nこれだから\nしろうとは\nダメだ！\nもっと\nよく見ろ！\nみんなお待ちかね\nぺこらっぷ\n準備はできている？\nhurry up！\n3D\nも遂に登場\n自己紹介をどうぞ\n名前は「兎田ぺこら」ぺこ\n寂しがり屋\nとetc.\nバニーガールの芸人？\nアイドルとしての精神！\nHIKAKINの兄はSEIKIN\n触れてしまうよ逆鱗">ざく切りﾎﾟﾀｸデッキ</button>-->
 画像デッキの場合は、モチコトリで使うような写真やイラストよりも、前後の結びつきが少し強いものを用意するのがおすすめ。例えば、テーマを決めてみんなにそれに沿ったイラスト1枚と4コマ漫画を描いてもらい1コマずつにカットするとかね。外部お絵かきゲームの成果物を再利用してみるのも面白そう。<br>
@@ -3826,6 +3838,32 @@ socket.on('forceClickSync', () => {
         syncBtn.click();
     }
 });
+    
+//   ルームＩＤコピー
+        document.getElementById('copyRoomIdWrapper').addEventListener('click', async () => {
+    try {
+        // 現在のURLを取得
+        const url = window.location.href;
+        
+        // クリップボードにコピー
+        await navigator.clipboard.writeText(url);
+
+        // 「コピーしました！」メッセージを一時的に表示
+        const msg = document.getElementById('copyMessage');
+        msg.style.display = 'block';
+        
+        // 2秒後に消す
+        setTimeout(() => {
+            msg.style.display = 'none';
+        }, 2000);
+
+    } catch (err) {
+        console.error('コピーに失敗しました', err);
+        alert("URLのコピーに失敗しました。ブラウザの設定を確認してください。");
+    }
+});
+    
+    
 
 window.hasAutoOpenedResult = false; // 自動表示済みか
 window.isResultShowing = false;    
