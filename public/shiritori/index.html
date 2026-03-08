@@ -2151,20 +2151,17 @@ allLis.forEach((li) => {
     }
 });
 }
-// 🚩 ログイン画面で「観戦者として入室」ボタンを押した時
+ // 🚩 ログイン画面で「観戦者として入室」ボタンを押した時
 function joinAsObserver() {
     const nameInput = document.getElementById('nameInput');
     const name = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : "観戦者";
     
-    // 🚩 修正：ここでの自力画面遷移を「削除」し、入室リクエストのみ送る
-    // 部屋がない場合はサーバーが 'joinError' を返し、成功すれば 'roomState' が飛んできます。
-    socket.emit('joinRoom', { 
-        name: name, 
-        roomId: roomId, // グローバル変数またはURLから取得しているroomId
-        requestedRole: 'observer' 
-    });
-
-    console.log("📡 観戦入室リクエスト送信... サーバーの応答を待ちます");
+    // 1. サーバーへ「最初から観戦者として入りたい」と通知
+    // (まだ入室前なら joinRoom で observer フラグを送るか、入室直後に switchRole を送る)
+    socket.emit('switchRole', { targetRole: 'observer', name: name });
+    
+    // 2. ★重要★ 色を待たずに画面を切り替える
+    switchToRoomUI(name, "#888888");
 }
 
 // 🚩 共通の画面切り替え関数を作っておくと便利です
@@ -2299,25 +2296,6 @@ document.getElementById('enterBtn').onclick = () => {
     // 1. サーバーへ入室情報を送信
     socket.emit('joinRoom', { name, roomId, requestedRole: role });
 
-    // 🚩 2. 観戦者の場合のみ、ここで自力で画面を切り替える
-//    if (role === 'observer') {
-//        // 画面をログインからルームへ
-//        document.getElementById('login').style.display = 'none';
-//        document.getElementById('room').style.display = 'block';
-//        document.getElementById('roomId').textContent = roomId;
-//
-//        // 名前と色のセット（観戦者はグレー固定）
-//        const nameSpan = document.getElementById('myHandName');
-//        if (nameSpan) {
-//            nameSpan.innerText = name + " (観戦)";
-//            nameSpan.style.color = "#888888";
-//            nameSpan.style.fontWeight = "bold";
-//        }
-//        
-//        // 観戦フラグを立てておく
-//        window.isObserver = true;
-//        console.log("📣 観戦者としてUIを切り替えました");
-//    }
 };
 
 // 🚩 満員や判定中で参加できなかった時の誘導
@@ -2625,18 +2603,8 @@ let lastProcessedPhase = "";
 let lastProcessedMode = "";
 
 socket.on('roomState', (state) => {
-    console.log("📡 受信データ:", state);
-    if (!state) return;
-
-    // 🚩 追加：入室成功時に画面をログインからルームへ切り替える
-    const loginSection = document.getElementById('login');
-    const roomSection = document.getElementById('room');
-    if (loginSection && loginSection.style.display !== 'none') {
-        loginSection.style.display = 'none';
-        roomSection.style.display = 'block';
-        document.getElementById('roomId').textContent = roomId;
-        console.log("✅ 入室成功：画面を切り替えました");
-    }
+    console.log("📡 受信データ:", state); // ← state.firstPlayerId があるかチェック！
+if (!state) return;
 
 // --- 🚩 A. 自分の役割を最優先で確定させる ---
     const myData = state.players ? state.players.find(p => p.id === socket.id) : null;

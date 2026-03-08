@@ -1354,8 +1354,9 @@ if (targetRole === 'player') {
     socket.emit('assignColor', color);
     socket.data.color = color;
   } else {
-    // 観戦者の場合は色なし
-    socket.data.color = null;
+// 🚩 観戦者の場合
+  socket.data.color = null;
+  socket.emit('assignColor', '#888888'); // ★ここに追加！観戦者にも「入室OK」の合図としてグレーを送る
   }
 
   // 手札配布ロジック
