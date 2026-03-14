@@ -1522,6 +1522,9 @@ function hideResultAndShowField() {
 }
     
 function renderMyHand(handCards) {
+    // 🚩 追加：交換モード（カード選択中）なら、サーバーからの描き直し要求を無視する
+    if (typeof isExchangeMode !== 'undefined' && isExchangeMode) return;
+    
     if (handCards) {
         myCurrentHand = handCards;
     } else if (myCurrentHand) {
@@ -2734,11 +2737,7 @@ if (modal) modal.classList.add('hidden');
 if (reShowBtn) reShowBtn.classList.remove('block','flex');
 if (reShowBtn) reShowBtn.classList.add('hidden');
         
-// 🚩 古い「turnActions.classList.add('flex')」などの記述を削除し、
-// 以下の呼び出し1本に絞る
-if (typeof refreshActionButtons === 'function') {
-    refreshActionButtons();
-}
+
 
 // 最後に状態を保存
 lastProcessedPhase = window.currentPhase;
@@ -2933,25 +2932,22 @@ console.log("🕵️ DOM最終確認:", {
 });
     
 //    ターンバッジ & パス・手札交換ボタン
-// ターンバッジとアクションボタンの表示更新を専門関数に完全委託し、最後に状態を保存
-if (typeof refreshActionButtons === 'function') {
-    refreshActionButtons();
-}
-lastProcessedPhase = phase;
-lastProcessedMode = mode;
-console.log('📡 同期完了: Mode=' + mode + ', Phase=' + phase);
-    
 // 手札交換・パスボタンの更新を実行
-    if (typeof refreshActionButtons === 'function') {
+if (typeof refreshActionButtons === 'function') {
+    // 🚩 交換モード中なら、ボタンUIが勝手に戻らないようにガードする
+    if (window.isExchangeMode || (typeof isExchangeMode !== 'undefined' && isExchangeMode)) {
+        console.log("🛠️ 交換モード中のため、ボタンの自動更新をスキップしました");
+    } else {
         refreshActionButtons();
     }
-    
-// 🚩 関数の最後で現在の状態を保存
+}
+
+// 最後に状態を保存して終了
 lastProcessedPhase = phase;
 lastProcessedMode = mode;
-    
-    console.log('📡 同期完了: Mode=' + mode + ', Phase=' + phase + ', Shiritori=' + latestOptions.shiritori);
-});
+
+console.log('📡 同期完了: Mode=' + mode + ', Phase=' + phase);
+}); // ここで roomState 終了
 
     
 // 🚩 新設：起家情報だけを個別に受け取る
