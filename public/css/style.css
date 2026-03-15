@@ -175,7 +175,7 @@ text-align: left;}
     margin-bottom: 10px;
   }
 
-#createRoom button {
+#createRoom button.createRoomBtn {
     background: #2ecc71;
     border: none;
     color: white;
@@ -217,8 +217,6 @@ text-align: left;}
       min-width:90px;
     width: auto; /* 🚩 コピーボタンは全幅にしない */
   }
-
-
 
 /* 入室画面 */
 #welcometoMochicotori{
@@ -1079,6 +1077,9 @@ border-bottom: 1px solid #eee; /* 薄いグレーの線 */
   flex: 1;
   min-width: 0;
   color: #333;
+}
+.createRoom #items {
+text-align: left;
 }
 
 #items h2 {
