@@ -128,6 +128,7 @@
     
     
 <!-- 下部アイテム -->    
+<div class="toTop" title="上へ参ります">▲</div>
 <nav class="aboutLinks flex">
 <a target="_blank" rel="noopener" href="../about/about.html#privacy">プライバシーポリシー</a>
 <span class="separator">|</span>
@@ -286,6 +287,37 @@ document.getElementById('createRoomForm').addEventListener('submit', async (e) =
       roomLinkDiv.textContent = "❌ サーバー接続に失敗しました。";
     }
   }); // 👈 ここで正しくイベントリスナーを閉じています
+      
+      //トップへスクロール
+document.querySelectorAll('.toTop').forEach(button => {
+    button.addEventListener('click', () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+});
+      
+      //　クリップボードにコピー    
+document.querySelectorAll('.copy-deck-btn').forEach(button => {
+    button.addEventListener('click', async () => {
+        // 🚩 修正ポイント：文字列の中の「\n」を本物の改行コードに変換する
+        let textToCopy = button.getAttribute('data-text').replace(/\\n/g, '\n');
+        
+        const originalText = button.textContent;
+
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            
+            button.textContent = "✅ コピー完了！";
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        } catch (err) {
+            alert("コピーに失敗しました");
+        }
+    });
+});
       
       
       // 🚩 最後にこれを追加しておくと、ページ読み込み時に正しい表示になります

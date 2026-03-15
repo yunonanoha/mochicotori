@@ -187,7 +187,7 @@ text-align: left;}
     max-width: 300px;
   }
 
-#createRoom button:hover {
+#createRoom button.createRoomBtn:hover {
     background: #27ae60;
   }
 
