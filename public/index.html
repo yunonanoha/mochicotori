@@ -39,7 +39,10 @@
     
 <div class="setup-layout-wrapper">
         <div id="items">        
-<h2>ルール</h2>
+<h2 class="rule-header">
+    <span>ルール</span>
+    <span class="toBottom" title="下へ参ります">▼</span>
+</h2>
 
 <h3>モチコトリ</h3>
 <p>任意の写真やイラストをデッキに使う、しりとりのゲーム。
@@ -293,6 +296,15 @@ document.querySelectorAll('.toTop').forEach(button => {
     button.addEventListener('click', () => {
         window.scrollTo({
             top: 0,
+            behavior: 'smooth'
+        });
+    });
+});
+// 下へスクロール（一番下まで）
+document.querySelectorAll('.toBottom').forEach(button => {
+    button.addEventListener('click', () => {
+        window.scrollTo({
+            top: document.body.scrollHeight, // ページの全体の高さを指定（一番下）
             behavior: 'smooth'
         });
     });

@@ -1097,7 +1097,7 @@ text-align: left;
 }
 
 #items h2 {
-  color: #2c3e50;
+/*  color: #2c3e50;*/
   border-bottom: 2px solid #ddd;
   padding-bottom: 10px;
 }
@@ -1214,6 +1214,20 @@ textarea {
 /*    background: #999;*/
     color:#999;
 }
+.rule-header {
+    display: flex;
+    justify-content: space-between; /* 🚩 これで左端と右端に分かれる */
+    align-items: center;           /* 上下の中心を揃える */
+    width: 100%;                   /* 幅いっぱいに広げる */
+    cursor: default;
+}
+
+.toBottom {
+    cursor: pointer;
+    padding: 10px;                 /* タップしやすくする */
+/*    transition: transform 0.2s;*/
+}
+
 .aboutLinks {
     justify-content: center;
     align-items: center;
