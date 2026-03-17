@@ -23,8 +23,14 @@ body {
     padding:12px;
     color:#5865F2;
 }
-
 footer img{display:none;}
+/* アドセンス広告ユニットに上下の大きな余白を作る */
+.adsbygoogle {
+    display: block;
+    margin-top: 60px !important;    /* 上の文章との間 */
+    margin-bottom: 60px !important; /* 下の文章・フォームとの間 */
+}
+
 
 /* 部屋作成画面、入室画面、部屋画面、アバウト画面 */
    #createRoom, #login, #room, #about{
@@ -191,6 +197,11 @@ text-align: left;}
     background: #27ae60;
   }
 
+#createRoom #createRoomForm,{
+    padding-bottom:10px;
+   border-bottom: 2px solid #ddd;
+}
+
 #createRoom #roomLink {
     margin-top: 25px;
     font-weight: bold;
@@ -204,7 +215,10 @@ text-align: left;}
 /*    border-radius: 10px;*/
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   }
-#roomLink:not(:empty) {padding: 20px;}
+#roomLink:not(:empty) {
+    padding: 20px;
+/*   border-bottom: 2px solid #ddd;*/
+}
 
 #createRoom #copyBtn {
     background: #555;
