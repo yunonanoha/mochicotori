@@ -1223,6 +1223,7 @@ textarea {
 }
 
 .toBottom {
+    color:#999;
     cursor: pointer;
     padding: 10px;                 /* タップしやすくする */
 /*    transition: transform 0.2s;*/
