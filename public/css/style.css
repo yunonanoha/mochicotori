@@ -1400,9 +1400,10 @@ footer p {
     #UI hr{order:6;width:100%;}
     #settingsPanel{order:7;width:100%;}
     #items{order:8;width:100%;}
-    .aboutLinks{order:10;width:100%;}
-    .toTop{order:9;width:100%;}
-    footer{order:11;width:100%;}
+    .middleLinks{order:9;width:100%;}
+    .toTop{order:10;width:100%;}
+    .aboutLinks{order:11;width:100%;}
+    footer{order:12;width:100%;}
     
     /*  メインコンテンツとチャット */
     #lefts, #chatArea {
