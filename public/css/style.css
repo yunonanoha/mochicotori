@@ -74,6 +74,63 @@ footer img{display:none;}
 .imgC{object-position: center center;}
 .imgR{object-position: right center;}
 
+/*ブログカード*/
+.custom-blog-card {
+    display: flex;
+    text-decoration: none !important;
+    color: #333 !important;
+    border: 1px solid #e1e8ed; /* Twitterカード風の色 */
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 20px 0;
+    background: #fff;
+    transition: background 0.2s;
+}
+.custom-blog-card:hover {
+    background: #f5f8fa;
+}
+.card-image {
+    flex: 0 0 150px;
+    background: #f8f9fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.card-image img {
+    max-width: 100%;
+    height: auto;
+    padding: 10px;
+}
+.card-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.card-title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+.card-desc {
+    font-size: 0.85rem;
+    color: #657786;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4; /* 4行まで表示 */
+    overflow: hidden;
+}
+.card-vendor {
+    font-size: 0.75rem;
+    color: #1da1f2; /* Twitterブルーに近い色 */
+    font-weight: bold;
+}
+@media (max-width: 480px) {
+    .custom-blog-card { flex-direction: column; }
+    .card-image { flex: 0 0 200px; }
+}
 
 
 /* 部屋作成画面、入室画面、部屋画面、アバウト画面 コラム*/
