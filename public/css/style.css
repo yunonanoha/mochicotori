@@ -252,7 +252,7 @@ text-align: left;}
     display: flex;
     justify-content: center;
     gap: 10px; /* 🚩 スマホでは狭めに */
-    margin-bottom: 20px;
+    margin:20px 0;
     flex-wrap: wrap; /* 🚩 画面幅が足りない時に自動で改行させる */
   }
 
@@ -1334,13 +1334,13 @@ textarea {
 }
 
 .middleLinks{
-        justify-content: center;
+    justify-content: center;
     align-items: center;
     padding: 25px 0;
     font-size: 1rem;
     gap: 15px;
-/*    border-top: 2px solid #ddd;*/
 }
+#createRoom .middleLinks{border-bottom: 2px solid #ddd;}
 .middleLinks a{
         color: #666;
     text-decoration: none;
