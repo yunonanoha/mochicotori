@@ -78,6 +78,13 @@ footer img{display:none;}
 
 
 
+.columnYT{
+    display: block;
+    margin: 0 auto;
+        width:560px;
+        height:315px;;
+    }    
+
 /*ブログカード*/
 .custom-blog-card {
     display: flex;
@@ -1493,6 +1500,11 @@ footer p {
       /* --- 📱 スマホ向けレスポンシブ (768px以下) --- */
 @media (max-width: 768px) {
 
+.columnYT{
+        width:100%;
+        height:auto;
+    }    
+    
 .sp-br{display: block;}    
     .sp-small{
     font-size:.85em;
