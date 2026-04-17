@@ -112,6 +112,27 @@ document.querySelectorAll('.toTop').forEach(button => {
         });
     });
 });
+    
+          //　クリップボードにコピー    
+document.querySelectorAll('.copy-deck-btn').forEach(button => {
+    button.addEventListener('click', async () => {
+        // 🚩 修正ポイント：文字列の中の「\n」を本物の改行コードに変換する
+        let textToCopy = button.getAttribute('data-text').replace(/\\n/g, '\n');
+        
+        const originalText = button.textContent;
+
+        try {
+            await navigator.clipboard.writeText(textToCopy);
+            
+            button.textContent = "✅ コピー完了！";
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 2000);
+        } catch (err) {
+            alert("コピーに失敗しました");
+        }
+    });
+});
 </script>
 </body>
 </html>
