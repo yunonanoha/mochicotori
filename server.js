@@ -741,9 +741,14 @@ function generateDeck(mode, images = [], rawTextDeck = "") {
     let processedTextDeck = [];
 
     if (mode === 'word') {
-        const hiragana = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん！ー";
+        const hiragana = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん！ー○";
         hiragana.split('').forEach(c => {
             finalDeck.push(`text:${c}`, `text:${c}`);
+        });
+        // 頻出文字を1枚ずつ追加（これで合計3枚になる）
+        const extraCards = "いんかしうたとつての";
+        extraCards.split('').forEach(c => {
+            finalDeck.push(`text:${c}`);
         });
     } 
     else if (mode === 'chain') {
@@ -2195,6 +2200,7 @@ const charVariations = {
     'を': ['を', 'ヲ','お', 'ぉ', 'オ', 'ォ'],
     'ん': ['ん', 'ン'],
     'ー': ['ー', '～'],
+    '○': ['○', '×', '+', '-', '/', '⇔', '→', '←'],
     '！': ['！','！！', '？','？？', '！？', '？！','、','。','w']
 };
 

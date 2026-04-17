@@ -171,7 +171,7 @@
 <h3>ストーリー</h3>
 <p>画像デッキか文デッキを使います。任意のタイミングでカードを出していき、全員が全部出しきったときに物語や文として成立してたらクリア。
 文デッキなら文法ミスがないとか。好きなところでセンテンスを区切ってOKだし意味わからなくても可。おもろかったらクリアでいいとの説もある。
-どこまで相談していいとか何回まで手札交換アリとかはローカルで決めてね。おすすめは、「手札交換は1ゲームにつき1人1回まで」。<br>
+どこまで相談していいとか何回まで手札交換アリとかはローカルで決めてね。<br>
 〇成功例：綺麗な／百合の花／蛙／なく／桑名の夜／風にも負けず／いつも静かに／立っていた／天国へ行くか／眠れ、安らかに<br>
 ×失敗例：優しさゆえに／気高い心／重苦しい／田舎の空気／地／を／流れ／運命の女神／の／である<br>
 サンプル文デッキ 
@@ -1918,7 +1918,20 @@ textCardEl.innerHTML = `<div class="card-text-inner">${content}</div>`;
 // 🚩 クリックイベント：観戦者は即時遮断
     wrapper.onclick = (e) => {
         if (window.isObserver) return; // 🚩 最強のガード
+        
+// 🚩 修正ポイント：cards[index] が使えないので、要素から文字を取得
+    // textContent だと装飾（下線など）が含まれる場合があるため、
+    // もし描画時に dataset.text を設定していればそれがベストです。
+    const cardChar = wrapper.textContent.trim().charAt(0); 
 
+    console.log("クリックした文字:", cardChar);
+    // cardChar が取得できていないと charCodeAt でエラーが出るのでチェック
+    if (cardChar) {
+        console.log("文字コード:", cardChar.charCodeAt(0).toString(16));
+        // charVariations がグローバルに定義されている前提
+        console.log("変換テーブルにあるか:", !!(typeof charVariations !== 'undefined' && charVariations[cardChar]));
+    }
+        
     // 🚩 修正：プレイ中、または「文字調整フェーズ」なら装飾を許可
     const canDecorate = (currentPhase === 'playing' || currentPhase === 'decoCheck');
 
@@ -1935,6 +1948,7 @@ textCardEl.innerHTML = `<div class="card-text-inner">${content}</div>`;
     if (canLike && currentActiveOptions.like) {
         socket.emit('toggleLike', { cardIndex: index });
     }
+      
 };
 
 // 🚩 field ではなく container を使う
