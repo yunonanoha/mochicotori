@@ -2469,6 +2469,12 @@ room.messages.push(msgObj);
     
 }); // <--- 🟢 io.on('connection') の閉じ
 
+
+app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.send("User-agent: *\nAllow: /\nDisallow:");
+});
+
 const PORT = 3000;
 // '0.0.0.0' を明示的に指定して、全ての入口を開放する
 server.listen(PORT, '0.0.0.0', () => {
