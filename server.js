@@ -9,6 +9,11 @@ const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 
+app.get('/robots.txt', (req, res) => {
+    res.type('text/plain');
+    res.send("User-agent: *\nAllow: /\nDisallow:");
+});
+
 app.use((req, res, next) => {
   // hostnameだけでなく、独自ドメインじゃない場合は全部飛ばすという考え方
   if (req.hostname.includes('onrender.com')) {
@@ -2468,12 +2473,6 @@ room.messages.push(msgObj);
     
     
 }); // <--- 🟢 io.on('connection') の閉じ
-
-
-app.get('/robots.txt', (req, res) => {
-    res.type('text/plain');
-    res.send("User-agent: *\nAllow: /\nDisallow:");
-});
 
 const PORT = 3000;
 // '0.0.0.0' を明示的に指定して、全ての入口を開放する
