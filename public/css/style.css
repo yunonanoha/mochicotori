@@ -78,6 +78,10 @@ footer img{display:none;}
 
 
 
+.column-page h1{text-align: right;}
+.column-page h1 .guide{font-size:.75em;}
+
+
 .columnYT{
     display: block;
     margin: 0 auto;
@@ -1448,6 +1452,7 @@ footer p {
 .column{
        max-width: 70%;
 }
+.column-page h1{font-size:1.5em;}
     
     #topDetails{flex-direction: column;align-items: flex-start;}
     .topDetailsPart{display:none;}
@@ -1500,6 +1505,10 @@ footer p {
       /* --- 📱 スマホ向けレスポンシブ (768px以下) --- */
 @media (max-width: 768px) {
 
+
+.column-page h1{font-size:.9em;}
+
+    
 .columnYT{
         width:100%;
         height:auto;
@@ -1510,9 +1519,6 @@ footer p {
     font-size:.85em;
 }
     
-/* 部屋作成画面 */
-/*#createRoom footer a{order:1}*/
-/*#createRoom footer p{order:2}*/
 footer img{
     height:100px;
     margin:0
@@ -1577,7 +1583,6 @@ footer img{
     margin : 5px;
     text-align : center;
 }
-/*    #mochicotoriText{width:auto;}*/
     /* 手札 */
     #hand-container {
         flex-direction: column; 
@@ -1630,11 +1635,7 @@ footer img{
     #field .card-wrapper {
         font-size: 1rem;
     }
-/*
-    #field .card-text-inner, {
-    font-size: 0.8rem;    
-    }
-*/
+
    #field .text-card.large-text .card-text-inner {
   font-size: 2.2rem; /* 2~2.5remでお好みの大きさに */
   font-weight: 900;  /* より太くしてカードらしく */
