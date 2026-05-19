@@ -37,6 +37,7 @@ const MODE_SETTINGS = {
     defaults: { 
       finishType: 'finalround',
       turnBased: true, 
+      secretCard: false,
       shiritori: true, 
       vote: true, 
       pass: true, 
@@ -52,6 +53,7 @@ const MODE_SETTINGS = {
     defaults: { 
       finishType: 'allOut', 
       turnBased: false, 
+      secretCard: false,
       shiritori: false, 
       vote: false, 
       pass: false, 
@@ -67,6 +69,7 @@ const MODE_SETTINGS = {
     defaults: { 
       finishType: 'allOut', 
       turnBased: false, 
+      secretCard: false,
       shiritori: false, 
       vote: false, 
       pass: false, 
@@ -82,6 +85,7 @@ const MODE_SETTINGS = {
     defaults: { 
       finishType: 'instant', 
       turnBased: false, 
+      secretCard: false,
       shiritori: true, 
       vote: true, 
       pass: false, 
@@ -160,6 +164,7 @@ function startGameLogic(roomId, data, socket) {
 
     // --- 🚩 2. 状態のリセット ---
 room.phase = 'playing';
+room.gameId = Date.now().toString();
 room.finalround = false;
 room.field = [];
 room.turnIndex = 0;
@@ -169,7 +174,7 @@ room.lastResultData = null; // 🚩 古いリザルトデータを破棄
 // 🚩 追加：クライアント側の「表示済みフラグ」をリセットさせるためのイベント
 // これを送ることで、クライアント側で window.hasClosedResult = false にさせる
 io.to(targetRoomId).emit('resetResultFlags');
-    
+
 // --- 🚩 3. デッキ生成の準備（これが必要！） ---
 let inputImages = [];
 let inputText = "";
@@ -276,6 +281,10 @@ room.players.forEach(p => {
     // 🚩 2戦目以降のために完了フラグをリセット！
     p.hasFinishedLikeCheck = false;
     p.hasFinishedDecoCheck = false;
+    
+    // 🚩 【新規追加】シークレットカードがオンなら、初期状態を必ず「裏向き(true)」にする。
+    // オフのゲームなら、必ず「表向き(false)」からスタートする。
+    p.isHandReversed = !!room.options.secretCard; 
 });
 
 // 2. サーバー側の進捗管理用 Set も空にする（念のため）
@@ -333,6 +342,7 @@ function getRoomState(roomId) {
             mode: room.mode,
             shiritori: !!room.options.shiritori,
             turnBased: !!room.options.turnBased,
+            secretCard: !!room.options.secretCard,
             finishType: room.options.finishType,
             vote: !!room.options.vote,
             star5: !!room.options.star5,
@@ -358,6 +368,7 @@ function getRoomState(roomId) {
             // 参加者は枚数(数字)、観戦者は null を送ることでフロント側で出し分ける
             hasFinishedLikeCheck: !!p.hasFinishedLikeCheck, 
             hasFinishedDecoCheck: !!p.hasFinishedDecoCheck,
+            isHandReversed: !!p.isHandReversed,
             cards: p.isObserver ? null : (p.hand ? p.hand.length : 0) 
         })),
         lastResultData: room.lastResultData || null
@@ -606,7 +617,7 @@ function completeVote(room, roomId) {
     color: room.players.find(p => p.id === vId)?.color || '#888'
   }));
 
-  // クライアントに投票終了を通知（null送信でモーダルを閉じる）
+  // クライアントに投票終了を通知（モーダルを閉じる）
   io.to(roomId).emit('startVote', null);
 
   if (player) {
@@ -622,24 +633,25 @@ function completeVote(room, roomId) {
         });
       }
     } else {
-      // ❌ 否決
-      // 山札からペナルティを引く等の処理（中身がある前提）
-      if (typeof rejectPlayedCard === 'function') {
-          rejectPlayedCard(room, player, card); 
-      } else {
-          // 代替：手札に戻して山から1枚引く
-          player.hand.push(card);
-          if (room.deck.length > 0) player.hand.push(room.deck.shift());
+      // ❌ 否決時のペナルティ処理
+      console.log("❌ 投票否決: デッキボトム戻し＆ペナルティドローを実行");
+
+      // 1. 否決されたカードをデッキ（山札）の【1番下】に戻す
+      room.deck.push(card);
+
+      // 2. ペナルティとしてデッキの【1番上】から1枚引く
+      if (room.deck.length > 0) {
+        player.hand.push(room.deck.shift());
       }
-// 🚩 共通プロパティ
+
+      // 3. 失敗カードとしてグレー扱いで場に表示（rejected: true）
       const rejectedCard = { 
         name: player.name, card, color: player.color, text: text + " (否決)", 
         voteResults: results, rejected: true, likes: []
       };
 
-      // 🚩 追加：★5評価がONの時だけ評価プロパティを付与する
       if (room.options.star5) {
-        rejectedCard.starAverage = "0.0"; // 文字列で統一（描画バグを防ぐため）
+        rejectedCard.starAverage = "0.0";
         rejectedCard.ratings = [];
       }
       
@@ -791,6 +803,8 @@ const base = "あいうえおかきくけこさしすせそたちつてとなに
         masterTextDeck: processedTextDeck
     };
 }
+
+
 
 function exchangeHand(room, player, selectedCards) {
   if (player.isObserver) return;
@@ -1700,120 +1714,110 @@ socket.on('playCard', ({ card, text }) => {
   const { roomId, name } = socket.data;
   const room = rooms[roomId];
   const player = room.players.find(p => p.id === socket.id);
-if (!player || player.isObserver) return; // 🚩 観戦者は何もしない（player存在チェックと合わせるのが安全）
+  if (!player || player.isObserver) return; 
+
   const clean = (p) => p.startsWith('/') ? p.slice(1) : p;
   const actualCardPath = player.hand.find(h => clean(h) === clean(card));
-
-    
-    console.log("=== 🚨 緊急調査 🚨 ===");
-  console.log("1. 送信者のID:", socket.id);
-  console.log("2. サーバーが認識している roomId:", roomId);
-  // ✅ 今度はエラーになりません
-  console.log("3. ルームは存在するか:", room ? "✅ あり" : "❌ なし");
-    
-    
-  if (!player) return;
-//  if (!room || room.currentVote) return;
-//    if (room.currentVote) return; // 🚩 投票中は受け付けない
-
-  // 1. ターンチェック
-if (room.options.turnBased) {
-    const playersOnly = room.players.filter(p => !p.isObserver);
-    const currentPlayer = playersOnly[room.turnIndex]; // room.players ではなく playersOnly を見る
-
-    if (currentPlayer && currentPlayer.id !== socket.id) {
-        socket.emit('errorMessage', '今はあなたの番ではありません');
-        return;
-    }
-}
-    
-
-  console.log("👤 プレイヤー手札:", JSON.stringify(player.hand));
-  console.log("🎴 照合結果:", actualCardPath ? "一致" : "不一致");
 
   if (!actualCardPath) {
     console.log("❌ 手札にそのカードがないため拒否されました");
     return;
   }
     
-    
-  // 2. しりとりバリデーション（ONの時だけ）
-  if (room.options.shiritori) {
+  // ----------------------------------------------------
+  // 2. しりとり・「ん」の判定（モチコトリ、またはしりとりONの時）
+  // ----------------------------------------------------
+  const isShiritoriMode = !!(room.options.shiritori || room.options.mode === 'mochicotori' || room.options.mochicotori);
+  
+  if (isShiritoriMode) {
     const validCards = room.field.filter(c => !c.rejected);
     const prevText = validCards.length > 0 ? validCards.at(-1).text : '';
     const result = isValidShiritori(prevText, text, room.prevLast);
 
-    if (!result.ok && result.type === 'invalid') {
+    // 通常のルール違反（繋がっていない等）は送信エラーとして突っぱねる
+    if (result && !result.ok && result.type === 'invalid') {
       socket.emit('errorMessage', result.reason);
       return; 
     }
 
-if (result.type === 'endsWithN') {
-    const lostCard = {
+    // 🛑 「ん」で終わる判定（関数の戻り値、または末尾の文字直接チェックで確実に捕まえる）
+    const normalizedText = (text || '').trim();
+    const isEndsWithN = (result && result.type === 'endsWithN') || 
+                        normalizedText.endsWith('ん') || 
+                        normalizedText.endsWith('ン');
+
+    if (isEndsWithN) {
+      console.log("🛑 「ん」終了検知: デッキの1番下に戻し＆ペナルティドローを実行");
+
+      // 1. 使用した手札を消費する
+      player.hand.splice(player.hand.indexOf(actualCardPath), 1);
+
+      // 2. 使用したカードはデッキ（山札）の【1番下】に戻す
+      room.deck.push(actualCardPath);
+
+      // 3. ペナルティとしてデッキの【1番上（トップ）】から1枚ドロー
+      if (room.deck.length > 0) {
+        player.hand.push(room.deck.shift());
+      }
+
+      // 4. 失敗カードとしてグレー扱いで場に表示（rejected: true）
+      const lostCard = {
         name: player.name, 
         card: actualCardPath, 
         color: player.color, 
         text: text + " (「ん」終了)",
         rejected: true, 
         likes: []
-    };
-    // オプションが有効な時だけ、評価用のプロパティを持たせる
-    if (room.options.star5) {
+      };
+
+      if (room.options.star5) {
         lostCard.starAverage = "0.0";
         lostCard.voteResults = []; 
-    }
-    room.field.push(lostCard);
-      player.hand.splice(player.hand.indexOf(actualCardPath), 1);
-      if (room.deck.length > 0) player.hand.push(room.deck.shift());
+      }
+
+      room.field.push(lostCard);
       
+      // 各種状態をクライアントへ同期して即座に次のターンへ
       io.to(roomId).emit('updateField', room.field);
       socket.emit('dealCards', player.hand);
-io.to(roomId).emit('updatePlayers', getCleanPlayerData(room));
+      io.to(roomId).emit('updatePlayers', getCleanPlayerData(room));
       io.to(roomId).emit('roomState', getRoomState(roomId));
       nextTurn(room, roomId);
-      return;
+      return; // 💡 ここで確実に終了させ、下の投票処理（【3】）には絶対に行かせない
     }
   }
     
-// 🪓 手札削除・状態更新へ（ここから入れ替え）
-        console.log("🪓 手札削除・状態更新へ");
-        player.hand.splice(player.hand.indexOf(actualCardPath), 1);
-        socket.emit('dealCards', player.hand);
+  // 🪓 【正常系】手札削除・状態更新へ
+  console.log("🪓 通常プレイ: 手札削除して次のフェーズへ");
+  player.hand.splice(player.hand.indexOf(actualCardPath), 1);
+  socket.emit('dealCards', player.hand);
 
-        // 投票相手のリストを定義
-        const voteTargetPlayers = room.players.filter(p => p.id !== socket.id && !p.isObserver);
+  const voteTargetPlayers = room.players.filter(p => p.id !== socket.id && !p.isObserver);
 
-        // 🟢 条件分岐を「else if」で繋いで、どれか1つしか実行されないようにする
-        if (!room.options.vote && !room.options.star5) {
-            // 【1】投票も星もなし
-            const newCard = { name: player.name, card: actualCardPath, color: player.color, text, rejected: false, likes: [] };
-            room.field.push(newCard);
-            io.to(roomId).emit('updateField', room.field);
-            nextTurn(room, roomId);
-        } 
-        else if (!room.options.vote && room.options.star5) {
-            // 【2】評価モード（投票なし）
-            startRatingPhase(room, roomId, socket.id, actualCardPath, text, []);
-        } 
-else {
-    // 【3】投票モード
-    console.log("【3】投票モード実行");
-    const voteTargetPlayers = room.players.filter(p => p.id !== socket.id && !p.isObserver);
-
-    if (voteTargetPlayers.length === 0) {
-        // 相手がいない場合は即時承認
-        const newCard = { name: player.name, card: actualCardPath, color: player.color, text, rejected: false, likes: [] };
-        room.field.push(newCard);
-        io.to(roomId).emit('updateField', room.field);
-        nextTurn(room, roomId);
-    } else {
-        // 🚩 自作の関数を呼び出す！
-        startVotingPhase(room, roomId, socket.id, actualCardPath, text);
-    }
-}
-        // （ここまで入れ替え）
-
-    });
+  if (!room.options.vote && !room.options.star5) {
+      // 【1】投票も星もなし
+      const newCard = { name: player.name, card: actualCardPath, color: player.color, text, rejected: false, likes: [] };
+      room.field.push(newCard);
+      io.to(roomId).emit('updateField', room.field);
+      nextTurn(room, roomId);
+  } 
+  else if (!room.options.vote && room.options.star5) {
+      // 【2】評価モード（投票なし）
+      startRatingPhase(room, roomId, socket.id, actualCardPath, text, []);
+  } 
+  else {
+      // 【3】投票モード
+      console.log("【3】投票モード実行");
+      if (voteTargetPlayers.length === 0) {
+          const newCard = { name: player.name, card: actualCardPath, color: player.color, text, rejected: false, likes: [] };
+          room.field.push(newCard);
+          io.to(roomId).emit('updateField', room.field);
+          nextTurn(room, roomId);
+      } else {
+          startVotingPhase(room, roomId, socket.id, actualCardPath, text);
+      }
+  }
+});
 
 socket.on('castVote', ( vote ) => {
     // 🚩 修正：roomId の取り方をログで確認しつつ確実に取得する
@@ -2471,6 +2475,38 @@ room.messages.push(msgObj);
     io.to(roomId).emit('message', msgObj);
 });
     
+
+// 手札の表裏フラグをプレイヤー単位で反転させ、チャットにも流す
+socket.on('toggleHandReverse', () => {
+    const { roomId } = socket.data;
+    const room = rooms[roomId];
+    if (!room) return;
+
+    const player = room.players.find(p => p.id === socket.id);
+    if (!player || player.isObserver) return;
+
+    // 1. プレイヤーの裏向き状態を反転
+    player.isHandReversed = !player.isHandReversed;
+
+    console.log(`[Room: ${roomId}] 🎴 ${player.name} が自分のカードを ${player.isHandReversed ? '伏せ' : '見'} ました。`);
+
+    // 🚩 2. チャットに流すメッセージオブジェクトを作成
+    // 入室メッセージを参考に、プレイヤー固有の色（player.color）を反映させます
+    const statusText = player.isHandReversed ? '伏せ' : '見';
+    const reverseMsg = { 
+        text: `${player.name} さんが自分のカードを${statusText}ました。`, 
+        color: player.color || "#4caf50" // 色がなければデフォルト緑
+    };
+
+    // 🚩 3. 全員に通知 ＆ 部屋のメッセージ履歴に保存
+    io.to(roomId).emit('message', reverseMsg);
+    if (!room.messages) room.messages = []; // 念のための安全ガード
+    room.messages.push(reverseMsg);
+
+    // 4. 画面全体の同期（手札の描き直しをキック）
+    io.to(roomId).emit('roomState', getRoomState(roomId));
+});
+
     
 }); // <--- 🟢 io.on('connection') の閉じ
 

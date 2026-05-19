@@ -147,6 +147,199 @@ footer img{display:none;}
     .card-image { flex: 0 0 200px; }
 }
 
+/* ==========================================
+   目次（インデックス）用のスタイル
+   ========================================== */
+.index-container {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 16px 20px 20px 20px;
+    margin: 24px auto;
+    max-width: 500px; /* 記事幅に合わせて適宜調整してください */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    transition: all 0.3s ease;
+}
+
+.index-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.index-title {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #495057;
+}
+
+.index-title i {
+    margin-right: 6px;
+    color: #6c757d;
+}
+
+/* 開閉ボタン */
+.index-toggle-btn {
+    background: none;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.index-toggle-btn:hover {
+    background-color: #e9ecef;
+    color: #212529;
+}
+
+/* 目次リストの基本形 */
+.index-list {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+    max-height: 400px; /* 十分な高さを確保 */
+    opacity: 1;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.2s ease;
+}
+
+/* 閉じられたときの状態 */
+.index-list.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    margin-bottom: -8px;
+}
+
+/* リストアイテムの装飾 */
+.index-list li {
+    margin: 8px 0;
+    line-height: 1.4;
+}
+
+.index-list li a {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.2s, text-decoration 0.2s;
+}
+
+.index-list li a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* ネストされた子要素（h4など）のインデント */
+.index-list ul {
+    list-style-type: none;
+    padding-left: 18px;
+    border-left: 2px solid #dee2e6;
+    margin: 4px 0;
+}
+
+.index-list ul li {
+    margin: 4px 0;
+}
+
+.index-list ul li a {
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+/* スマホ表示（SPレイアウト）での最適化 */
+@media (max-width: 768px) {
+    .index-container {
+        margin: 16px 0;
+        padding: 12px 16px;
+        max-width: 100%; /* 横幅いっぱいに広げる */
+    }
+}
+
+/* ==========================================
+   デッキレシピ用 PREスタイル & コピーボタン
+   ========================================== */
+.deck-box {
+    background-color: #282c34; /* ダーク系の色合いでコード・テキストを際立たせる */
+    border-radius: 6px;
+    margin: 14px 0 24px 0;
+    overflow: hidden;
+    border: 1px solid #1e222b;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* デッキ名・ボタンが並ぶヘッダー */
+.deck-header-title {
+    background-color: #21252b;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #abb2bf;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-bottom: 1px solid #181a1f;
+}
+
+.deck-header-title i {
+    margin-right: 4px;
+    color: #61afef; /* アクセントのライトブルー */
+}
+
+/* コピーボタン */
+.copy-btn {
+    background-color: #3e4451;
+    color: #abb2bf;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.copy-btn:hover {
+    background-color: #4c5363;
+    color: #ffffff;
+}
+
+/* コピー成功時のスタイルチェンジ用 */
+.copy-btn.copied {
+    background-color: #28a745;
+    color: #ffffff;
+}
+
+/* 中身のテキストエリア */
+.deck-box pre {
+    margin: 0;
+    padding: 14px;
+    color: #abb2bf;
+    font-family: "Courier New", Courier, monospace, "Segoe UI Emoji";
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow-x: auto; /* 横はみ出し対策 */
+    max-height: 260px; /* トランプ用：縦に伸びすぎないようスクロール化 */
+    overflow-y: auto;
+}
+
+/* スクロールバーの細さカスタマイズ（今風に） */
+.deck-box pre::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+.deck-box pre::-webkit-scrollbar-thumb {
+    background-color: #4b5263;
+    border-radius: 3px;
+}
+
 
 /* 部屋作成画面、入室画面、部屋画面、アバウト画面 コラム*/
    #createRoom, #login, #room, #about, .columnTop, .column{
@@ -1350,13 +1543,50 @@ textarea {
 }
 
 .middleLinks{
-    justify-content: center;
+    justify-content: right;
     align-items: center;
     padding: 25px 0;
-    font-size: 1rem;
+    font-size: 1.15rem;
     gap: 15px;
 }
 #createRoom .middleLinks{border-bottom: 2px solid #ddd;}
+.anotherRoom{
+    justify-content: right;
+    align-items: center;
+    padding: 25px 0;
+    font-size: 1rem;
+    gap: 10px;
+}
+/* 🚩 追記：入力欄とボタンのスタイル */
+.anotherRoom input {
+    padding: 8px 12px;
+    border: 2px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+    width: 180px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 0px !important;
+}
+.anotherRoom input:focus {
+    border-color: #ff9d00; /* サイトのテーマカラーに合わせて調整してください */
+}
+
+.anotherRoom button {
+    padding: 8px 16px;
+    background-color: #555;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+.anotherRoom button:hover {
+    background-color: #333;
+}
+#createRoom .anotherRoom,#login .anotherRoom{border-top: 2px solid #ddd;}
 .middleLinks a{
         color: #666;
     text-decoration: none;
@@ -1600,11 +1830,12 @@ footer img{
     padding-top: 0px;
     flex-shrink: 0;
     flex-direction:row;
-    order: 1;
     }
+/*    #exchange-controls{display: contents;}*/
+    #turn-actions{display:flex;flex-direction: column;}
     #turn-actions button,
     #exchange-controls button{
-        width: 45%;
+        width: 100%;
         height: auto;
         font-size: 1rem;
     }

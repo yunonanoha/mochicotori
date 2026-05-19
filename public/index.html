@@ -135,6 +135,10 @@
 
   <div id="roomLink"></div>    
     
+    <div class="anotherRoom flex">
+    <input type="text" id="directRoomId" placeholder="部屋ID" maxlength="10">
+    <button id="joinRoomBtn" class="btn-sub">移動</button>
+    </div>    
     
 <!-- 下部アイテム -->    
 <div class="toTop" title="上へ参ります">▲</div>
@@ -332,6 +336,34 @@ document.querySelectorAll('.copy-deck-btn').forEach(button => {
             }, 2000);
         } catch (err) {
             alert("コピーに失敗しました");
+        }
+    });
+});
+      
+document.addEventListener('DOMContentLoaded', () => {
+    const joinBtn = document.getElementById('joinRoomBtn');
+    const idInput = document.getElementById('directRoomId');
+
+    function navigateToRoom() {
+        const roomId = idInput.value.trim();
+        
+        if (!roomId) {
+            alert('部屋IDを入力してください');
+            return;
+        }
+
+        // 🚩 サイトの仕様に合わせてURLを変更してください
+        // 例: https://mochicotori.com/?room=部屋ID に遷移する場合
+        window.location.href = `/room/${encodeURIComponent(roomId)}`;
+    }
+
+    // ボタンクリック時
+    joinBtn.addEventListener('click', navigateToRoom);
+
+    // 入力欄でのエンターキー押し下げ時
+    idInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            navigateToRoom();
         }
     });
 });

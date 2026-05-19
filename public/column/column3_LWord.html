@@ -44,10 +44,36 @@
 <img class="column_imgA imgL" src="../img/Word3.jpg">
 <h1><a target="_blank" rel="noopener" href="../index.html">MOCHICOTORI(モチコトリ)</a>
 <br><span class="guide">⇗ ゲームはこちらからプレイできます</span></h1>
-<h3>ワードモードのルール</h3>
+        
+<div class="index-container" id="customIndex">
+  <div class="index-header">
+    <span class="index-title"><i class="fa-solid fa-list-ol"></i> 目次</span>
+    <button class="index-toggle-btn" id="indexToggleBtn" title="目次を閉じる">
+      <i class="fa-solid fa-chevron-up"></i>
+    </button>
+  </div>
+  <ul class="index-list" id="indexList">
+    <li><a href="#rules">ワードモードのルール</a></li>
+    <li>
+      <a href="#similarGames">似たゲームの紹介</a>
+      <ul>
+<li><a href="#yomibitoShirazu">詠み人知らず</a></li>
+<li><a href="#hiraganaPoker">ひらがなポーカー</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#moreFun">ワードモードをもっと楽しむ！</a>
+      <ul>
+<li><a href="#hiraganaPokerWM">ひらがなポーカー(ワードモード味)</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>         
+        
+<h3 id="rules">ワードモードのルール</h3>
 <p>自動生成の文字デッキを使う。ストーリーと同様、任意のタイミングでカードを出していき、全員が全部出しきったら終わり。もちろん、何の文字を持ってるかは言っちゃいけない。
 文字装飾機能があって、濁点、半濁点のつけ外しやカナ変換ができる。みんなで綺麗に出し切って装飾して言葉を完成させる協力ゲーム。</p>
-<h3>似たゲームの紹介</h3>    
+<h3 id="similarGames">似たゲームの紹介</h3>    
 <ul>
 <li><a href="#yomibitoShirazu">詠み人知らず</a></li>
 <li><a href="#hiraganaPoker">ひらがなポーカー</a></li>
@@ -62,7 +88,7 @@
 <p>
 いろんな遊び方が載ってる<a target="_blank" rel="noopener" href="https://hiraganapoker.com/">公式</a>。いくつかはワードモードでも遊べたり、面白いローカルルールを決めるためのヒントになってくれることでしょう。
 </p>            
-<h3>ワードモードをもっと楽しむ！</h3> 
+<h3 id="moreFun">ワードモードをもっと楽しむ！</h3> 
 <ul>
 <li><a href="#hiraganaPokerWM">ひらがなポーカー(ワードモード味)</a></li>
 </ul>
@@ -98,6 +124,26 @@ document.querySelectorAll('.toTop').forEach(button => {
             behavior: 'smooth'
         });
     });
+});
+    
+        // インデックス
+    document.getElementById('indexToggleBtn').addEventListener('click', function() {
+    const list = document.getElementById('indexList');
+    const btn = this;
+    const container = document.getElementById('customIndex');
+    
+    // クラスをトグルして切り替え
+    list.classList.toggle('collapsed');
+    
+    if (list.classList.contains('collapsed')) {
+        btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i>';
+        btn.title = '目次を開く';
+        container.style.paddingBottom = '12px'; // 閉じたときの余白調整
+    } else {
+        btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+        btn.title = '目次を閉じる';
+        container.style.paddingBottom = '20px';
+    }
 });
 </script>    
 </body>

@@ -48,6 +48,11 @@
     <button id="enterBtn">入室</button>
     </div>
     
+    <div class="anotherRoom flex">
+    <input type="text" id="directRoomId" placeholder="部屋ID" maxlength="10">
+    <button id="joinRoomBtn" class="btn-sub">移動</button>
+    </div>
+    
     <!-- 下部アイテム -->
 <!--<div class="toTop" title="上へ参ります">▲</div>-->
 <nav class="aboutLinks flex">
@@ -142,6 +147,7 @@
   </div>
 
   <div id="turn-actions" class="hidden">
+    <button id="reverse-btn">リバース</button>
     <button id="pass-btn">パス</button>
     <button id="exchange-start-btn">手札交換</button>
     
@@ -212,14 +218,19 @@
             <br>
     
   <label>
-    <input type="checkbox" id="optTurnBased" data-option="turnBased">
+<input type="checkbox" id="optTurnBased" data-option="turnBased">
     ターン制
-  </label><br>
+</label>
+    <br>
 
   <label>
     <input type="checkbox" id="optShiritori" data-option="shiritori">
     しりとり
-  </label><br>
+  </label>
+    <label>
+<input type="checkbox" id="optSecretCard" data-option="secretCard">
+    シークレットカード
+</label><br>
 
   <label>
     <input type="checkbox" id="optVote" data-option="vote">
@@ -452,17 +463,17 @@ const MODE_SETTINGS = {
     label: 'モチコトリ',
     defaults: { 
       finishType: 'finalround', // 🚩 IDではなく、Radioのvalueをセット
-      turnBased: true, shiritori: true, vote: true, pass: true, exchange: true, 
+      turnBased: true, secretCard: false, shiritori: true, vote: true, pass: true, exchange: true, 
       like: true, deco: false, star5: false, score100: false 
     },
     // locksには name="finishType" そのものを指定する
-    locks: ['finishType', 'turnBased', 'shiritori', 'vote', 'pass', 'exchange', 'deco']
+    locks: ['finishType', 'turnBased', 'secretCard', 'shiritori', 'vote', 'pass', 'exchange', 'deco']
   },
   story: {
     label: 'ストーリー',
     defaults: { 
       finishType: 'allOut', 
-      turnBased: false, shiritori: false, vote: false, pass: false, exchange: false, 
+      turnBased: false, secretCard: false, shiritori: false, vote: false, pass: false, exchange: false, 
       like: true, deco: false, star5: false, score100: true 
     },
     locks: ['finishType', 'turnBased', 'shiritori', 'vote', 'pass', 'deco']
@@ -471,19 +482,19 @@ const MODE_SETTINGS = {
     label: 'ワード',
     defaults: { 
       finishType: 'allOut', 
-      turnBased: false, shiritori: false, vote: false, pass: false, exchange: false, 
+      turnBased: false, secretCard: false, shiritori: false, vote: false, pass: false, exchange: false, 
       like: false, deco: true, star5: false, score100: true 
     },
-    locks: ['finishType', 'turnBased', 'shiritori', 'vote', 'pass', 'like', 'deco']
+    locks: ['finishType', 'turnBased', 'secretCard', 'shiritori', 'vote', 'pass', 'like', 'deco']
   },
   chain: {
     label: 'チェーン',
     defaults: { 
       finishType: 'instant', 
-      turnBased: false, shiritori: true, vote: true, pass: false, exchange: true, 
+      turnBased: false, secretCard: false, shiritori: true, vote: true, pass: false, exchange: true, 
       like: false, deco: false, star5: false, score100: true 
     },
-    locks: ['finishType', 'turnBased', 'shiritori', 'pass', 'exchange', 'vote', 'deco']
+    locks: ['finishType', 'turnBased', 'secretCard', 'shiritori', 'pass', 'exchange', 'vote', 'deco']
   }
 };
     
@@ -596,6 +607,7 @@ if (!state) return;
         const checkBoxMap = {
             'optShiritori': 'shiritori',
             'optTurnBased': 'turnBased',
+            'optSecretCard': 'secretCard',
             'optVote': 'vote',
             'optStar5': 'star5',
             'optScore100': 'score100',
@@ -689,7 +701,7 @@ if (phase === 'decoCheck') {
     if (decoBanner) decoBanner.style.display = 'block';
     if (finishDecoBtn) finishDecoBtn.style.display = window.isObserver ? 'none' : 'block';
 
-    // 🚩 観戦者のための追加修正：投票・評価パネルを強制的に非表示にする
+    // 🚩 投票・評価パネルを強制的に非表示にする
     if (window.isObserver) {
         const votePanel = document.getElementById('votePanel');
         const ratingPanel = document.getElementById('ratingPanel');
@@ -949,33 +961,35 @@ function applyMode(mode, options) {
 }
     // roomState受信時、または設定が確定した直後に実行するUI更新ロジック
 function refreshActionButtons() {
-    // 1. 最新のオプションを安全に取得（空オブジェクトをデフォルトに）
     const opts = window.activeOptions || {};
-    const phase = window.currentPhase; // 🚩 現在のフェーズを取得
-    const actualIsMyTurn = (window.currentTurnPlayerId === socket.id);
-    const isMyTurn = (window.currentTurnPlayerId === socket.id);
-        window.isMyTurnNow = isMyTurn;
-    // 同期のためにグローバルも更新しておく
-    window.isMyTurnNow = actualIsMyTurn;
+    const phase = window.currentPhase; 
     const isObserver = window.isObserver;
     
-console.log("🔘 ボタン更新詳細:", { 
-        isMyTurn: actualIsMyTurn, // 🚩 ここが true になれば解決
-        isObserver: window.isObserver,
+    // 🚩 修正：ターン制がオフなら、常に「全員が自分のターン」として扱う！
+    const isTurnBased = (opts.turnBased !== false);
+    const actualIsMyTurn = isTurnBased ? (window.currentTurnPlayerId === socket.id) : true;
+    const isMyTurn = isTurnBased ? (window.currentTurnPlayerId === socket.id) : true;
+    
+    window.isMyTurnNow = isMyTurn;
+
+    console.log("🔘 ボタン更新詳細:", { 
+        isMyTurn: isMyTurn,
+        isObserver: isObserver,
         opts_pass: opts.pass,
         opts_turnBased: opts.turnBased,
+        opts_reverse: opts.secretCard,
         opts_exchange: opts.exchange
     });
 
     const turnActions = document.getElementById('turn-actions');
     const turnBadge = document.getElementById('turnBadge');
+    const reverseBtn = document.getElementById('reverse-btn');
     const exchangeStartBtn = document.getElementById('exchange-start-btn');
     const passBtn = document.getElementById('pass-btn');
 
-
     if (!turnActions) return;
     
-// 🚩 最優先ガード：playingフェーズ以外、または観戦者は、跡形もなく隠す
+    // 🚩 最優先ガード：playingフェーズ以外、または観戦者は、跡形もなく隠す
     if (phase !== 'playing' || isObserver) {
         turnActions.classList.remove('flex', 'block');
         turnActions.classList.add('hidden');
@@ -983,67 +997,65 @@ console.log("🔘 ボタン更新詳細:", {
             turnBadge.classList.remove('flex', 'block');
             turnBadge.classList.add('hidden');
         }
+        [reverseBtn, exchangeStartBtn, passBtn].forEach(btn => {
+            if (btn) btn.classList.add('hidden');
+        });
         return; 
     }
 
     // --- これ以降は「playingフェーズ」かつ「参加者」であること確定 ---
-    const isTurnBased = (opts.turnBased !== false);
+    // ターン制オフなら shouldShowPanel は常に true になります
     const shouldShowPanel = isTurnBased ? isMyTurn : true;
 
-    // 🚩 判定ロジックの修正
-        const shouldShowNotice = isTurnBased && actualIsMyTurn;
-if (shouldShowPanel) {
+    if (shouldShowPanel) {
         turnActions.classList.remove('hidden');
         turnActions.classList.add('flex');
-        if (turnBadge && isTurnBased && isMyTurn) {
-             turnBadge.classList.remove('hidden');
-             turnBadge.classList.add('block');
+        
+        // バッジはターン制かつ自分のターンの時だけ出す
+        if (turnBadge) {
+            if (isTurnBased && isMyTurn) {
+                turnBadge.classList.remove('hidden');
+                turnBadge.classList.add('block');
+            } else {
+                turnBadge.classList.add('hidden');
+            }
         }
     
-    // 🚩 ボタンの「活性/非活性」を制御
-        [passBtn, exchangeStartBtn].forEach(btn => {
+        // ボタンの活性/非活性を制御
+        [reverseBtn, passBtn, exchangeStartBtn].forEach(btn => {
             if (btn) {
-                if (phase === 'playing') {
-                    btn.disabled = false;
-                    btn.style.opacity = "1";
-                    btn.style.cursor = "pointer";
-                } else {
-                    btn.disabled = true;
-                    btn.style.opacity = "0.5"; // 半透明にして「押せない感」を出す
-                    btn.style.cursor = "not-allowed";
-                }
+                btn.disabled = false;
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
             }
         });
 
-// 2. 手札交換ボタンの制御
-    if (exchangeStartBtn) {
-        if (opts.exchange) {
-            exchangeStartBtn.classList.remove('hidden');
-        } else {
-            exchangeStartBtn.classList.add('hidden');
+        // 1. 手札リバースボタンの制御
+        if (reverseBtn) {
+            if (opts.secretCard) reverseBtn.classList.remove('hidden');
+            else reverseBtn.classList.add('hidden');
         }
-    }
         
-// 3. パスボタンの制御
-    if (passBtn) {
-        // ターン制であり、かつパス設定がONのときだけ出す
-        if (opts.pass && isTurnBased) {
-            passBtn.classList.remove('hidden');
-        } else {
-            passBtn.classList.add('hidden');
+        // 2. 手札交換ボタンの制御
+        if (exchangeStartBtn) {
+            if (opts.exchange) exchangeStartBtn.classList.remove('hidden');
+            else exchangeStartBtn.classList.add('hidden');
         }
-    }
-        
-} else {
-        // 自分のターンでないとき
+            
+        // 3. パスボタンの制御（ターン制オフならパスは出さない）
+        if (passBtn) {
+            if (opts.pass && isTurnBased) passBtn.classList.remove('hidden');
+            else passBtn.classList.add('hidden');
+        }
+            
+    } else {
         turnActions.classList.remove('block','flex');
         turnActions.classList.add('hidden');
-
     }
     
-console.log(`🔍 最終判定(延期後): classes=${turnBadge ? turnBadge.className : 'no-element'}, isMyTurn=${isMyTurn}`);
-   
+    console.log(`🔍 最終判定(延期後): classes=${turnBadge ? turnBadge.className : 'no-element'}, isMyTurn=${isMyTurn}`);
 }
+    
         // 「現在、評価ステップが必要な設定か」を判定するスマートな関数
 function isRatingRequired() {
 if (!window.activeOptions) return false; 
@@ -1498,23 +1510,54 @@ function hideResultAndShowField() {
 }
     
 function renderMyHand(handCards) {
-    // 🚩 追加：交換モード（カード選択中）なら、サーバーからの描き直し要求を無視する
-    if (typeof isExchangeMode !== 'undefined' && isExchangeMode) return;
-    
+    // 🚩 1. 引数が空なら、保存されているキャッシュ（myCurrentHand）を安全に引き継ぐ
     if (handCards) {
         myCurrentHand = handCards;
-    } else if (myCurrentHand) {
+    } else if (typeof myCurrentHand !== 'undefined' && myCurrentHand) {
         handCards = myCurrentHand;
     } else {
-        return;
+        return; // 手札データがどこにもなければ終了
+    }
+
+    // 🚩 2. 最新の自分のデータを取得（※ roomStatePlayers または lastKnownPlayers のある方を参照）
+    const playersSource = window.roomStatePlayers || window.lastKnownPlayers || [];
+    const myData = playersSource.find(p => p.id === socket.id);
+  
+    // 🚩 3. サーバーから届いたフラグをチェック
+    let isReversed = myData ? !!myData.isHandReversed : false;
+
+    // 🛡️ セーフティガード：シークレットカード設定がオフなら強制的に false
+    const isSecretCardEnabled = window.activeOptions && window.activeOptions.secretCard === true;
+    if (!isSecretCardEnabled) {
+        isReversed = false;
+    }
+    
+    // 🚩 4. 交換モード中の描き直し制御（位置をデータの確定後に移動）
+    if (typeof isExchangeMode !== 'undefined' && isExchangeMode) {
+        if (typeof window.lastReversedStatus === 'undefined') {
+            window.lastReversedStatus = isReversed;
+        }
+        
+        // 裏表フラグに変化がない他の同期の時だけリターンして、カード選択状態を守る
+        if (window.lastReversedStatus === isReversed) {
+            return;
+        }
+        
+        // フラグが変わっていた場合は、最新状態を記録して下部の描き直し（選択復元ループ）へ進む
+        window.lastReversedStatus = isReversed;
+    } else {
+        window.lastReversedStatus = isReversed;
     }
     
     const gallery = document.getElementById('gallery');
     if (!gallery) return;
 
     // 🚩 観戦者なら中身を空に
+    // （以下、既存の gallery.innerHTML = ''; 移行のループ処理へと続く…）
+
+    // 🚩 観戦者なら中身を空に
     if (window.isObserver) {
-       gallery.innerHTML = '';
+        gallery.innerHTML = '';
         gallery.innerHTML = '<p style="color: #888; padding: 20px;">手札はありません(観戦席のため)</p>';
         return;
     }
@@ -1528,40 +1571,51 @@ function renderMyHand(handCards) {
         var el;
         var isText = typeof cardData === 'string' && cardData.indexOf('text:') === 0;
 
-        if (isText) {
-            var content = cardData.replace('text:', '');
-            el = document.createElement('div');
-            el.className = 'card hand-card text-card ' + sizeClass;
-            el.innerHTML = '<div class="card-text-inner">' + content + '</div>';
-        } else {
+// 🚩 【リバース処理の割り込み】
+        if (isReversed) {
             el = document.createElement('img');
-            var srcPath = (cardData.indexOf('http') === 0) ? cardData : '/' + cardData;
-            el.src = srcPath;
+            el.src = '../img/reverse.png'; 
             el.className = 'card hand-card image-card';
+        } 
+        // 反転していない（通常時）は元のロジック通りに表面を描画
+        else {
+            if (isText) {
+                var content = cardData.replace('text:', '');
+                el = document.createElement('div');
+                el.className = 'card hand-card text-card ' + sizeClass;
+                el.innerHTML = '<div class="card-text-inner">' + content + '</div>';
+            } else {
+                el = document.createElement('img');
+                var srcPath = (cardData.indexOf('http') === 0) ? cardData : '/' + cardData;
+                el.src = srcPath;
+                el.className = 'card hand-card image-card';
+            }
         }
 
+        // 内部データとして本来のカードパスやテキストを保持（クリック提出時に必要）
         el.dataset.path = cardData;
+        
+        // 🚩 もし現在交換モード中で、すでに選択済みのカードだったら selected クラスを再付与する
+        if (typeof isExchangeMode !== 'undefined' && isExchangeMode && selectedCards.has(cardData)) {
+            el.classList.add('selected');
+        }
 
         // --- クリックイベント（カード提出ロジック） ---
-el.onclick = function() {
-    if (window.isObserver) return;
-    if (isGameEnded) return;
+        el.onclick = function() {
+            if (window.isObserver) return;
+            if (isGameEnded) return;
 
-    // 🚩 修正：DOMの display 状態を見るのをやめる
-    // 1. 自分のターンかどうか（ターン制の場合）
-    if (window.activeOptions.turnBased && !window.isMyTurnNow) {
-        return alert('今はあなたのターンではありません');
-    }
+            // 1. 自分のターンかどうか（ターン制の場合）
+            if (window.activeOptions.turnBased && !window.isMyTurnNow) {
+                return alert('今はあなたのターンではありません');
+            }
 
-    // 2. 投票中、または評価中かどうか（論理フラグで判定）
-    // window.isVoting は投票開始時に true, voteFinished で false になる
-    // window.isRating も同様に管理すべき
-    if (window.isVoting || window.isRating) {
-        // どちらが原因か一目でわかるように詳細をコンソールに出す
-    console.warn(`🚫 提出ブロック中: ${window.isVoting ? '投票中(isVoting)' : ''} ${window.isRating ? '評価中(isRating)' : ''}`);
-        return alert('投票・評価が終わるまで待ってね');
-    }
-            
+            // 2. 投票中、または評価中かどうか
+            if (window.isVoting || window.isRating) {
+                console.warn(`🚫 提出ブロック中: ${window.isVoting ? '投票中(isVoting)' : ''} ${window.isRating ? '評価中(isRating)' : ''}`);
+                return alert('投票・評価が終わるまで待ってね');
+            }
+                
             if (typeof isExchangeMode !== 'undefined' && isExchangeMode) {
                 if (selectedCards.has(cardData)) {
                     selectedCards.delete(cardData);
@@ -1573,7 +1627,7 @@ el.onclick = function() {
                 return;
             }
 
-            var cardPath = el.dataset.path;
+            var cardPath = el.dataset.path; // 👈 これで el から安全に取得されます
             if (activeOptions.shiritori) {
                 var textInput = document.getElementById('mochicotoriText');
                 var inputArea = document.getElementById('mochicotoriTextArea');
@@ -1751,216 +1805,258 @@ function updateModeDisplay(mode) {
 function lockAllInputs(isLocked) {
   console.log("UIロック状態変更:", isLocked);
 
-  // 🚩 1. ロック対象のIDリスト（あなたのコードの実際のIDに合わせました）
   const ids = [
-    'exchange-start-btn',   // 手札交換開始
-    'pass-btn',             // パス
+    'reverse-btn',           // リバース
+    'exchange-start-btn',    // 手札交換開始
+    'pass-btn',              // パス
     'mochicotoriText',       // しりとり入力欄
-    'mochicotoriTextArea',       // しりとり入力欄の親要素
-    'exchange-confirm-btn', // 交換確定
-    'exchange-cancel-btn'   // キャンセル
+    'mochicotoriTextArea',   // しりとり入力欄の親要素
+    'exchange-confirm-btn',  // 交換確定
+    'exchange-cancel-btn'    // キャンセル
   ];
+
+  const opts = window.activeOptions || {};
+  const phase = window.currentPhase; 
+  const isTurnBased = (opts.turnBased !== false);
+  const inExchange = (typeof isExchangeMode !== 'undefined' && isExchangeMode);
 
   ids.forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.disabled = isLocked; // 物理ロック
-      el.style.opacity = isLocked ? "0.4" : "1";
-      el.style.pointerEvents = isLocked ? "none" : "auto";
+    if (!el) return;
+
+    // ----------------------------------------------------
+    // 🚩 状況 A: 手札交換モードの時の制御
+    // ----------------------------------------------------
+    if (inExchange) {
+      if (id === 'exchange-confirm-btn' || id === 'exchange-cancel-btn' || id === 'reverse-btn') {
+        // 物理的なロックのみ操作し、hiddenクラス（表示状態）には絶対に触らない
+        el.disabled = false;
+        el.style.opacity = "1";
+        el.style.pointerEvents = "auto";
+      } else {
+        el.disabled = true;
+        el.style.opacity = "0.4";
+        el.style.pointerEvents = "none";
+      }
+      return; 
     }
+
+    // ----------------------------------------------------
+    // 🚩 状況 B: 通常プレイモードの時の制御
+    // ----------------------------------------------------
+    let actualLock = isLocked;
+
+    // ターン制オフのプレイ中の場合、ボタン類の誤ロックのみスルー
+    if (!isTurnBased && phase === 'playing') {
+      if (id !== 'mochicotoriText' && id !== 'mochicotoriTextArea') {
+        actualLock = false;
+      }
+    }
+
+    // バックアップ同様、純粋に物理ロックと透過度だけを制御（classListへの干渉を排除）
+    el.disabled = actualLock; 
+    el.style.opacity = actualLock ? "0.4" : "1";
+    el.style.pointerEvents = actualLock ? "none" : "auto";
   });
 
-  // 🚩 2. 手札エリア（gallery）の見た目
+  // 2. 手札エリア（gallery）の見た目
   const gallery = document.getElementById('gallery');
   if (gallery) {
-    gallery.style.pointerEvents = isLocked ? "none" : "auto";
-    gallery.style.opacity = isLocked ? "0.6" : "1"; // 👈 ここで0.6を適用
+    if (inExchange || (!isTurnBased && phase === 'playing')) {
+      gallery.style.pointerEvents = "auto";
+      gallery.style.opacity = "1";
+    } else {
+      gallery.style.pointerEvents = isLocked ? "none" : "auto";
+      gallery.style.opacity = isLocked ? "0.6" : "1"; 
+    }
   }
 
-  // 🚩 3. 場のカード（フィールド）の見た目
-  // ゲーム終了時は「いいね」も「削除」もできないように、場全体を触れなくする
+  // 3. 場のカード（フィールド）の見た目
   const field = document.getElementById('field');
   if (field) {
-    field.style.pointerEvents = isLocked ? "none" : "auto";
-    // 場は「眺める」ものなので、透明度は下げすぎず「0.9」程度でロックを表現
-    field.style.filter = isLocked ? "grayscale(50%)" : "none";
+    if (!isTurnBased && phase === 'playing') {
+      field.style.pointerEvents = "auto";
+      field.style.filter = "none";
+    } else {
+      field.style.pointerEvents = isLocked ? "none" : "auto";
+      field.style.filter = isLocked ? "grayscale(50%)" : "none";
+    }
   }
 }
 
+
     // 🟢 カード全体を描画する独立した関数を追加
 function renderAllCards(fieldCards) {
-const container = document.getElementById('field'); // あなたのコードのIDに合わせてください
+    const container = document.getElementById('field'); 
     if (!container) {
         console.warn("⚠️ 描画先の要素(#field)が見つかりません。リザルト画面表示中などは無視してOKです。");
         return;
     }
     container.innerHTML = '';
 
-  // 🚩 1. グローバルから現在の状態を取得
-const currentPhase = window.currentPhase || ''; 
-  const currentActiveOptions = window.activeOptions || {};
-  const isObserver = window.isObserver || false;
+    const currentPhase = window.currentPhase || ''; 
+    const currentActiveOptions = window.activeOptions || {};
+    const isObserver = window.isObserver || false;
 
-  // 🎨 名簿から色対応表を作成
-  const playerColorMap = {};
-  if (window.lastKnownPlayers) {
-    window.lastKnownPlayers.forEach(p => {
-      playerColorMap[p.id] = p.color;
-    });
-  }
-
-  fieldCards.forEach((data, index) => {
-    const { name, card, color, text, rejected, likes } = data;
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'card-wrapper';
+    const playerColorMap = {};
+    const playerReverseByColorMap = {}; 
+    let myColor = '';                    
     
-    // 🚩 2. いいね調整中なら「クリックできる」見た目にする
-    if (currentPhase === 'likeCheck' && !isObserver) {
-        wrapper.style.cursor = 'pointer';
-        wrapper.title = "クリックして「いいね」を切り替え";
+    if (window.lastKnownPlayers) {
+        window.lastKnownPlayers.forEach(p => {
+            playerColorMap[p.id] = p.color;
+            playerReverseByColorMap[p.color] = p.isHandReversed; 
+            if (p.id === socket.id) {
+                myColor = p.color;
+            }
+        });
     }
 
-    const visualBox = document.createElement('div');
-    if (rejected) visualBox.style.opacity = '0.4';
+    fieldCards.forEach((data, index) => {
+        const { name, card, color, text, rejected, likes } = data;
 
-    const isTextCard = typeof card === 'string' && card.startsWith('text:');
+        // 🚩【インディアンポーカー安全判定】
+        // インディアンポーカーまたはリバース系のモード・オプションが有効な時だけ裏向き判定を行う
+        const isReverseFeatureActive = !!(
+            currentActiveOptions.indian || 
+            currentActiveOptions.reverseMode || 
+            currentActiveOptions.indianPoker || 
+            currentActiveOptions.mode === 'indian'
+        );
 
-    if (isTextCard) {
-const content = card.replace('text:', '');
-  const textCardEl = document.createElement('div');
-  
-  // 🚩 修正：モード判定でクラス付与
-  const isAutoDeck = (currentActiveOptions.mode === 'word' || currentActiveOptions.mode === 'chain');
-  const sizeClass = isAutoDeck ? 'large-text' : '';
-  
-  textCardEl.className = `card text-card ${sizeClass}`;
-  textCardEl.style.width = '130px';
-  textCardEl.style.height = '130px';
-      textCardEl.style.border = `3px solid ${color}`;
-      textCardEl.style.backgroundColor = '#fff';
-      textCardEl.style.display = 'flex';
-      textCardEl.style.alignItems = 'center';
-      textCardEl.style.justifyContent = 'center';
-      textCardEl.style.fontWeight = 'bold';
-textCardEl.innerHTML = `<div class="card-text-inner">${content}</div>`;
-  visualBox.appendChild(textCardEl);
-    } else {
-      const imgEl = document.createElement('img');
-      imgEl.src = card.startsWith('http') ? card : '/' + card;
-      imgEl.className = 'card';
-      imgEl.style.width = '100%';
-      imgEl.style.height = 'auto';
-      imgEl.style.border = `3px solid ${color}`;
-      visualBox.appendChild(imgEl);
-    }
+        const isCardOwnerReversed = isReverseFeatureActive && (playerReverseByColorMap[color] || false);
+        const isMyCard = (myColor && color === myColor);
+        const isHiddenForMe = isCardOwnerReversed && isMyCard;
 
-    if (text) {
-      const p = document.createElement('p');
-      p.textContent = text;
-      p.style.fontSize = '12px';
-      p.style.margin = '5px 0';
-      visualBox.appendChild(p);
-    }
-    
-    wrapper.appendChild(visualBox);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'card-wrapper';
+        
+        if (currentPhase === 'likeCheck' && !isObserver) {
+            wrapper.style.cursor = 'pointer';
+            wrapper.title = "クリックして「いいね」を切り替え";
+        }
 
-      // 🚩 修正：観戦者でない場合のみ、ホバー時のカーソルを pointer にする
-    if (currentPhase === 'likeCheck' && !isObserver) {
-        wrapper.style.cursor = 'pointer';
-        wrapper.title = "クリックして「いいね」を切り替え";
-    }
-      
-    const likeContainer = document.createElement('div');
-    likeContainer.className = 'like-container';
+        const visualBox = document.createElement('div');
+        if (rejected) visualBox.style.opacity = '0.4';
 
-    if (likes && likes.length > 0) {
-      likes.forEach(playerId => {
-        const heart = document.createElement('span');
-        heart.className = 'like-badge';
-        heart.textContent = '♥';
-        heart.style.color = playerColorMap[playerId] || color || '#888';
-        likeContainer.appendChild(heart);
-      });
-    }
-    wrapper.appendChild(likeContainer);
+        const isTextCard = typeof card === 'string' && card.startsWith('text:') && !isHiddenForMe;
 
-    if (data.voteResults && data.voteResults.length > 0) {
-      const voteResultDiv = document.createElement('div');
-      voteResultDiv.style.marginTop = "5px";
-      voteResultDiv.style.fontSize = "18px";
-      data.voteResults.forEach(res => {
-        const span = document.createElement('span');
-        span.textContent = res.choice === 'ok' ? '○' : '×';
-        span.style.color = res.color;
-        span.style.margin = "0 2px";
-        span.style.fontWeight = "bold";
-        voteResultDiv.appendChild(span);
-      });
-      visualBox.appendChild(voteResultDiv);
-    }
-
-    if (data.starAverage !== undefined && data.starAverage !== null) {
-      try {
-        const starDiv = document.createElement('div');
-        if (typeof createStarDisplay === 'function') {
-          const html = createStarDisplay(data.starAverage);
-          if (html) starDiv.innerHTML = html;
+        if (isTextCard) {
+            const content = card.replace('text:', '');
+            const textCardEl = document.createElement('div');
+            
+            const isAutoDeck = (currentActiveOptions.mode === 'word' || currentActiveOptions.mode === 'chain');
+            const sizeClass = isAutoDeck ? 'large-text' : '';
+            
+            textCardEl.className = `card text-card ${sizeClass}`;
+            textCardEl.style.width = '130px';
+            textCardEl.style.height = '130px';
+            textCardEl.style.border = `3px solid ${color}`;
+            textCardEl.style.backgroundColor = '#fff';
+            textCardEl.style.display = 'flex';
+            textCardEl.style.alignItems = 'center';
+            textCardEl.style.justifyContent = 'center';
+            textCardEl.style.fontWeight = 'bold';
+            textCardEl.innerHTML = `<div class="card-text-inner">${content}</div>`;
+            visualBox.appendChild(textCardEl);
         } else {
-          starDiv.textContent = '⭐' + data.starAverage;
+            const imgEl = document.createElement('img');
+            const finalCardSrc = isHiddenForMe ? 'img/reverse.png' : card;
+            
+            imgEl.src = finalCardSrc.startsWith('http') ? finalCardSrc : '/' + finalCardSrc;
+            imgEl.className = 'card';
+            imgEl.style.width = '100%';
+            imgEl.style.height = 'auto';
+            imgEl.style.border = `3px solid ${color}`;
+            visualBox.appendChild(imgEl);
         }
-        visualBox.appendChild(starDiv);
-      } catch (e) {
-        console.warn("カードの星表示でエラーが発生しました:", e);
-      }
-    }
-      
-// 🚩 クリックイベント：観戦者は即時遮断
-    wrapper.onclick = (e) => {
-        if (window.isObserver) return; // 🚩 最強のガード
-        
-// 🚩 修正ポイント：cards[index] が使えないので、要素から文字を取得
-    // textContent だと装飾（下線など）が含まれる場合があるため、
-    // もし描画時に dataset.text を設定していればそれがベストです。
-    const cardChar = wrapper.textContent.trim().charAt(0); 
 
-    console.log("クリックした文字:", cardChar);
-    // cardChar が取得できていないと charCodeAt でエラーが出るのでチェック
-    if (cardChar) {
-        console.log("文字コード:", cardChar.charCodeAt(0).toString(16));
-        // charVariations がグローバルに定義されている前提
-        console.log("変換テーブルにあるか:", !!(typeof charVariations !== 'undefined' && charVariations[cardChar]));
-    }
-        
-    // 🚩 修正：プレイ中、または「文字調整フェーズ」なら装飾を許可
-    const canDecorate = (currentPhase === 'playing' || currentPhase === 'decoCheck');
-
-    if (isTextCard && canDecorate) {
-        if (window.activeOptions?.mode === 'word' || window.activeOptions?.textDecoration) {
-            socket.emit('toggleTextDecoration', { cardIndex: index });
-            console.log(`🔠 カード ${index} の装飾をリクエスト（Phase: ${currentPhase}）`);
-            return; 
+        if (text) {
+            const p = document.createElement('p');
+            p.textContent = isHiddenForMe ? '❓（あなたには見えないカード）' : text;
+            p.style.fontSize = '12px';
+            p.style.margin = '5px 0';
+            visualBox.appendChild(p);
         }
+        
+        wrapper.appendChild(visualBox);
+
+        if (currentPhase === 'likeCheck' && !isObserver) {
+            wrapper.style.cursor = 'pointer';
+            wrapper.title = "クリックして「いいね」を切り替え";
+        }
+          
+        const likeContainer = document.createElement('div');
+        likeContainer.className = 'like-container';
+
+        if (likes && likes.length > 0) {
+            likes.forEach(playerId => {
+                const heart = document.createElement('span');
+                heart.className = 'like-badge';
+                heart.textContent = '♥';
+                heart.style.color = playerColorMap[playerId] || color || '#888';
+                likeContainer.appendChild(heart);
+            });
+        }
+        wrapper.appendChild(likeContainer);
+
+        if (data.voteResults && data.voteResults.length > 0) {
+            const voteResultDiv = document.createElement('div');
+            voteResultDiv.style.marginTop = "5px";
+            voteResultDiv.style.fontSize = "18px";
+            data.voteResults.forEach(res => {
+                const span = document.createElement('span');
+                span.textContent = res.choice === 'ok' ? '○' : '×';
+                span.style.color = res.color;
+                span.style.margin = "0 2px";
+                span.style.fontWeight = "bold";
+                voteResultDiv.appendChild(span);
+            });
+            visualBox.appendChild(voteResultDiv);
+        }
+
+        if (data.starAverage !== undefined && data.starAverage !== null) {
+            try {
+                const starDiv = document.createElement('div');
+                if (typeof createStarDisplay === 'function') {
+                    const html = createStarDisplay(data.starAverage);
+                    if (html) starDiv.innerHTML = html;
+                } else {
+                    starDiv.textContent = '⭐' + data.starAverage;
+                }
+                visualBox.appendChild(starDiv);
+            } catch (e) {
+                console.warn("カードの星表示でエラーが発生しました:", e);
+            }
+        }
+          
+        wrapper.onclick = (e) => {
+            if (window.isObserver) return; 
+            
+            const cardChar = wrapper.textContent.trim().charAt(0); 
+            const canDecorate = (currentPhase === 'playing' || currentPhase === 'decoCheck');
+
+            if (isTextCard && canDecorate) {
+                if (window.activeOptions?.mode === 'word' || window.activeOptions?.textDecoration) {
+                    socket.emit('toggleTextDecoration', { cardIndex: index });
+                    return; 
+                }
+            }
+
+            const canLike = (currentPhase === 'playing' || currentPhase === 'likeCheck');
+            if (canLike && currentActiveOptions.like) {
+                socket.emit('toggleLike', { cardIndex: index });
+            }
+        };
+
+        container.appendChild(wrapper); 
+    });
+
+    if (currentPhase === 'likeCheck') {
+        container.style.pointerEvents = window.isObserver ? 'none' : 'auto'; 
+        container.style.filter = 'none';
+        container.style.opacity = '1';
     }
-
-    // いいねの処理 (likeCheckフェーズでも動くように)
-    const canLike = (currentPhase === 'playing' || currentPhase === 'likeCheck');
-    if (canLike && currentActiveOptions.like) {
-        socket.emit('toggleLike', { cardIndex: index });
-    }
-      
-};
-
-// 🚩 field ではなく container を使う
-    container.appendChild(wrapper); 
-  });
-
-  // 🚩 修正：ここも container に統一
-  if (currentPhase === 'likeCheck') {
-    container.style.pointerEvents = window.isObserver ? 'none' : 'auto'; 
-    container.style.filter = 'none';
-    container.style.opacity = '1';
-  }
 }
     
   // 🎨 メッセージ描画用関数（ここが色分けの肝）
@@ -2231,6 +2327,19 @@ socket.on('turnUpdate', ({ turnIndex, currentPlayerId, currentPlayerName }) => {
     refreshActionButtons();
 });
 
+//    リバースボタン
+document.getElementById('reverse-btn').addEventListener('click', () => {
+    // 🚩 観戦者、または手札のデータが存在しない・枚数が0枚の場合は完全に無視する
+//    if (window.isObserver) return;
+//    if (typeof myCurrentHand === 'undefined' || !myCurrentHand || myCurrentHand.length === 0) {
+//        return; 
+//    }
+
+    console.log("🔘 リバースボタンが押されました。サーバーへ要求を送ります。");
+    // サーバーに対して「手札を反転させて」と通知
+    socket.emit('toggleHandReverse');
+});  
+    
 // 🟢 手札交換モードの切り替え
 document.getElementById('exchange-start-btn').addEventListener('click', () => {
     isExchangeMode = true;
@@ -2239,12 +2348,14 @@ document.getElementById('exchange-start-btn').addEventListener('click', () => {
     document.getElementById('pass-btn').classList.add('hidden'); // 開始時は問答無用で隠してOK
     document.getElementById('exchange-controls').classList.remove('hidden');
     document.getElementById('exchange-controls').classList.add('flex');
+    
+    lockAllInputs(window.isMyTurnNow ? false : true);
 });
 
 // 🟢 キャンセル
 document.getElementById('exchange-cancel-btn').addEventListener('click', () => {
     const opts = window.activeOptions || {};
-    isExchangeMode = false;
+    isExchangeMode = false; // 🚩 モード解除が先
     selectedCards.clear();
     document.querySelectorAll('.hand-card').forEach(el => el.classList.remove('selected'));
     
@@ -2252,13 +2363,15 @@ document.getElementById('exchange-cancel-btn').addEventListener('click', () => {
     document.getElementById('exchange-controls').classList.add('hidden');
     document.getElementById('exchange-start-btn').classList.remove('hidden');
 
-    // 🚩 修正：パス設定がONかつターン制の時だけパスボタンを再表示する
+    // 🚩 パス設定がONかつターン制の時だけパスボタンを再表示する
     const shouldShowPass = opts.pass && opts.turnBased;
     if (shouldShowPass) {
         document.getElementById('pass-btn').classList.remove('hidden');
     } else {
         document.getElementById('pass-btn').classList.add('hidden');
     }
+
+    lockAllInputs(window.isMyTurnNow ? false : true);
 });
 
 // 🟢 実行
@@ -2602,7 +2715,7 @@ let lastProcessedMode = "";
 socket.on('roomState', (state) => {
     console.log("📡 受信データ:", state); // ← state.firstPlayerId があるかチェック！
 if (!state) return;
-
+    
 // --- 🚩 A. 自分の役割を最優先で確定させる ---
     const myData = state.players ? state.players.find(p => p.id === socket.id) : null;
     
@@ -3427,6 +3540,16 @@ socket.on('phaseUpdated', (phase) => {
         // 🚩 重要：次のラウンドのためにフラグをリセット
         window.hasFinishedLikeCheck = false; 
         
+        // 🪓 新しいゲーム（playingフェーズ）が始まった瞬間なので、
+        // もし前戦の交換モード（UI）が画面に残りっぱなしなら確実に自動キャンセルさせる
+        if (typeof isExchangeMode !== 'undefined' && isExchangeMode) {
+            const cancelBtn = document.getElementById('exchange-cancel-btn');
+            if (cancelBtn) {
+                console.log("🔄 フェーズが playing に切り替わったため、交換モードを安全に自動キャンセルします。");
+                cancelBtn.click();
+            }
+        }
+        
     } else if (phase === 'decoCheck') {
         // --- 文字調整 ---
         if (phaseDisplay) {
@@ -3832,6 +3955,34 @@ socket.on('forceClickSync', () => {
         console.error('コピーに失敗しました', err);
         alert("URLのコピーに失敗しました。ブラウザの設定を確認してください。");
     }
+});
+    
+document.addEventListener('DOMContentLoaded', () => {
+    const joinBtn = document.getElementById('joinRoomBtn');
+    const idInput = document.getElementById('directRoomId');
+
+    function navigateToRoom() {
+        const roomId = idInput.value.trim();
+        
+        if (!roomId) {
+            alert('部屋IDを入力してください');
+            return;
+        }
+
+        // 🚩 サイトの仕様に合わせてURLを変更してください
+        // 例: https://mochicotori.com/?room=部屋ID に遷移する場合
+        window.location.href = `/room/${encodeURIComponent(roomId)}`;
+    }
+
+    // ボタンクリック時
+    joinBtn.addEventListener('click', navigateToRoom);
+
+    // 入力欄でのエンターキー押し下げ時
+    idInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            navigateToRoom();
+        }
+    });
 });
     
     

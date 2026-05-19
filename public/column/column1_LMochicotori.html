@@ -33,18 +33,44 @@
     <script src="https://kit.fontawesome.com/7f39a6d40a.js" crossorigin="anonymous"></script>
     </head>
 <body class="column-page">
-    <a href="column4_LChain.html" class="nav-side nav-left"><span>＜</span></a>
+    <a href="column5_SStory.html" class="nav-side nav-left"><span>＜</span></a>
     <a href="column2_LStory.html" class="nav-side nav-right"><span>＞</span></a>
     <div class="column">
 <h2>[26.4.17] このモードをもっと楽しむ！　<br class="sp-br"><span class="sp-small">～モチコトリモード編～</span></h2>   
 <img class="column_imgA imgR" src="../img/ogimg3.jpg">
 <h1><a target="_blank" rel="noopener" href="../index.html">MOCHICOTORI(モチコトリ)</a>
 <br><span class="guide">⇗ ゲームはこちらからプレイできます</span></h1>
-<h3>モチコトリモードのルール</h3>
+
+<div class="index-container" id="customIndex">
+  <div class="index-header">
+    <span class="index-title"><i class="fa-solid fa-list-ol"></i> 目次</span>
+    <button class="index-toggle-btn" id="indexToggleBtn" title="目次を閉じる">
+      <i class="fa-solid fa-chevron-up"></i>
+    </button>
+  </div>
+  <ul class="index-list" id="indexList">
+    <li><a href="#rules">モチコトリモードのルール</a></li>
+    <li>
+      <a href="#similarGames">似たゲームの紹介</a>
+      <ul>
+        <li><a href="#Illustri">イラストリー</a></li>
+        <li><a href="#omoshiroShiritori">おもしろしりとり</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#moreFun">モチコトリモードをもっと楽しむ！</a>
+      <ul>
+        <li><a href="#deckBuildingTips">デッキ構築のヒント💡</a></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<h3 id="rules">モチコトリモードのルール</h3>
 <p>任意の写真やイラストをデッキに使う、しりとりのゲーム。
 自分のターンになったら手札からカードを1枚選んで、単語や文章と一緒に出します(もちろん、しりとりルールに則って)。そのカードにふさわしい言葉かどうかを自分以外が判定。通過したら場に出せます。
 否決されたり「ん」で終わったら、ペナルティで1枚引きます。手札がなくなった人が現れたらその周で終わり。ゲーム終了時に手札がない人の勝ち！</p>
-<h3>似たゲームの紹介</h3>    
+<h3 id="similarGames">似たゲームの紹介</h3>    
 <ul>
 <li><a href="#Illustri">イラストリー</a></li>
 <li><a href="#omoshiroShiritori">おもしろしりとり</a></li>
@@ -58,7 +84,7 @@
 <p>モチコトリモードとの違い：画像を使わない、面白い言葉でしりとりする</p>
 <iframe class="columnYT" src="https://www.youtube.com/embed/q_Ile2JxC3Y?si=9jNdu5YHzqn6cKsZ&amp;start=528" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 <p>こんねきのゲームﾝ<br>この類のゲームを大喜利ととらえてしまっている悲しき獣たちには画像などもはや不要かもしれない。「無いお米川柳」も楽しくプレイできるだろう。</p>
-<h3>モチコトリモードをもっと楽しむ！</h3>  
+<h3 id="moreFun">モチコトリモードをもっと楽しむ！</h3>  
 <ul>
 <li><a href="#deckBuildingTips">デッキ構築のヒント💡</a></li>
 </ul>
@@ -91,6 +117,27 @@ document.querySelectorAll('.toTop').forEach(button => {
         });
     });
 });
+    
+// インデックス
+    document.getElementById('indexToggleBtn').addEventListener('click', function() {
+    const list = document.getElementById('indexList');
+    const btn = this;
+    const container = document.getElementById('customIndex');
+    
+    // クラスをトグルして切り替え
+    list.classList.toggle('collapsed');
+    
+    if (list.classList.contains('collapsed')) {
+        btn.innerHTML = '<i class="fa-solid fa-chevron-down"></i>';
+        btn.title = '目次を開く';
+        container.style.paddingBottom = '12px'; // 閉じたときの余白調整
+    } else {
+        btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+        btn.title = '目次を閉じる';
+        container.style.paddingBottom = '20px';
+    }
+});
+    
 </script>
 </body>
 </html>
