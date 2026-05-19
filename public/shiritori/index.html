@@ -1912,21 +1912,21 @@ function renderAllCards(fieldCards) {
         });
     }
 
-    fieldCards.forEach((data, index) => {
+fieldCards.forEach((data, index) => {
         const { name, card, color, text, rejected, likes } = data;
 
-        // 🚩【インディアンポーカー安全判定】
-        // インディアンポーカーまたはリバース系のモード・オプションが有効な時だけ裏向き判定を行う
-        const isReverseFeatureActive = !!(
-            currentActiveOptions.indian || 
-            currentActiveOptions.reverseMode || 
-            currentActiveOptions.indianPoker || 
-            currentActiveOptions.mode === 'indian'
-        );
-
-        const isCardOwnerReversed = isReverseFeatureActive && (playerReverseByColorMap[color] || false);
+        // 🚩【インディアンポーカー判定：フィールドカードのマスク制御】
+        // 1. このカードの枠の色（color）が「自分自身の持っている色（myColor）」と同じか
         const isMyCard = (myColor && color === myColor);
-        const isHiddenForMe = isCardOwnerReversed && isMyCard;
+
+        // 2. 自分が現在リバース状態（isHandReversed = true）かどうかを名簿から取得
+        //    ※playerReverseByColorMap[myColor] で「自分のリバース状態」を正確に引きます
+        const isIMyselfReversed = myColor ? (playerReverseByColorMap[myColor] || false) : false;
+
+        // 3.「自分が出したカード」かつ「自分自身がリバース状態」の時だけ、自分視点で裏向き（マスク）にする
+        //    （自分が出していない他のプレイヤーのカードは、自分がリバース中であっても全部見えます）
+        const isHiddenForMe = isMyCard && isIMyselfReversed;
+
 
         const wrapper = document.createElement('div');
         wrapper.className = 'card-wrapper';
@@ -1939,6 +1939,7 @@ function renderAllCards(fieldCards) {
         const visualBox = document.createElement('div');
         if (rejected) visualBox.style.opacity = '0.4';
 
+        // 🚩 自分視点で裏向き（isHiddenForMe）なら、テキストカードであっても画像（裏面）として扱う
         const isTextCard = typeof card === 'string' && card.startsWith('text:') && !isHiddenForMe;
 
         if (isTextCard) {
@@ -1961,6 +1962,8 @@ function renderAllCards(fieldCards) {
             visualBox.appendChild(textCardEl);
         } else {
             const imgEl = document.createElement('img');
+            
+            // 🚩 自分視点で裏向きなら裏面画像をセット。それ以外は本来のカード
             const finalCardSrc = isHiddenForMe ? 'img/reverse.png' : card;
             
             imgEl.src = finalCardSrc.startsWith('http') ? finalCardSrc : '/' + finalCardSrc;
@@ -1973,11 +1976,14 @@ function renderAllCards(fieldCards) {
 
         if (text) {
             const p = document.createElement('p');
+            // 🚩 自分視点で裏向きならテキストも「❓」で隠す
             p.textContent = isHiddenForMe ? '❓（あなたには見えないカード）' : text;
             p.style.fontSize = '12px';
             p.style.margin = '5px 0';
             visualBox.appendChild(p);
         }
+        
+        // ...（以下、いいねや星評価などの既存の描画ロジックへ続く）...
         
         wrapper.appendChild(visualBox);
 
