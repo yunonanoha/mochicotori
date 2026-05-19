@@ -185,13 +185,31 @@ if (room.mode === 'mochicotori') {
     inputImages = (data && data.images && data.images.length > 0) ? data.images : (room.masterImages || []);
     inputText = ""; 
 } else if (room.mode === 'story') {
-    // 📖 ストーリー：画像もテキストも両方採用
-    inputImages = (data && data.images && data.images.length > 0) ? data.images : (room.masterImages || []);
+    // 📖 ストーリー：新しく指定された方を最優先、どちらも無ければ前回を引き継ぐ
     
-    if (data && data.textDeck && data.textDeck.trim() !== "") {
+    const hasNewImages = !!(data && data.images && data.images.length > 0);
+    const hasNewText = !!(data && data.textDeck && data.textDeck.trim() !== "");
+
+    if (hasNewImages) {
+        // ① 新しい画像デッキがセットされた場合（テキストは完全に空にする）
+        console.log("📖 ストーリー：新しい【画像デッキ】が指定されたため、古いテキストを破棄します。");
+        inputImages = data.images;
+        inputText = "";
+    } else if (hasNewText) {
+        // ② 新しい文デッキがセットされた場合（画像は完全に空にする）
+        console.log("📖 ストーリー：新しい【文デッキ】が指定されたため、古い画像を破棄します。");
+        inputImages = [];
         inputText = data.textDeck;
-    } else if (room.masterTextDeck && room.masterTextDeck.length > 0) {
-        inputText = room.masterTextDeck.map(t => t.replace(/^text:/, '')).join('\n');
+    } else {
+        // ③ どちらもセットされていない（空）なら、前回の部屋のデータをそのまま引き継ぐ
+        console.log("📖 ストーリー：新しい指定がないため、前回のデッキデータを引き継ぎます。");
+        inputImages = room.masterImages || [];
+        
+        if (room.masterTextDeck && room.masterTextDeck.length > 0) {
+            inputText = room.masterTextDeck.map(t => t.replace(/^text:/, '')).join('\n');
+        } else {
+            inputText = "";
+        }
     }
 } else {
     // 🧱 ワード・チェーン：generateDeck 側で自動生成されるため空でOK
