@@ -1754,7 +1754,7 @@ socket.on('playCard', ({ card, text }) => {
 
     // 先頭か末尾がひらがな・カタカナじゃない（漢字や英数字など）場合は弾く！
     if (!kanaRegex.test(firstChar) || !kanaRegex.test(lastChar)) {
-      socket.emit('errorMessage', 'しりとりの最初と最後の文字は、漢字ではなく「ひらがな」か「カタカナ」で入力してください（例：✕「橋」 ◯「はし」）');
+      socket.emit('errorMessage', 'しりとりの最初と最後の文字は、「ひらがな」か「カタカナ」で入力してください（例：✕「橋」 ◯「はし」）');
       return;
     }
     // ───────────────────────────────────────────────────────────────
