@@ -1735,6 +1735,11 @@ footer p {
       /* --- 📱 スマホ向けレスポンシブ (768px以下) --- */
 @media (max-width: 768px) {
 
+    
+    /* コピーボタン */
+.copy-btn {
+    gap: 0px;
+}
 
 .column-page h1{font-size:.9em;}
 
