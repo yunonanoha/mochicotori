@@ -1724,14 +1724,42 @@ socket.on('playCard', ({ card, text }) => {
     return;
   }
     
-  // ----------------------------------------------------
-  // 2. しりとり・「ん」の判定（モチコトリ、またはしりとりONの時）
+// ----------------------------------------------------
+  // 2. しりとりバリデーション（ONの時だけ）
   // ----------------------------------------------------
   const isShiritoriMode = !!(room.options.shiritori || room.options.mode === 'mochicotori' || room.options.mochicotori);
   
   if (isShiritoriMode) {
     const validCards = room.field.filter(c => !c.rejected);
     const prevText = validCards.length > 0 ? validCards.at(-1).text : '';
+
+    // ─── 📝 追加：漢字すり抜け対策（最初と最後の文字をかな・カナに限定する） ───
+    const normalizedText = (text || '').trim();
+
+    // ① 記号やビックリマーク（!や！、スペース等）を除外して、純粋な文字だけを抽出する
+    // ※ [^\p{L}\p{N}] は文字・数字以外の記号などを幅広く対象にします
+    const pureLetters = normalizedText.replace(/[^\p{L}\p{N}]/gu, '');
+
+    if (pureLetters.length === 0) {
+      socket.emit('errorMessage', '有効な文字が入力されていません');
+      return;
+    }
+
+    // 最初と最後の文字を取得
+    const firstChar = pureLetters.charAt(0);
+    const lastChar = pureLetters.slice(-1);
+
+    // ひらがな・カタカナの正規表現（長音記号「ー」も許容）
+    const kanaRegex = /^[\u3040-\u309F\u30A0-\u30FFー]$/;
+
+    // 先頭か末尾がひらがな・カタカナじゃない（漢字や英数字など）場合は弾く！
+    if (!kanaRegex.test(firstChar) || !kanaRegex.test(lastChar)) {
+      socket.emit('errorMessage', 'しりとりの最初と最後の文字は、漢字ではなく「ひらがな」か「カタカナ」で入力してください（例：✕「橋」 ◯「はし」）');
+      return;
+    }
+    // ───────────────────────────────────────────────────────────────
+
+    // 既存のつながりチェック
     const result = isValidShiritori(prevText, text, room.prevLast);
 
     // 通常のルール違反（繋がっていない等）は送信エラーとして突っぱねる
@@ -1740,11 +1768,10 @@ socket.on('playCard', ({ card, text }) => {
       return; 
     }
 
-    // 🛑 「ん」で終わる判定（関数の戻り値、または末尾の文字直接チェックで確実に捕まえる）
-    const normalizedText = (text || '').trim();
+    // 🛑 「ん」終了判定（記号を抜いた pureLetters の末尾で確実にチェック）
     const isEndsWithN = (result && result.type === 'endsWithN') || 
-                        normalizedText.endsWith('ん') || 
-                        normalizedText.endsWith('ン');
+                        lastChar === 'ん' || 
+                        lastChar === 'ン';
 
     if (isEndsWithN) {
       console.log("🛑 「ん」終了検知: デッキの1番下に戻し＆ペナルティドローを実行");
@@ -1777,13 +1804,12 @@ socket.on('playCard', ({ card, text }) => {
 
       room.field.push(lostCard);
       
-      // 各種状態をクライアントへ同期して即座に次のターンへ
       io.to(roomId).emit('updateField', room.field);
       socket.emit('dealCards', player.hand);
       io.to(roomId).emit('updatePlayers', getCleanPlayerData(room));
       io.to(roomId).emit('roomState', getRoomState(roomId));
       nextTurn(room, roomId);
-      return; // 💡 ここで確実に終了させ、下の投票処理（【3】）には絶対に行かせない
+      return; 
     }
   }
     
