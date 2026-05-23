@@ -229,7 +229,7 @@
   </label>
     <label>
 <input type="checkbox" id="optSecretCard" data-option="secretCard">
-    シークレットカード
+    フェイスダウン
 </label><br>
 
   <label>
@@ -1526,7 +1526,7 @@ function renderMyHand(handCards) {
     // 🚩 3. サーバーから届いたフラグをチェック
     let isReversed = myData ? !!myData.isHandReversed : false;
 
-    // 🛡️ セーフティガード：シークレットカード設定がオフなら強制的に false
+    // 🛡️ セーフティガード：フェイスダウン設定がオフなら強制的に false
     const isSecretCardEnabled = window.activeOptions && window.activeOptions.secretCard === true;
     if (!isSecretCardEnabled) {
         isReversed = false;
