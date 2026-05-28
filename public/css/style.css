@@ -90,6 +90,14 @@ footer img{display:none;}
         height:315px;;
     }    
 
+.imgdeckM{
+     flex-wrap: wrap;
+}
+.imgdeckM img{
+    width:120px;
+    height:120px;
+}
+
 /*ブログカード*/
 .custom-blog-card {
     display: flex;
@@ -147,6 +155,28 @@ footer img{display:none;}
     .custom-blog-card { flex-direction: column; }
     .card-image { flex: 0 0 200px; }
 }
+
+
+/* ==========================================
+   一括DLボタン用のスタイル
+   ========================================== */
+.btn-all-dl {
+    display: block;
+    margin: 20px auto;
+    padding: 4px 10px;
+/*
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);  
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+*/
+}
+
 
 /* ==========================================
    目次（インデックス）用のスタイル
@@ -1764,6 +1794,11 @@ footer img{
     width:100%;
     height:180px;
     object-fit: cover;
+}    
+    
+.imgdeckM img{
+    width:80px;
+    height:80px;
 }    
     
 #toriExplanation {
