@@ -2067,9 +2067,11 @@ footer img{
     border-top: 2px solid #ddd;
     gap: 2px;
 }
-    .aboutLinks a:not(:last-child){
+    .aboutLinks a{
     width:100%;
-    text-align: center;    
+    text-align: center;
+    }
+    .aboutLinks a:not(:last-child){
     border-bottom:1px solid #ddd; 
     }
     .separator{
