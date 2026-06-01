@@ -2058,17 +2058,23 @@ footer img{
     font-size: 1.2rem;
     cursor: pointer;
 }
-    
     .aboutLinks {
-/*
+        flex-direction: column;
     justify-content: center;
     align-items: center;
     padding: 5px 0;
     font-size: 0.85rem;
     border-top: 2px solid #ddd;
-*/
     gap: 2px;
 }
+    .aboutLinks a:not(:last-child){
+    width:100%;
+    text-align: center;    
+    border-bottom:1px solid #ddd; 
+    }
+    .separator{
+        display:none;
+    }
     
 /* フッター */
 footer {
