@@ -38,7 +38,7 @@
 <meta name="twitter:image" content="https://mochicotori.com/img/ogimg6.jpg">
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/7f39a6d40a.js" crossorigin="anonymous"></script>
     </head>
@@ -79,9 +79,30 @@
 </div>  
         
 <h3 id="rules">チェーンモードのルール</h3>
-<p>スピード勝負でしりとりします。ターン制じゃないから、自分の出したカードに自分で繋げてOK！最後のカードの最後の文字からはじめて、一緒に出すカードの文字や行／列で終わらせる。数字が書いてあるものは、その文字数なら末尾は何でもOK(7+は7文字以上)。
-<br>基本ルールは、3文字以上の単語で、できるだけ参加者みんなに通用する言葉を提出します。審査する側は知らない言葉が出てきたら容赦なくNGを押していいけど、条件に合った言葉が提出されてるかの審査は厳正にしてね。手札交換は、ゲーム中いつでも可能。ただし、自分の直前に手札交換したのが自分の場合はできない。
-<br>基本ルールに慣れてきたら、一般名詞縛りにしたり手札交換のタイミングは自由にして 1人何回まで/1ゲーム とか、ローカルで取り決めて遊ぶのもアリ！</p>
+        <div id="ruleChain"></div>
+<script>
+// 1. まずはHTMLファイル全体をそのまま持ってくる（ハッシュは外す）
+    fetch('../index.html')
+        .then(response => response.text())
+        .then(data => {
+            // 2. 持ってきたテキストデータ（HTML）を、一時的に仮想の解析器（DOMParser）に入れる
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(data, 'text/html');
+            
+            // 3. その中から「#rule_mochicotori」がついた要素だけをピンポイントで探す
+            const targetContent = doc.querySelector('#rule_chain');
+            
+            if (targetContent) {
+                // 4. 見つかったら、その中身（innerHTML）だけをページに挿入する
+                document.getElementById('ruleChain').innerHTML = targetContent.innerHTML;
+            } else {
+                console.error('指定されたIDが見つかりませんでした。');
+            }
+        })
+        .catch(error => {
+            console.error('ファイルの読み込みに失敗しました:', error);
+        });
+    </script>
 <h3 id="similarGames">似たゲームの紹介</h3>    
 <ul>
 <li><a href="#wordBasket">ワードバスケット</a></li>

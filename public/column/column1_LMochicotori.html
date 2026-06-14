@@ -28,7 +28,7 @@
 <meta name="twitter:image" content="https://mochicotori.com/img/ogimg6.jpg">
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="../css/style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://kit.fontawesome.com/7f39a6d40a.js" crossorigin="anonymous"></script>
     </head>
@@ -67,10 +67,10 @@
 </div>
 
 <h3 id="rules">モチコトリモードのルール</h3>
-        <div id="shared-content"></div>
+        <div id="ruleMochicotori"></div>
 <script>
 // 1. まずはHTMLファイル全体をそのまま持ってくる（ハッシュは外す）
-    fetch('../public/index.html')
+    fetch('../index.html')
         .then(response => response.text())
         .then(data => {
             // 2. 持ってきたテキストデータ（HTML）を、一時的に仮想の解析器（DOMParser）に入れる
@@ -82,7 +82,7 @@
             
             if (targetContent) {
                 // 4. 見つかったら、その中身（innerHTML）だけをページに挿入する
-                document.getElementById('shared-content').innerHTML = targetContent.innerHTML;
+                document.getElementById('ruleMochicotori').innerHTML = targetContent.innerHTML;
             } else {
                 console.error('指定されたIDが見つかりませんでした。');
             }
