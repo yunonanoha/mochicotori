@@ -98,6 +98,23 @@ footer img{display:none;}
     height:120px;
 }
 
+.nonamzn{
+    display: flex;
+}
+.nonamznLink{
+    border: 1px solid #e1e8ed;
+    border-radius: 12px;
+    text-align: right;
+    padding:10px;
+    max-height: 300px;
+}
+.nonamznLink:hover{
+    background: #f5f8fa;
+}
+.nonamznLinkFrom{margin-right: 12px;}
+.nonamznLink img{
+max-width:200px;
+}
 /*ブログカード*/
 .custom-blog-card {
     display: flex;
@@ -319,6 +336,9 @@ footer img{display:none;}
 .deck-header-title i {
     margin-right: 4px;
     color: #61afef; /* アクセントのライトブルー */
+}
+.deck-header-title .btn-all-dl{
+   margin: 0; 
 }
 
 /* コピーボタン */
@@ -1779,6 +1799,19 @@ footer p {
         width:100%;
         height:auto;
     }    
+    
+.nonamzn{
+    flex-direction: column;
+}
+.nonamznLink{
+    margin: 0 auto;
+    text-align: center;
+max-height:300px;
+}
+.nonamznLinkFrom{margin-right:0px;}
+.nonamznLink img{
+max-width:200px;
+}    
     
 .sp-br{display: block;}    
     .sp-small{
