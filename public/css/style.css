@@ -627,7 +627,7 @@ align-items:flex-end;
 #gallery, #field {
       display: flex;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 0px;
   justify-content: flex-start;
     }
       
@@ -663,7 +663,7 @@ align-items:flex-end;
     min-width: 130px;
     display : inline-block;
     vertical-align : top;
-    margin : 5px;
+    margin: 12px 5px;
     text-align : center;
     font-size:1.4rem;
 }
@@ -972,7 +972,7 @@ border-bottom: 1px solid #eee; /* 薄いグレーの線 */
   display: flex; /* 横に並べる */
   flex-direction: row-reverse; /* 右から左へ並べる */
   flex-wrap: wrap; /* 溢れたら改行する */
-  gap: 2px; /* ハート同士の隙間 */
+  gap: 0.2px; /* ハート同士の隙間 */
   max-width: 100px; /* カードからはみ出さないように */
   pointer-events: none; /* クリックの邪魔をしない */
 }
@@ -1872,7 +1872,7 @@ footer img{
         flex-direction: row ; /* 横並びを強制 */
         flex-wrap: wrap ;     /* カラム落ちさせる */
         justify-content: flex-start; /* 左詰め */
-        gap: 2px;           /* カード同士の隙間 */
+        gap: 0px;           /* カード同士の隙間 */
         width: 100%;
         
     }
@@ -1882,9 +1882,13 @@ footer img{
   cursor: pointer;
     width : 90px;
     min-width: 90px;
+/*
+    height: 90px;
+    max-height: 90px;
+*/
     display : inline-block;
     vertical-align : top;
-    margin : 5px;
+    margin : 0px;
     text-align : center;
 }
     /* 手札 */
@@ -1923,7 +1927,7 @@ footer img{
         display: flex !important;
         flex-wrap: wrap !important; /* カラム落ち */
         justify-content: flex-start;
-        gap: 10px !important;
+        gap: 0px;
     }
     #gallery .card-text-inner {}
 
@@ -1946,7 +1950,7 @@ footer img{
   font-weight: 900;  /* より太くしてカードらしく */
   line-height: 1.1;
 }
-    .like-container{top:-5px;}
+    .like-container{top:-3px;}
     .like-badge{
         font-size:0.7rem;
     }

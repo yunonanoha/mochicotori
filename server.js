@@ -104,14 +104,14 @@ const upload = multer({ dest: 'uploads/' });
 
 // 🎨 プレイヤーカラー（重複なし用）
 const PLAYER_COLORS = [
-    "#D32F2F", // 1: 鮮やかなレッド（視認性最強）
-    "#1976D2", // 2: 信頼感のあるブルー
-    "#2E7D32", // 3: 濃いグリーン（フォレスト）
-    "#7B1FA2", // 4: 高貴なパープル
-    "#E65100", // 5: 鮮明なオレンジ（アンバー）
-    "#ee79c7"  // 6: ピンク
-//        "#4a5568", // ダークスレートブルー
-//        "#2d3748", // チャコールグレーに近いネイビー
+    "#d9282f", // 1: レッド
+    "#0f5daa", // 2: ブルー
+    "#2E7D32", // 3: グリーン
+    "#7B1FA2", // 4: パープル
+    "#eb6d00", // 5: オレンジ
+    "#ee79c7", // 6: ピンク
+    "#00afcc", // 7: ターコイズブルー
+    "#dda929"  // 8：ゴールド
 //        "#744210", // 深みのあるウッドブラウン
 //        "#285e61", // 深い青緑（ティール）
 //        "#2c5282", // シックなロイヤルブルー
@@ -1372,7 +1372,7 @@ let targetRole = requestedRole || 'player';
 
 // 🚩 修正：観戦希望ならチェックを飛ばす
 if (targetRole === 'player') {
-    if (activePlayers.length >= 6) {
+    if (activePlayers.length >= 8) {
         return socket.emit('joinErrorNeedObserver', { reason: '満員のため' });
     }
     if (isLockPhase) {
@@ -1583,6 +1583,14 @@ if (room.phase === 'ended') {
 }
 
   if (targetRole === 'player') {
+      const currentPlayersCount = room.players.filter(p => !p.isObserver).length;
+    
+    if (currentPlayersCount >= 8) {
+      return socket.emit('joinErrorNeedObserver', { reason: '満員のため' });
+    }
+    if (room.isLockPhase) { // または、全体のロックフラグがある場合
+      return socket.emit('joinErrorNeedObserver', { reason: '調整フェーズのため' });
+    }
     // 観戦 → 参加
 // 🚩 1. 参加者だけのリストを一度作り、そこから現在のターンプレイヤーを特定する
     const playersOnlyBefore = room.players.filter(p => !p.isObserver);

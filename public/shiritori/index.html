@@ -932,14 +932,14 @@ const gazoInput = document.getElementById('fileInput');
 
 if (activeType === 'image') {
     gazo.style.opacity = "1";
-    bun.style.opacity = "0.3";
+    bun.style.opacity = "0.5";
     // 🚩 外枠ではなく「入力欄」だけを操作不能にする
     gazoInput.style.pointerEvents = "auto";
     bunInput.style.pointerEvents = "none";
     // 🚩 相手方（テキスト）の内容をリセット
     bunInput.value = "";
   } else {
-    gazo.style.opacity = "0.3";
+    gazo.style.opacity = "0.5";
     bun.style.opacity = "1";
     // 🚩 外枠ではなく「入力欄」だけを操作不能にする
     gazoInput.style.pointerEvents = "none";
@@ -2170,9 +2170,13 @@ function renderSingleMessage(msg, ul) {
     ul.prepend(li); // 新しい順なので上に追加
   }
 
-function refreshRoleUI(currentIsObserver) {
-    // 引数があればそれを使う、なければグローバルを見る
+function refreshRoleUI(currentIsObserver, playerCount, isLockPhase) {
+    // 引数があればそれを使う、なければグローバルやDOMから取得
     const isObs = (currentIsObserver !== undefined) ? currentIsObserver : (window.isObserver || false);
+    
+    // 参加者の数をリスト（ul）の子要素数から取得（※すでに変数で管理している場合はそちらを使用してください）
+    const pCount = playerCount !== undefined ? playerCount : document.getElementById('playerList').children.length;
+    const locked = isLockPhase !== undefined ? isLockPhase : (window.isLockPhase || false);
     
     const btnToPlayer = document.getElementById('btnBecomePlayer');
     const btnToObserver = document.getElementById('btnBecomeObserver');
@@ -2181,23 +2185,28 @@ function refreshRoleUI(currentIsObserver) {
 
     if (isObs) {
         // --- 自分が「観戦者」のとき ---
-        // 観戦席ボタン：半透明・クリック不可
         btnToObserver.style.opacity = "0.5";
         btnToObserver.style.pointerEvents = "none";
         btnToObserver.style.cursor = "default";
 
-        // 参加者ボタン：くっきり・クリック可
-        btnToPlayer.style.opacity = "1";
-        btnToPlayer.style.pointerEvents = "auto";
-        btnToPlayer.style.cursor = "pointer";
+        // 参加者ボタンの制御（満員、またはロックフェーズなら押せないようにする）
+        if (pCount >= 8 || locked) {
+            btnToPlayer.style.opacity = "0.5";
+            btnToPlayer.style.pointerEvents = "none";
+            btnToPlayer.style.cursor = "not-allowed";
+            btnToPlayer.title = locked ? "調整フェーズのため参加できません" : "満員のため参加できません";
+        } else {
+            btnToPlayer.style.opacity = "1";
+            btnToPlayer.style.pointerEvents = "auto";
+            btnToPlayer.style.cursor = "pointer";
+            btnToPlayer.title = "";
+        }
     } else {
         // --- 自分が「参加者」のとき ---
-        // 観戦席ボタン：くっきり・クリック可
         btnToObserver.style.opacity = "1";
         btnToObserver.style.pointerEvents = "auto";
         btnToObserver.style.cursor = "pointer";
 
-        // 参加者ボタン：半透明・クリック不可
         btnToPlayer.style.opacity = "0.5";
         btnToPlayer.style.pointerEvents = "none";
         btnToPlayer.style.cursor = "default";
@@ -2535,11 +2544,17 @@ socket.on('updatePlayers', (players) => {
     // 🚩 refreshPlayerListUIが参照する変数名をこれに統一
     window.lastKnownPlayers = players; 
 
-    // refreshPlayerListUI を呼ぶ
-    // 内部で window.lastKnownPlayers と serialized (起家ID込) を比較して再描画してくれます
+    // リストの描画更新
     refreshPlayerListUI(players);
 
-    console.log("👥 プレイヤーリストを更新しました", players.length + "名");
+    // 🚩 現在の参加者（観戦者以外）の人数をカウント
+    const activePlayersCount = players.filter(p => !p.isObserver).length;
+
+    // 🚩 UI（参加者・観戦席ボタン）の状態を最新の人数で再評価する
+    // 引数: (現在の自分の状態, 最新の参加者数, 現在のフェーズロック状態)
+    refreshRoleUI(window.isObserver, activePlayersCount, window.isLockPhase);
+
+    console.log("👥 プレイヤーリストを更新しました", players.length + "名", "うち参加者:", activePlayersCount + "名");
 });
 
 // 🚩 追加：サーバーから入室が許可（色が割り当てられた）されたら画面を切り替える
