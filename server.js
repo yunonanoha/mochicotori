@@ -1355,6 +1355,7 @@ app.get('/room/:id', (req, res) => {
 io.on('connection', socket => {
   console.log('🟢 ユーザー接続');
 
+
 // 入室処理
 socket.on('joinRoom', ({ name, roomId, requestedRole }) => {
   const room = rooms[roomId];

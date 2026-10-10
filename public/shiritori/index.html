@@ -526,7 +526,10 @@ window.isObserver = false;
 // 🟢 グローバル変数の宣言（一番上に置く）
 window.currentFieldData = [];
 window.lastResultData = null;
-const socket = io();
+const socket = io({
+    pingTimeout: 60000,
+    pingInterval: 25000
+});
 
 let panelSettings = {};  // 設定パネル（UI）の見た目用
 let activeOptions = {};   // 🚩 実際のゲームルール用（開始時のみ更新）
