@@ -28,7 +28,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const server = http.createServer(app);
-
+const io = socketIo(server, {
+    pingTimeout: 60000,
+    pingInterval: 60000
+});
 
 // ✅ サーバー側：クライアントと完全に同期させたモード設定
 const MODE_SETTINGS = {
