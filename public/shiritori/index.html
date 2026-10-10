@@ -652,10 +652,10 @@ if (!state) return;
     const config = MODE_SETTINGS[currentMode];
 
     // --- 1. プルダウン (modeSelect) の同期 ---
-    const modeSelect = document.getElementById('modeSelect');
-    if (modeSelect) {
-        modeSelect.value = currentMode;
-    }
+//    const modeSelect = document.getElementById('modeSelect');
+//    if (modeSelect) {
+//        modeSelect.value = currentMode;
+//    }
 
     // --- 2. モード名の表示更新 ---
     const modeDisplay = document.getElementById('modeDisplay');
@@ -664,7 +664,7 @@ if (!state) return;
         modeDisplay.textContent = `${modeNames[currentMode] || currentMode}`;
     }
 
-//    if (config && options) {
+    if (config && options) {
 //        // --- 3. ラジオボタン (finishType) の同期 ---
 //        const finishKey = 'finishType';
 //        const isFinishLocked = config.locks.includes(finishKey);
@@ -700,7 +700,7 @@ if (!state) return;
 //            const key = checkBoxMap[domId];
 //            const isLocked = config.locks.includes(key);
 //            
-//            // ロックされているならデフォルト値、そうでなければサーバーの値を採用
+//             ロックされているならデフォルト値、そうでなければサーバーの値を採用
 //            const shouldCheck = isLocked ? config.defaults[key] : state.options[key];
 //
 //            el.checked = !!shouldCheck;
@@ -711,7 +711,7 @@ if (!state) return;
 //                el.parentElement.style.opacity = isLocked ? "0.6" : "1";
 //            }
 //        });
-//    }
+    }
 
     // --- 3. 以下、phaseDisplay や bunArea の処理（元のロジックを維持） ---
     const phaseDisplay = document.getElementById('phaseDisplay');
