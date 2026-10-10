@@ -29,8 +29,8 @@ app.use(express.urlencoded({ extended: true }));
 
 const server = http.createServer(app);
 const io = socketIo(server, {
-    pingTimeout: 60000,
-    pingInterval: 60000
+    pingTimeout: 40000, 
+    pingInterval: 25000
 });
 
 // ✅ サーバー側：クライアントと完全に同期させたモード設定
@@ -1355,12 +1355,6 @@ app.get('/room/:id', (req, res) => {
 io.on('connection', socket => {
   console.log('🟢 ユーザー接続');
 
-// 💓 ハートビート受信（追加した部分）
-  socket.on('client-heartbeat', () => {
-    // ここで綺麗に閉じる
-  });
-    
-    
 // 入室処理
 socket.on('joinRoom', ({ name, roomId, requestedRole }) => {
   const room = rooms[roomId];
