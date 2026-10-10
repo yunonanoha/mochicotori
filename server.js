@@ -29,7 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const server = http.createServer(app);
 const io = socketIo(server, {
-    pingTimeout: 40000, 
+    pingTimeout: 60000, 
     pingInterval: 25000
 });
 
