@@ -531,10 +531,16 @@ const socket = io({
     pingTimeout: 60000,
     pingInterval: 60000
 });
+// ソケット接続が確立したあとに実行される場所に追加
+setInterval(() => {
+    if (socket && socket.connected) {
+        socket.emit('client-heartbeat');
+    }
+}, 30000); // 30秒ごと
 
 let panelSettings = {};  // 設定パネル（UI）の見た目用
 let activeOptions = {};   // 🚩 実際のゲームルール用（開始時のみ更新）
-var myCurrentHand = [];　// 手札を一時保存しておく変数
+var myCurrentHand = []; // 手札を一時保存しておく変数
   let myAssignedColor = "#000"; // ★ 追加：自分の色を保持する変数
     window.lastKnownPlayers = [];
     

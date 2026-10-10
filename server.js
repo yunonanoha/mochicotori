@@ -1355,7 +1355,12 @@ app.get('/room/:id', (req, res) => {
 io.on('connection', socket => {
   console.log('🟢 ユーザー接続');
 
-
+// 💓 ハートビート受信（追加した部分）
+  socket.on('client-heartbeat', () => {
+    // ここで綺麗に閉じる
+  });
+    
+    
 // 入室処理
 socket.on('joinRoom', ({ name, roomId, requestedRole }) => {
   const room = rooms[roomId];
