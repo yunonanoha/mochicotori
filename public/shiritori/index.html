@@ -527,6 +527,7 @@ window.isObserver = false;
 window.currentFieldData = [];
 window.lastResultData = null;
 const socket = io({
+    transports: ['websocket'],
     pingTimeout: 60000,
     pingInterval: 60000
 });

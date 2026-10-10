@@ -28,8 +28,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const server = http.createServer(app);
-const io = socketIo(server, {
-    pingTimeout: 60000, 
+const socket = io({
+    transports: ['websocket'],
+    pingTimeout: 60000,
     pingInterval: 60000
 });
 
