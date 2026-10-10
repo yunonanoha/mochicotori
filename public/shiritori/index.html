@@ -664,34 +664,34 @@ if (!state) return;
         modeDisplay.textContent = `${modeNames[currentMode] || currentMode}`;
     }
 
-    if (config && options) {
-        // --- 3. ラジオボタン (finishType) の同期 ---
-        const finishKey = 'finishType';
-        const isFinishLocked = config.locks.includes(finishKey);
-        const targetValue = isFinishLocked ? config.defaults[finishKey] : options.finishType;
-
-        // name="finishType" を持つ全てのラジオボタンをループ
-        document.querySelectorAll('input[name="finishType"]').forEach(radio => {
-            radio.checked = (radio.value === targetValue);
-            radio.disabled = isFinishLocked;
-            if (radio.parentElement) {
-                radio.parentElement.style.opacity = isFinishLocked ? "0.6" : "1";
-            }
-        });
-
-// --- B. チェックボックスの同期 ---
-        const checkBoxMap = {
-            'optShiritori': 'shiritori',
-            'optTurnBased': 'turnBased',
-            'optSecretCard': 'secretCard',
-            'optVote': 'vote',
-            'optStar5': 'star5',
-            'optScore100': 'score100',
-            'optLike': 'like',
-            'optDeco': 'deco',
-            'optPass': 'pass',
-            'optExchange': 'exchange'
-        };
+//    if (config && options) {
+//        // --- 3. ラジオボタン (finishType) の同期 ---
+//        const finishKey = 'finishType';
+//        const isFinishLocked = config.locks.includes(finishKey);
+//        const targetValue = isFinishLocked ? config.defaults[finishKey] : options.finishType;
+//
+//        // name="finishType" を持つ全てのラジオボタンをループ
+//        document.querySelectorAll('input[name="finishType"]').forEach(radio => {
+//            radio.checked = (radio.value === targetValue);
+//            radio.disabled = isFinishLocked;
+//            if (radio.parentElement) {
+//                radio.parentElement.style.opacity = isFinishLocked ? "0.6" : "1";
+//            }
+//        });
+//
+//// --- B. チェックボックスの同期 ---
+//        const checkBoxMap = {
+//            'optShiritori': 'shiritori',
+//            'optTurnBased': 'turnBased',
+//            'optSecretCard': 'secretCard',
+//            'optVote': 'vote',
+//            'optStar5': 'star5',
+//            'optScore100': 'score100',
+//            'optLike': 'like',
+//            'optDeco': 'deco',
+//            'optPass': 'pass',
+//            'optExchange': 'exchange'
+//        };
 
         Object.keys(checkBoxMap).forEach(domId => {
             const el = document.getElementById(domId);
