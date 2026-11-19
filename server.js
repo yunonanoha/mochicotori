@@ -2185,7 +2185,7 @@ socket.on('disconnect', (reason) => {
   }
   p.disconnected = true;
   io.to(roomId).emit('updatePlayers', getCleanPlayerData(room));
-  io.to(roomId).emit('message', { text: `📡 ${name} さんの接続が切れました（${GRACE_MS / 1000}秒待ちます）`, color: '#888' });
+  io.to(roomId).emit('message', { text: `📡 ${name} さんの接続が切れました（${GRACE_MS / 1000}秒以内なら復帰できます）`, color: '#888' });
 
   const id = socket.id;
   p.leaveTimer = setTimeout(() => {
