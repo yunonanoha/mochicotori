@@ -385,6 +385,7 @@ function getRoomState(roomId) {
             name: p.name,
             color: p.color,
             isObserver: !!p.isObserver, // 確実に真偽値を送る
+            disconnected: !!p.disconnected,
             // 参加者は枚数(数字)、観戦者は null を送ることでフロント側で出し分ける
             hasFinishedLikeCheck: !!p.hasFinishedLikeCheck, 
             hasFinishedDecoCheck: !!p.hasFinishedDecoCheck,
@@ -1206,9 +1207,129 @@ function getCleanPlayerData(room) {
         name: p.name,
         color: p.color,
         isObserver: !!p.isObserver, // 確実にboolean
+        disconnected: !!p.disconnected,
         // 🚩 観戦者なら絶対に手札枚数をnullにする。これがフロント側の判定基準になる
-        cards: p.isObserver ? null : (p.hand ? p.hand.length : 0)
+        cards: p.isObserver ? null : (p.hand ? p.hand.length : 0)        
     }));
+}
+
+const GRACE_MS = 45000; // 切断後、席を保持する時間
+
+function rebindPlayer(room, oldId, newId) {
+  const sw = id => (id === oldId ? newId : id);
+  const p = room.players.find(p => p.id === oldId);
+  if (p) p.id = newId;
+  if (room.firstPlayerId === oldId) room.firstPlayerId = newId;
+
+  const v = room.currentVote;
+  if (v) {
+    v.submitterId = sw(v.submitterId);
+    v.voters = v.voters.map(sw);
+    if (oldId in v.votes) { v.votes[newId] = v.votes[oldId]; delete v.votes[oldId]; }
+  }
+  const r = room.currentRating;
+  if (r) {
+    r.submitterId = sw(r.submitterId);
+    r.voters = r.voters.map(sw);
+    if (oldId in r.ratings) { r.ratings[newId] = r.ratings[oldId]; delete r.ratings[oldId]; }
+  }
+  (room.field || []).forEach(c => { if (Array.isArray(c.likes)) c.likes = c.likes.map(sw); });
+  [room.finishedLikeCheckers, room.finishedDecoCheckers].forEach(s => {
+    if (s && s.has(oldId)) { s.delete(oldId); s.add(newId); }
+  });
+  if (room.gameRatings && oldId in room.gameRatings) {
+    room.gameRatings[newId] = room.gameRatings[oldId];
+    delete room.gameRatings[oldId];
+  }
+}
+
+// 本当に退室させる処理（旧 disconnect の中身をそのまま移したもの）
+function removePlayer(room, roomId, id, playerName) {
+  const activePlayersBefore = room.players.filter(p => !p.isObserver);
+  const oldTurnPlayerId = activePlayersBefore[room.turnIndex]?.id;
+
+  const foundIndex = room.players.findIndex(p => p.id === id);
+  if (foundIndex === -1) return;
+  const player = room.players[foundIndex];
+  clearTimeout(player.leaveTimer);
+  room.players.splice(foundIndex, 1);
+
+  validateAndSyncFirstPlayer(room);
+
+  const activePlayers = room.players.filter(p => !p.isObserver);
+  if (activePlayers.length === 0) {
+    console.log(`🧹 部屋 ${roomId} が無人になったためリセットします`);
+    resetRoomToDefault(roomId);
+    return;
+  }
+
+  if (player.hand && player.hand.length > 0) {
+    room.deck.push(...player.hand);
+    room.deck.sort(() => Math.random() - 0.5);
+  }
+  if (room.field) {
+    room.field.forEach(card => {
+      if (card.likes) card.likes = card.likes.filter(x => x !== id);
+    });
+    io.to(roomId).emit('updateField', room.field);
+  }
+
+  if (room.currentVote) {
+    if (room.currentVote.submitterId === id) {
+      const cardToReturn = room.currentVote.card;
+      if (cardToReturn) {
+        room.deck.push(cardToReturn);
+        room.deck.sort(() => Math.random() - 0.5);
+      }
+      room.currentVote = null;
+      io.to(roomId).emit('voteFinished', { success: false, reason: "提出者が退出しました" });
+    } else {
+      room.currentVote.voters = room.currentVote.voters.filter(x => x !== id);
+      delete room.currentVote.votes[id];
+      const votedCount = Object.keys(room.currentVote.votes).length;
+      const totalVoters = room.currentVote.voters.length;
+      io.to(roomId).emit('voteUpdate', { votedCount, totalVoters });
+      if (totalVoters === 0 || votedCount >= totalVoters) completeVote(room, roomId);
+    }
+  }
+
+  const wasTurnOwner = (room.options.turnBased && oldTurnPlayerId === id);
+  if (room.turnIndex >= activePlayers.length) room.turnIndex = 0;
+
+  if (wasTurnOwner && room.phase === 'playing') {
+    nextTurn(room, roomId);
+  } else {
+    const nextPlayer = activePlayers[room.turnIndex];
+    io.to(roomId).emit('turnUpdate', {
+      turnIndex: room.options.turnBased ? room.turnIndex : -1,
+      currentPlayerId: room.options.turnBased ? (nextPlayer?.id || null) : null,
+      currentPlayerName: room.options.turnBased ? (nextPlayer?.name || "待機中") : "全員"
+    });
+  }
+
+  if (room.phase === 'decoCheck' && room.finishedDecoCheckers) {
+    room.finishedDecoCheckers.delete(id);
+    if (room.finishedDecoCheckers.size >= activePlayers.length) startLikeCheckPhase(room, roomId);
+  }
+  if (room.phase === 'likeCheck' && room.finishedLikeCheckers) {
+    room.finishedLikeCheckers.delete(id);
+    advanceAfterLikeCheck(room, roomId);
+  }
+  if (room.currentRating) {
+    if (room.currentRating.submitterId === id) {
+      room.currentRating = null;
+      io.to(roomId).emit('startRate', null);
+    } else {
+      checkRatingComplete(room, roomId);
+    }
+  }
+  if (room.phase === 'rating' && room.options.score100) {
+    checkFinalRatingComplete(room, roomId);
+  }
+
+  io.to(roomId).emit('updatePlayers', getCleanPlayerData(room));
+  io.to(roomId).emit('roomState', getRoomState(roomId));
+  io.to(roomId).emit('message', { text: `📢 ${playerName} さんが退室しました。`, color: "#888" });
 }
 
 // 全ルーム管理
@@ -1369,13 +1490,47 @@ io.on('connection', socket => {
   console.log('🟢 ユーザー接続');
 
 // 入室処理
-socket.on('joinRoom', ({ name, roomId, requestedRole }) => {
+socket.on('joinRoom', ({ name, roomId, requestedRole, pid }) => {
   const room = rooms[roomId];
   if (!room) {
     return socket.emit('joinError', '部屋が存在しません');
   }
-    
-room.players = room.players.filter(p => p.id !== socket.id);
+
+  // 🔁 同じ pid の人がいれば復帰（手札・色・席を引き継ぐ）
+  const old = pid ? room.players.find(p => p.pid === pid) : null;
+  if (old) {
+    clearTimeout(old.leaveTimer); old.leaveTimer = null; old.disconnected = false;
+    const oldId = old.id;
+    if (oldId !== socket.id) {
+      rebindPlayer(room, oldId, socket.id);
+      const oldSock = io.sockets.sockets.get(oldId);
+      if (oldSock) oldSock.disconnect(true);
+    }
+    socket.join(roomId);
+    socket.data.name = old.name;
+    socket.data.roomId = roomId;
+    socket.data.color = old.color;
+
+    socket.emit('assignColor', old.color || '#888888');
+    socket.emit('chatHistory', room.messages || []);
+    socket.emit('dealCards', old.hand || []);
+    socket.emit('updateField', room.field);
+
+    const po = room.players.filter(p => !p.isObserver);
+    const tp = po[room.turnIndex];
+    io.to(roomId).emit('updatePlayers', getCleanPlayerData(room));
+    io.to(roomId).emit('roomState', getRoomState(roomId));
+    io.to(roomId).emit('turnUpdate', {
+      turnIndex: room.turnIndex,
+      currentPlayerId: tp ? tp.id : null,
+      currentPlayerName: tp ? tp.name : "待機中..."
+    });
+    io.to(roomId).emit('message', { text: `✅ ${old.name} さんが復帰しました`, color: old.color || '#888' });
+    return;
+  }
+
+  room.players = room.players.filter(p => p.id !== socket.id);
+
     
   // 現在の参加者数（観戦者以外）をカウント
 const activePlayers = room.players.filter(p => !p.isObserver);
@@ -1430,6 +1585,7 @@ if (targetRole === 'player') {
   const player = { 
     name, 
     id: socket.id, 
+    pid,    
     hand: hand, 
     color: color,
     isObserver: isObserver 
@@ -2017,138 +2173,25 @@ socket.on('castGameScore', (score) => {
 
 // 🔌 切断時の処理
 socket.on('disconnect', (reason) => {
-    const { roomId, name: playerName } = socket.data;
-    if (!roomId || !rooms[roomId]) return;
+  const { roomId, name } = socket.data;
+  const room = rooms[roomId];
+  if (!room) return;
+  const p = room.players.find(p => p.id === socket.id);
+  if (!p) return;                                   // 復帰して付け替え済みの古い接続
+  console.log(`📡 切断検知: ID=${socket.id}, 名前=${name}, 理由=${reason}`);
 
-    console.log(`📡 切断検知: ID=${socket.id}, 名前=${playerName}, 理由=${reason}`);
-    const room = rooms[roomId];
+  if (reason === 'client namespace disconnect') {   // 自分から閉じた場合は即退室
+    return removePlayer(room, roomId, socket.id, name);
+  }
+  p.disconnected = true;
+  io.to(roomId).emit('updatePlayers', getCleanPlayerData(room));
+  io.to(roomId).emit('message', { text: `📡 ${name} さんの接続が切れました（${GRACE_MS / 1000}秒待ちます）`, color: '#888' });
 
-// 🚩 追加：判定用に「消える前」の手番プレイヤーIDを記録しておく
-    const activePlayersBefore = room.players.filter(p => !p.isObserver);
-    const oldTurnPlayerId = activePlayersBefore[room.turnIndex]?.id;
-
-    console.log(`📡 切断検知: ID=${socket.id}, 名前=${playerName}, 理由=${reason}`);    
-    
-    // 1. プレイヤーを特定して削除
-    const foundIndex = room.players.findIndex(p => p.id === socket.id);
-    if (foundIndex === -1) return;
-
-    const player = room.players[foundIndex];
-    room.players.splice(foundIndex, 1); // ここで配列から消える
-
-// 🚩 共通関数を呼ぶだけ！
-validateAndSyncFirstPlayer(room);
-
-const activePlayers = room.players.filter(p => !p.isObserver);
-if (activePlayers.length === 0) {
-        console.log(`🧹 部屋 ${roomId} が無人になったためリセットします`);
-        resetRoomToDefault(roomId);
-        return;
-    }
-
-    // 3. 退出者の資源（手札・いいね）を処理
-    if (player.hand && player.hand.length > 0) {
-        room.deck.push(...player.hand);
-        room.deck.sort(() => Math.random() - 0.5);
-    }
-    if (room.field) {
-        room.field.forEach(card => {
-            if (card.likes) card.likes = card.likes.filter(id => id !== socket.id);
-        });
-        io.to(roomId).emit('updateField', room.field);
-    }
-
-    // 4. 投票中のレスキュー
-    if (room.currentVote) {
-        if (room.currentVote.submitterId === socket.id) {
-            // 提出者が消えたら投票中止
-            const cardToReturn = room.currentVote.card;
-            if (cardToReturn) {
-                room.deck.push(cardToReturn);
-                room.deck.sort(() => Math.random() - 0.5);
-            }
-            room.currentVote = null;
-            io.to(roomId).emit('voteFinished', { success: false, reason: "提出者が退出しました" });
-        } else {
-            // 投票待ちリストから削除して分母を更新
-            room.currentVote.voters = room.currentVote.voters.filter(id => id !== socket.id);
-            delete room.currentVote.votes[socket.id];
-            const votedCount = Object.keys(room.currentVote.votes).length;
-            const totalVoters = room.currentVote.voters.length;
-            io.to(roomId).emit('voteUpdate', { votedCount, totalVoters });
-            if (totalVoters === 0 || votedCount >= totalVoters) completeVote(room, roomId);
-        }
-    }
-
-// --- 🚩 追記：起家の引き継ぎロジック ---
-    const wasFirstPlayer = (room.firstPlayerId === socket.id);
-    if (wasFirstPlayer) {
-        // 残っている参加者（activePlayers）の中から新しい起家を決める
-        const nextActive = activePlayers[0]; // 配列の先頭の人
-        room.firstPlayerId = nextActive ? nextActive.id : null;
-        console.log(`👑 切断のため起家を引き継ぎました: ${room.firstPlayerId}`);
-    }    
-    
-// --- 5. ターン順の調整 ---
-if (activePlayers.length > 0) {
-    const wasTurnOwner = (room.options.turnBased && oldTurnPlayerId === socket.id);
-
-    if (room.turnIndex >= activePlayers.length) {
-        room.turnIndex = 0;
-    }
-
-    if (wasTurnOwner && room.phase === 'playing') {
-        // 🚩 自分の番で落ちたなら、審判(nextTurn)を呼んで次の人を確定・終了判定させる
-        nextTurn(room, roomId);
-    } else {
-        // 手番以外が落ちたなら、今の currentPlayerName などを再通知するだけでOK
-        const nextPlayer = activePlayers[room.turnIndex];
-        io.to(roomId).emit('turnUpdate', {
-            turnIndex: room.options.turnBased ? room.turnIndex : -1,
-            currentPlayerId: room.options.turnBased ? (nextPlayer?.id || null) : null,
-            currentPlayerName: room.options.turnBased ? (nextPlayer?.name || "待機中") : "全員"
-        });
-    }
-}
-
-    // 6. 各種フェーズの「詰み」防止チェック
-    // --- DecoCheck (文字調整) ---
-    if (room.phase === 'decoCheck' && room.finishedDecoCheckers) {
-        room.finishedDecoCheckers.delete(socket.id);
-        // 参加者が全員完了したか（参加者がいなくなっても次へ）
-        if (activePlayers.length === 0 || room.finishedDecoCheckers.size >= activePlayers.length) {
-            startLikeCheckPhase(room, roomId);
-        }
-    }
-    // --- LikeCheck (いいね調整) ---
-    if (room.phase === 'likeCheck' && room.finishedLikeCheckers) {
-        room.finishedLikeCheckers.delete(socket.id);
-        advanceAfterLikeCheck(room, roomId);
-    }
-    // --- Rating (★5評価) ---
-    if (room.currentRating) {
-        if (room.currentRating.submitterId === socket.id) {
-            // 評価対象者が消えたら中止
-            room.currentRating = null;
-            io.to(roomId).emit('startRate', null);
-        } else {
-            checkRatingComplete(room, roomId);
-        }
-    }
-    // --- Final Rating (100点満点) ---
-    if (room.phase === 'rating' && room.options.score100) {
-        checkFinalRatingComplete(room, roomId);
-    }
-
-    // 7. 全員に最終的な同期データを送る
-    io.to(roomId).emit('updatePlayers', getCleanPlayerData(room));
-// すでに getRoomState(roomId) の中で firstPlayerId は含まれているはずですが、
-    // 明示的に送るなら、存在する変数 room.firstPlayerId を使います。
-    io.to(roomId).emit('roomState', {
-        ...getRoomState(roomId),
-        firstPlayerId: room.firstPlayerId 
-    });
-    io.to(roomId).emit('message', { text: `📢 ${playerName} さんが退室しました。`, color: "#888" });
+  const id = socket.id;
+  p.leaveTimer = setTimeout(() => {
+    const r = rooms[roomId];
+    if (r && r.players.some(q => q.id === id && q.disconnected)) removePlayer(r, roomId, id, name);
+  }, GRACE_MS);
 });
 
 //　　ゲーム開始ボタン

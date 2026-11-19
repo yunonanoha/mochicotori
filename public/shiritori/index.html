@@ -2274,9 +2274,9 @@ players.forEach((p) => {
 
     li.innerHTML = `
         <div class="player-info flex">
-            <span class="player-name" style="color: ${dColor};">
+            <span class="player-name" style="color: ${dColor}; ${p.disconnected ? 'opacity:.4;' : ''}">
                 ${isFirst ? `<span class="chi-chaBadge ${badgeVisibility}" title="起家">東</span>` : ''}
-                ${dName}
+                ${dName} ${p.disconnected ? '（切断中）' : ''}
             </span>
             <span class="card-count"> (${cCount}枚)</span>
         </div>
@@ -2505,7 +2505,8 @@ document.getElementById('enterBtn').onclick = () => {
   const role = document.querySelector('input[name="joinRole"]:checked').value;
   const pid = (session && session.pid) || makePid();
   saveSession({ pid, name, role });
-  socket.emit('joinRoom', { name, roomId, requestedRole: role, pid });
+  socket.emit('joinRoom', { name, roomId, requestedRole: role, pid});
+    keepAwake();
 };
 
 // ---- 接続状態の表示 ----
