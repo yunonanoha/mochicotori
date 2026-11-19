@@ -2486,18 +2486,69 @@ if (opts.pass) {
 
 socket.emit('watchRoom', roomId);
   
+// ---- セッション保持----
+const SESSION_KEY = 'mochi_session_' + roomId;
+let session = null;
+try { session = JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch (e) {}
+function saveSession(s) {
+  session = s;
+  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(s)); } catch (e) {}
+}
+function makePid() {
+  return crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now();
+}
+
 // 🚀 入室ボタン
 document.getElementById('enterBtn').onclick = () => {
-    const name = document.getElementById('nameInput').value.trim();
-    if (!name) return alert('名前を入力してね');
-
-    // ラジオボタンの値を取得 (player or observer)
-    const role = document.querySelector('input[name="joinRole"]:checked').value;
-
-    // 1. サーバーへ入室情報を送信
-    socket.emit('joinRoom', { name, roomId, requestedRole: role });
-
+  const name = document.getElementById('nameInput').value.trim();
+  if (!name) return alert('名前を入力してね');
+  const role = document.querySelector('input[name="joinRole"]:checked').value;
+  const pid = (session && session.pid) || makePid();
+  saveSession({ pid, name, role });
+  socket.emit('joinRoom', { name, roomId, requestedRole: role, pid });
 };
+
+// ---- 接続状態の表示 ----
+function showBanner(text) {
+  let b = document.getElementById('connBanner');
+  if (!b) {
+    b = document.createElement('div');
+    b.id = 'connBanner';
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;padding:8px;text-align:center;background:#d32f2f;color:#fff;font-weight:bold;';
+    document.body.appendChild(b);
+  }
+  b.textContent = text; b.style.display = 'block';
+}
+function hideBanner() { const b = document.getElementById('connBanner'); if (b) b.style.display = 'none'; }
+
+socket.on('disconnect', (reason) => {
+  showBanner('⚠ 接続が切れました。再接続中…');
+  if (reason === 'io server disconnect') socket.connect();
+});
+socket.on('connect_error', () => showBanner('⚠ サーバーに接続できません。再試行中…'));
+
+// ---- 接続・再接続のたびに自動で入り直す ----
+socket.on('connect', () => {
+  hideBanner();
+  if (!session) return;                       // まだ入室していない
+  document.getElementById('nameInput').value = session.name;
+  socket.emit('joinRoom', { name: session.name, roomId, requestedRole: session.role, pid: session.pid });
+  socket.emit('requestRoomState');
+});
+
+// ---- 画面に戻ってきた時 ----
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible') return;
+  if (!socket.connected) socket.connect();
+  else if (session) socket.emit('requestRoomState');
+  keepAwake();
+});
+
+// ---- 画面スリープ防止（対応ブラウザのみ）----
+let wakeLock = null;
+async function keepAwake() {
+  try { if ('wakeLock' in navigator && session) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+}
 
 // 🚩 満員や判定中で参加できなかった時の誘導
 socket.on('joinErrorNeedObserver', ({ reason }) => {
@@ -2509,11 +2560,14 @@ socket.on('joinErrorNeedObserver', ({ reason }) => {
         const roomIdEl = document.getElementById('roomId');
         const rId = roomIdEl ? roomIdEl.innerText.trim() : "";
 
+        saveSession({ pid: (session && session.pid) || makePid(), name: name, role: 'observer' });
+        
         // サーバーへ送信
         socket.emit('joinRoom', { 
             name: name, 
             roomId: rId, 
-            requestedRole: 'observer' 
+            requestedRole: 'observer' ,
+            pid: session.pid
         });
 
         // 🚩 修正：HTMLの実際のID名（login / room）を指定する
@@ -2597,21 +2651,14 @@ socket.removeAllListeners('message');
     renderSingleMessage(msg, ul);
   });
 
-    // 🚩 新設：入室に失敗した時だけ画面を戻す
 socket.on('joinError', (msg) => {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+    session = null;
     alert('❌ 入室できませんでした\n' + msg);
-    
-    // 入室画面を表示し、ゲーム画面を隠す
-//    document.getElementById('login-screen').style.display = 'block';
-//    document.getElementById('game-screen').style.display = 'none';
-    const loginScreen = document.getElementById('login-screen'); 
-if (loginScreen) {
-    loginScreen.style.display = 'block'; 
-}
-    const gameScreen = document.getElementById('game-screen'); 
-if (gameScreen) {
-    gameScreen.style.display = 'none'; 
-}
+    const login = document.getElementById('login');
+    const room = document.getElementById('room');
+    if (login) login.style.display = 'block';
+    if (room) room.style.display = 'none';
 });
     
 socket.on('dealCards', function(hand) {
@@ -2818,6 +2865,7 @@ if (!state) return;
     
     if (myData) {
         window.isObserver = (myData.isObserver === true);
+        if (session) { session.role = window.isObserver ? 'observer' : 'player'; saveSession(session); }
         
         // 🚩 サーバーの状態をローカル変数に同期させる（ここに書く！）
         window.hasFinishedLikeCheck = !!myData.hasFinishedLikeCheck;

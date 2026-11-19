@@ -136,11 +136,10 @@ const PLAYER_COLORS = [
 function startGameLogic(roomId, data, socket) {
     let targetRoomId = roomId || socket.roomId || (data && data.roomId);
     const room = rooms[targetRoomId];
+    if (!room) return;
     
     const HAND_SIZE = 5; 
     const activePlayers = room.players.filter(p => !p.isObserver);
-    
-    if (!room) return;
     
     // --- 🚩 1. 設定の反映（辞書による強制ガード） ---
     if (data && data.mode) room.mode = data.mode;
@@ -1352,7 +1351,21 @@ app.get('/room/:id', (req, res) => {
 });
 
 // ✅ ソケット通信
+process.on('uncaughtException', e => console.error('💥', e));
+process.on('unhandledRejection', e => console.error('💥', e));
+
 io.on('connection', socket => {
+  const rawOn = socket.on.bind(socket);
+  socket.on = (ev, fn) => {
+    rawOn(ev, (...args) => {
+      try { fn(...args); }
+      catch (e) {
+        console.error(`❌ handler error [${ev}]`, e);
+        socket.emit('errorMessage', '通信エラーです。再読み込みしてください');
+      }
+    });
+    return socket;
+  };
   console.log('🟢 ユーザー接続');
 
 // 入室処理
@@ -1742,6 +1755,7 @@ socket.on('playCard', ({ card, text }) => {
   console.log("📥 カード受信:", { card, text });
   const { roomId, name } = socket.data;
   const room = rooms[roomId];
+if (!room) return;
   const player = room.players.find(p => p.id === socket.id);
   if (!player || player.isObserver) return; 
 
