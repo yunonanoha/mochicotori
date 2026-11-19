@@ -2655,7 +2655,7 @@ socket.removeAllListeners('message');
 socket.on('joinError', (msg) => {
     try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
     session = null;
-    alert('❌ \n' + msg);
+    alert('❌ ' + msg);
     const login = document.getElementById('login');
     const room = document.getElementById('room');
     if (login) login.style.display = 'block';
