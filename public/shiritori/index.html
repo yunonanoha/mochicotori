@@ -86,7 +86,7 @@
     <div id="lefts">
         <h2 id="roomTitle">
             <div id="roomInfo">
-                <img id="topLogo" class="logo-Mochicotori block" src="../img/MOCHICOTORI.png" alt="ロゴ" title="出るべき画面が出てないときは、「デッキ残り」の隣のボタンを押してみてね！">
+                <img id="topLogo" class="logo-Mochicotori block" src="../img/MOCHICOTORI.png" alt="ロゴ" title="出るべき画面が出てないときは、「デッキ残り」「退室」の間にある同期ボタンを押してみてね！">
                 <div id="topDetails">
                 <div id="topDetails" class="flex">
                     <span id="copyRoomIdWrapper" style="cursor: pointer; position: relative;" title="クリックでURLをコピー">
@@ -108,6 +108,7 @@
     <span class="sync-icon"><i class="fa-solid fa-arrows-spin"></i></span>
 <!--    <span class="sync-btn-label">同期</span>-->
 </div>
+    <button id="leaveBtn">退室</button>
 </div>
         
         <div class="member-container" style="display: flex; gap: 20px;">
@@ -340,6 +341,14 @@
   </label>
 </div>
 
+<div id="handReduceArea">
+  <span>少なく配る：</span>
+  <button type="button" class="reduce-btn" data-reduce="1">-1</button>
+  <button type="button" class="reduce-btn" data-reduce="2">-2</button>
+  <button type="button" class="reduce-btn" data-reduce="3">-3</button>
+  <button type="button" class="reduce-btn" data-reduce="4">-4</button>
+</div>        
+        
     <form id="createRoomForm" enctype="multipart/form-data">
     <input type="hidden" name="mode" id="modeInput" value="mochicotori">
         
@@ -531,8 +540,9 @@ const socket = io();
 let panelSettings = {};  // 設定パネル（UI）の見た目用
 let activeOptions = {};   // 🚩 実際のゲームルール用（開始時のみ更新）
 var myCurrentHand = []; // 手札を一時保存しておく変数
-  let myAssignedColor = "#000"; // ★ 追加：自分の色を保持する変数
-    window.lastKnownPlayers = [];
+let myAssignedColor = "#000"; // ★ 追加：自分の色を保持する変数
+window.lastKnownPlayers = [];
+let handReduce = 0;   // 0 = ±0（通常の5枚）
     
 const MODE_SETTINGS = {
   mochicotori: {
@@ -651,12 +661,6 @@ if (!state) return;
     const currentMode = mode || 'story';
     const config = MODE_SETTINGS[currentMode];
 
-    // --- 1. プルダウン (modeSelect) の同期 ---
-//    const modeSelect = document.getElementById('modeSelect');
-//    if (modeSelect) {
-//        modeSelect.value = currentMode;
-//    }
-
     // --- 2. モード名の表示更新 ---
     const modeDisplay = document.getElementById('modeDisplay');
     if (modeDisplay) {
@@ -664,54 +668,7 @@ if (!state) return;
         modeDisplay.textContent = `${modeNames[currentMode] || currentMode}`;
     }
 
-    if (config && options) {
-//        // --- 3. ラジオボタン (finishType) の同期 ---
-//        const finishKey = 'finishType';
-//        const isFinishLocked = config.locks.includes(finishKey);
-//        const targetValue = isFinishLocked ? config.defaults[finishKey] : options.finishType;
-//
-//        // name="finishType" を持つ全てのラジオボタンをループ
-//        document.querySelectorAll('input[name="finishType"]').forEach(radio => {
-//            radio.checked = (radio.value === targetValue);
-//            radio.disabled = isFinishLocked;
-//            if (radio.parentElement) {
-//                radio.parentElement.style.opacity = isFinishLocked ? "0.6" : "1";
-//            }
-//        });
-//
-//// --- B. チェックボックスの同期 ---
-//        const checkBoxMap = {
-//            'optShiritori': 'shiritori',
-//            'optTurnBased': 'turnBased',
-//            'optSecretCard': 'secretCard',
-//            'optVote': 'vote',
-//            'optStar5': 'star5',
-//            'optScore100': 'score100',
-//            'optLike': 'like',
-//            'optDeco': 'deco',
-//            'optPass': 'pass',
-//            'optExchange': 'exchange'
-//        };
-//
-//        Object.keys(checkBoxMap).forEach(domId => {
-//            const el = document.getElementById(domId);
-//            if (!el) return;
-//
-//            const key = checkBoxMap[domId];
-//            const isLocked = config.locks.includes(key);
-//            
-//             ロックされているならデフォルト値、そうでなければサーバーの値を採用
-//            const shouldCheck = isLocked ? config.defaults[key] : state.options[key];
-//
-//            el.checked = !!shouldCheck;
-//            el.disabled = isLocked;
-//
-//            // 見た目の調整
-//            if (el.parentElement) { 
-//                el.parentElement.style.opacity = isLocked ? "0.6" : "1";
-//            }
-//        });
-    }
+    if (config && options) {}
 
     // --- 3. 以下、phaseDisplay や bunArea の処理（元のロジックを維持） ---
     const phaseDisplay = document.getElementById('phaseDisplay');
@@ -831,21 +788,11 @@ const bunArea = document.getElementById('bunArea');
     if (state.mode === 'story') {
         if (bunArea) bunArea.style.display = 'block';
         
-        if (textDeckInput && state.textDeck && state.textDeck.length > 0) {
+if (textDeckInput && !textDeckInput.value && state.textDeck && state.textDeck.length > 0) {
             const rawText = state.textDeck.map(line => line.replace(/^text:/, '')).join('\n');
             textDeckInput.value = rawText;
         }
-    } else {
-        // 🚩 修正：ストーリー以外のモード（ワード等）かつ「ゲーム中」ならクリア
-        // 🚩 フェーズが 'ended'（リザルト中）なら、リザルト描画を優先するため何もしない
-        if (state.phase !== 'ended') {
-            if (bunArea) bunArea.style.display = 'none';
-            if (textDeckInput) {
-                textDeckInput.value = ""; 
-                // console.log("🧹 モード外のため文デッキをクリアしました");
-            }
-        }
-    }
+    } 
     
     // --- 5. 観戦者（isObserver）による開始制限 ---
 const settingsPanel = document.getElementById('settingsPanel');
@@ -1132,7 +1079,7 @@ function refreshActionButtons() {
     console.log(`🔍 最終判定(延期後): classes=${turnBadge ? turnBadge.className : 'no-element'}, isMyTurn=${isMyTurn}`);
 }
     
-        // 「現在、評価ステップが必要な設定か」を判定するスマートな関数
+    // 「現在、評価ステップが必要な設定か」を判定するスマートな関数
 function isRatingRequired() {
 if (!window.activeOptions) return false; 
 
@@ -1142,6 +1089,21 @@ if (!window.activeOptions) return false;
     return star5 || score100;
 }
 
+//少なく配る
+document.querySelectorAll('.reduce-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const v = Number(btn.dataset.reduce);
+    handReduce = (handReduce === v) ? 0 : v;       // 同じボタンで解除
+    document.querySelectorAll('.reduce-btn').forEach(b =>
+      b.classList.toggle('active', Number(b.dataset.reduce) === handReduce));
+  });
+});
+function syncHandReduceVisibility() {
+  const el = document.getElementById('handReduceArea');
+//  if (el) el.style.display = (document.getElementById('modeSelect').value === 'story') ? 'block' : 'none'; //表示するモード
+if (el) el.style.display = 'block'; // モードに関わらず表示
+}     
+    
 // 🔒 画面全体をロックする専用関数
 function setBoardLock(phase) {
     const mainArea = document.getElementById('game-main-container') || document.body;
@@ -1295,6 +1257,7 @@ function collectSettings() {
     const selectedMode = document.getElementById('modeSelect').value;
     opts.mode = selectedMode;
 
+opts.handReduce = handReduce;
     return opts;
 }
 
@@ -1494,7 +1457,7 @@ const modal = document.getElementById('gameEndModal');
             console.log("🚫 自動表示をスキップ（再表示ボタンを待機中）");
         }
     }
-} // 関数の終端
+} 
       
 function renderRankings(data) {
     const opts = data.options || window.activeOptions || {};
@@ -2218,18 +2181,10 @@ function refreshRoleUI(currentIsObserver, playerCount, isLockPhase) {
  * 役割：HTML上の ID: playerList と observerList を最新の players 状態で描き直す
  */
 function refreshPlayerListUI(players) {
-// 🚩 修正：リザルト画面が表示されているなら、プレイヤーリストの更新を完全に停止する
-    // これにより、DOMの再生成（リセット）と下線の引き直しを阻止します。
-//    if (window.currentPhase === 'ended' || window.isResultFinished) {
-//        return; 
-//    }
-    
-// 🚩 確実に最新の起家IDを取得
-    const firstId = String(window.currentFirstPlayerId || "").trim();
-    // 🚩 HTML要素の生成
-    const serialized = JSON.stringify(players) + firstId; // 起家が変わった時も再描画対象にする  
-    const handTitle = document.getElementById('hand-title');
-    const isTurnBased = !!(window.activeOptions && (window.activeOptions.turnBased || window.activeOptions.opts_turnBased));
+const firstId = String(window.currentFirstPlayerId || "").trim();
+const isTurnBased = !!(window.activeOptions && (window.activeOptions.turnBased || window.activeOptions.opts_turnBased));
+const serialized = JSON.stringify(players) + firstId + (isTurnBased ? '|T' : '|F');
+const handTitle = document.getElementById('hand-title');
     
   if (!players || !Array.isArray(players) || players.length === 0) return;
 
@@ -2348,7 +2303,7 @@ function joinAsObserver() {
     switchToRoomUI(name, "#888888");
 }
 
-// 🚩 共通の画面切り替え関数を作っておくと便利です
+// 🚩 共通の画面切り替え関数
 function switchToRoomUI(name, color) {
     const loginDiv = document.getElementById('login');
     const roomDiv = document.getElementById('room');
@@ -2363,6 +2318,17 @@ function switchToRoomUI(name, color) {
         nameSpan.style.color = color;
     }
     console.log(`✅ 画面を切り替えました (Role: ${color === "#888888" ? 'Observer' : 'Player'})`);
+}
+
+function syncDeckAreaVisibility() {
+  const m = document.getElementById('modeSelect').value;
+  const set = (id, show) => { const el = document.getElementById(id); if (el) el.style.display = show ? 'block' : 'none'; };
+  set('uploadArea', m === 'mochicotori' || m === 'story');
+  set('textArea',   m === 'story');
+  set('wordArea',   m === 'word');
+  set('chainArea',  m === 'chain');
+    
+syncHandReduceVisibility();
 }
     
 if (sendBtn && msgInput) {
@@ -2777,6 +2743,7 @@ document.getElementById('modeSelect').addEventListener('change', (e) => {
     const newMode = e.target.value;
     updateDeckUI(newMode);　// デッキ登録を即切り替える
     applyMode(newMode, null);　// チェックボックスをモードのデフォルトにする
+    syncHandReduceVisibility();
 });
 
 //トップへスクロール
@@ -2950,12 +2917,7 @@ refreshRoleUI(window.isObserver);
     const uploadArea = document.getElementById('uploadArea');
     const inputArea = document.getElementById('mochicotoriTextArea');
 
-    if (wordArea) wordArea.style.display = (mode === 'word') ? 'block' : 'none';
-    if (chainArea) chainArea.style.display = (mode === 'chain') ? 'block' : 'none';
-    
-    if (uploadArea) {
-        uploadArea.style.display = (mode === 'word' || mode === 'chain') ? 'none' : 'block';
-    }
+syncDeckAreaVisibility();
 
 if (inputArea) {
     const isShiritoriOn = !!latestOptions.shiritori;
@@ -2999,12 +2961,11 @@ console.log('📡 同期完了: Mode=' + state.mode + ', Phase=' + window.curren
     if (bunArea && mode === 'story') {
         if (phase !== 'playing' && state.textDeck && state.textDeck.length > 0) {
             const textInput = document.getElementById('textDeckInput');
-            if (textInput) {
+            if (textInput && !textInput.value){
                 textInput.value = state.textDeck.map(t => t.replace(/^text:/, '')).join('\n');
             }
         }
     }
-    updateDeckUI(mode); 
 }
 
     // 装飾バナー・いいねバナーの個別制御
@@ -4103,6 +4064,18 @@ socket.on('forceClickSync', () => {
     }
 });
     
+//退室
+document.getElementById('leaveBtn').onclick = () => {
+  if (!confirm('退室しますか？')) return;
+  try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+  session = null;                       // 先に消さないと再接続時に自動で入り直す
+  let done = false;
+  const back = () => { if (done) return; done = true; location.reload(); };
+  socket.emit('leaveRoom', back);
+  setTimeout(back, 1500);               // 応答が来なかった時の保険
+};
+    
+//    部屋移動
 document.addEventListener('DOMContentLoaded', () => {
     const joinBtn = document.getElementById('joinRoomBtn');
     const idInput = document.getElementById('directRoomId');
@@ -4159,6 +4132,8 @@ window.addEventListener('DOMContentLoaded', () => {
         if (uploadArea) {
             uploadArea.style.display = (initialMode === 'word' || initialMode === 'chain') ? 'none' : 'block';
         }
+        
+        syncHandReduceVisibility();
     }
 
     // 3. クリックイベントの一括登録

@@ -138,7 +138,6 @@ function startGameLogic(roomId, data, socket) {
     const room = rooms[targetRoomId];
     if (!room) return;
     
-    const HAND_SIZE = 5; 
     const activePlayers = room.players.filter(p => !p.isObserver);
     
     // --- 🚩 1. 設定の反映（辞書による強制ガード） ---
@@ -155,10 +154,16 @@ function startGameLogic(roomId, data, socket) {
         ...incomingOptions 
     };
 
-    // 🚩 【超重要】もし options.options のように二重になっていたら救済する
+// 🚩 【超重要】もし options.options のように二重になっていたら救済する
     if (incomingOptions.options) {
         room.options = { ...room.options, ...incomingOptions.options };
     }
+
+    // ▼ ここに全モード対応の HAND_SIZE 計算を追加 ▼
+    const reduce = Math.min(4, Math.max(0, parseInt(room.options.handReduce, 10) || 0));
+    const HAND_SIZE = 5 - reduce;
+    room.handSize = HAND_SIZE;
+    // ▲ ここまで ▲
 
     // デバッグログ：ここが false だと絶対に出ません
     console.log(`🛡️ 最終確定オプション (${room.mode}):`, room.options);
@@ -256,7 +261,7 @@ const starterName = data.name || "管理者";
 const starterColor = data.color || "#888";
 
 io.to(targetRoomId).emit('message', { 
-    text: `🚩 ${starterName} さんが ${modeDisp}モードでゲームを開始しました！`, 
+text: `🚩 ${starterName} さんが ${modeDisp}モードでゲームを開始しました！` + (reduce ? `（初期手札 ${HAND_SIZE}枚）` : ''),
     color: starterColor 
 });
 
@@ -348,6 +353,14 @@ io.to(targetRoomId).emit('roomState', finalState);
 }
 }
     
+//手札の枚数を取得
+function getHandSize(room) { return room.handSize || 5; }
+
+//ターンプレイヤー取得
+function getTurnPlayer(room) {
+  return room.players.filter(p => !p.isObserver)[room.turnIndex];
+}
+
 function getRoomState(roomId) {
     const room = rooms[roomId];
     if (!room) return null;
@@ -430,6 +443,7 @@ function resetRoomToDefault(roomId) {
     room.finishedDecoCheckers = new Set();
     room.finishedLikeCheckers = new Set();
     room.finalRatings = {};
+    room.handSize = 5;
 
     // 🚩 同期データを送信
     // getRoomState(roomId) を使って送るのが最も安全で確実です
@@ -824,8 +838,6 @@ const base = "あいうえおかきくけこさしすせそたちつてとなに
         masterTextDeck: processedTextDeck
     };
 }
-
-
 
 function exchangeHand(room, player, selectedCards) {
   if (player.isObserver) return;
@@ -1247,6 +1259,7 @@ function rebindPlayer(room, oldId, newId) {
 function removePlayer(room, roomId, id, playerName) {
   const activePlayersBefore = room.players.filter(p => !p.isObserver);
   const oldTurnPlayerId = activePlayersBefore[room.turnIndex]?.id;
+  const oldTurnIdx = room.turnIndex;
 
   const foundIndex = room.players.findIndex(p => p.id === id);
   if (foundIndex === -1) return;
@@ -1294,7 +1307,15 @@ function removePlayer(room, roomId, id, playerName) {
   }
 
   const wasTurnOwner = (room.options.turnBased && oldTurnPlayerId === id);
-  if (room.turnIndex >= activePlayers.length) room.turnIndex = 0;
+const len = activePlayers.length;
+if (wasTurnOwner) {
+  const nextIdx = oldTurnIdx % len;
+  // playing のときだけ、nextTurn が +1 するので1つ手前に置く
+  room.turnIndex = (room.phase === 'playing') ? (nextIdx - 1 + len) % len : nextIdx;
+} else if (oldTurnPlayerId) {
+  const ni = activePlayers.findIndex(p => p.id === oldTurnPlayerId);
+  room.turnIndex = ni !== -1 ? ni : 0;
+}
 
   if (wasTurnOwner && room.phase === 'playing') {
     nextTurn(room, roomId);
@@ -1434,19 +1455,12 @@ async function processUploadedFiles(files) {
         try {
             // 🚩 対策：ファイルを直接開くのではなく、一度メモリ(Buffer)に読み込む
             // これにより、Sharpが実行されている間に inputPath を削除可能になります
-            const buffer = await fsPromises.readFile(inputPath);
-
-            const image = sharp(buffer); // Bufferから生成
-            const metadata = await image.metadata();
-            const size = Math.min(metadata.width, metadata.height);
-            const left = Math.floor((metadata.width - size) / 2);
-            const top = Math.floor((metadata.height - size) / 2);
-
-            await image
-                .extract({ left, top, width: size, height: size })
-                .resize(300, 300)
-                .toFormat('jpeg')
-                .toFile(outPath);
+const buffer = await fsPromises.readFile(inputPath);
+await sharp(buffer)
+    .rotate()                                  // EXIFの向きを反映
+    .resize(300, 300, { fit: 'cover' })        // 中央を正方形に切り抜き
+    .jpeg({ quality: 85 })
+    .toFile(outPath);
 
             // 🚩 すでにBufferに読み込んでいるので、即座に安全に消せます
             await fsPromises.unlink(inputPath).catch(() => {});
@@ -1577,7 +1591,7 @@ if (targetRole === 'player') {
   // 「観戦者ではなく」かつ「プレイ中」なら配る
   // ※ waitingフェーズはなく playing スタート前提
   if (!isObserver && room.phase === 'playing') {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < getHandSize(room); i++) {
       if (room.deck.length > 0) hand.push(room.deck.shift());
     }
   }
@@ -1800,7 +1814,7 @@ const turnOwner = playersOnlyAfter[room.turnIndex];  io.to(roomId).emit('turnUpd
       
     // 手札がなければ配る
     if (player.hand.length === 0 && room.deck.length > 0) {
-       for (let i = 0; i < 5; i++) {
+       for (let i = 0; i < getHandSize(room); i++) {
          if (room.deck.length > 0) player.hand.push(room.deck.shift());
        }
        socket.emit('dealCards', player.hand);
@@ -2063,6 +2077,7 @@ socket.on('castVote', ( vote ) => {
     const player = room.players.find(p => p.id === socket.id);
     if (player?.isObserver) return;
 
+if (!room.currentVote.voters.includes(socket.id)) return;
     if (room.currentVote.votes[socket.id]) return;
 
     room.currentVote.votes[socket.id] = vote;
@@ -2073,26 +2088,10 @@ socket.on('castVote', ( vote ) => {
 
     io.to(roomId).emit('voteUpdate', { votedCount, totalVoters });
 
-if (votedCount >= totalVoters) {
-    console.log("✅ 全員の投票が完了しました。フェーズを移行します。");
-
-    // 🚩 修正：nullを送るのではなく、結果を集計して voteFinished を送る
-    const votes = Object.values(room.currentVote.votes);
-    const okCount = votes.filter(v => v === 'ok').length;
-    const ngCount = votes.filter(v => v === 'ng').length;
-
-    io.to(roomId).emit('voteFinished', {
-        success: okCount > ngCount,
-        okCount: okCount,
-        ngCount: ngCount,
-        nextIsRating: true // 次のフェーズへ行く合図
-    });
-
-    // 🚩 修正：startVote(null) は送らない（クライアントのエラーの元）
-    // io.to(roomId).emit('startVote', null); 
-    
-    (room, roomId);
-}
+    if (votedCount >= totalVoters) {
+        console.log("✅ 全員の投票が完了しました。フェーズを移行します。");
+        completeVote(room, roomId);     // 結果の通知と次のターンへの移行は、この中で行われる
+    }
 });
     
     // ⭐ 星評価を受け取る処理
@@ -2222,8 +2221,8 @@ if (!room || player?.isObserver) return;
 
     // ターン制なら、自分の番かチェック
     if (room.options.turnBased) {
-      const currentPlayer = room.players[room.turnIndex];
-      if (currentPlayer.id !== socket.id) return;
+      const currentPlayer = getTurnPlayer(room);
+      if (!currentPlayer || currentPlayer.id !== socket.id) return;
     }
 
     io.to(roomId).emit('message', { text: `📢 ${socket.data.name} さんがパスしました。`, color: "#888" });
@@ -2242,7 +2241,7 @@ if (!room || !selectedCards || player?.isObserver) return; // 🚩 追記
 
     // 🚩 ターン制の場合のみ、手番チェックを行う
     if (room.options.turnBased) {
-        const currentPlayer = room.players[room.turnIndex];
+        const currentPlayer = getTurnPlayer(room);
         if (!currentPlayer || currentPlayer.id !== socket.id) return;
     }
 
@@ -2466,7 +2465,7 @@ if (!room) {
         // これがないと、クライアント側で「投票済み」判定ができません
         socket.emit('startVote', {
             ...room.currentVote,
-            totalVoters: room.players.length - 1 // 自分以外の人数
+            totalVoters: room.currentVote.voters.length
         });
     } else {
         socket.emit('startVote', null);
@@ -2478,7 +2477,7 @@ if (!room) {
     
 // 2. ターンの同期
     const isActualTurnMode = room.options && room.options.turnBased === true;
-    const currentPlayer = room.players[room.turnIndex];
+    const currentPlayer = getTurnPlayer(room);
 
     if (isActualTurnMode && currentPlayer) {
         // 【ターン制が有効な場合】
@@ -2516,10 +2515,9 @@ if (!room) {
         socket.emit('startRate', null);
     }
     
-// --- 🚩 5. 【修正】リザルト・採点画面の同期ロジック ---
-// ended（終了済み）も含める
+// --- 🚩 5. リザルト・採点画面の同期ロジック ---
 if ((room.phase === 'rating' || room.phase === 'result' || room.phase === 'ended') && room.options.score100) {
-    const totalPlayers = room.players.length;
+    const totalPlayers = room.players.filter(p => !p.isObserver).length;
     const votedCount = room.gameRatings ? Object.keys(room.gameRatings).length : 0;
 
     // 現在のフェーズを伝える
@@ -2532,22 +2530,13 @@ if ((room.phase === 'rating' || room.phase === 'result' || room.phase === 'ended
             votedCount: votedCount, 
             totalPlayers: totalPlayers 
         });
-    } else {
+} else {
         // 【全員終わっている、または phase が ended の場合】
-        // 🚩 同期した本人にリザルトデータを送る
+        // 🚩 同期した本人にリザルトデータを送る（データがあるときだけ）
         if (room.lastResultData) {
-            // 保存済みのデータがあればそれを送る
             socket.emit('resultData', room.lastResultData);
-        } else {
-            // なければその場で作って送る（念のため）
-            showFinalResult(room, socket.id);
         }
-    }
-
-
-    
-        // 集計データを本人(socket.id)だけに再送して、リザルト画面を描画させる
-//        showFinalResult(room, socket.id);
+    } 
     }
 
 // getRoomState(roomId) は、既に mode, phase, deckCount, players を含んでいます
@@ -2619,7 +2608,18 @@ socket.on('toggleHandReverse', () => {
     io.to(roomId).emit('roomState', getRoomState(roomId));
 });
 
-    
+//   退室 
+socket.on('leaveRoom', (ack) => {
+  const { roomId, name } = socket.data;
+  const room = rooms[roomId];
+  if (room && room.players.some(p => p.id === socket.id)) {
+    removePlayer(room, roomId, socket.id, name);   // 手札返却・手番や投票の詰まり防止も実行される
+  }
+  socket.leave(roomId);
+  socket.data.roomId = null;
+  if (typeof ack === 'function') ack();
+});
+
 }); // <--- 🟢 io.on('connection') の閉じ
 
 const PORT = 3000;

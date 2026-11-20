@@ -1442,6 +1442,13 @@ border-bottom: 1px solid #eee; /* 薄いグレーの線 */
 
 /* ルール説明 & ゲーム設定 */
 /* 親コンテナ：右固定・左可変 */
+
+#handReduceArea { margin: 6px 0; }
+.reduce-btn { opacity: .6; cursor: pointer; }
+.reduce-btn.active { opacity: 1; font-weight: bold; outline: 2px solid #ffcc00; }
+
+#leaveBtn {margin:10px 2px;}
+
 .setup-layout-wrapper {
   display: flex;
   width: 100%;
