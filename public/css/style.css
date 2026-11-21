@@ -70,6 +70,13 @@ footer img{display:none;}
     width:100%;
     height:250px;
     object-fit: cover;
+/*    object-fit: contain;*/
+}
+.column_imgB{
+    width:100%;
+    height:250px;
+/*    object-fit: cover;*/
+    object-fit: contain;
 }
 .imgL{object-position: left center;}
 .imgC{object-position: center center;}
@@ -77,18 +84,53 @@ footer img{display:none;}
 .waitWrapper{text-align: center; margin-bottom: 15px;}
 .wait{display: inline-block; text-align: left;font-size:.8em}
 
-
-
 .column-page h1{text-align: right;}
 .column-page h1 .guide{font-size:.75em;}
-
 
 .columnYT{
     display: block;
     margin: 0 auto;
         width:560px;
         height:315px;;
-    }    
+    }   
+
+/*TAコラム*/
+.ta-story-guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.ta-story-guide > p,
+.ta-story-guide > div {
+  margin: 0;
+  min-width: 0;
+}
+
+.ta-story-guide img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* デフォルト（1281px以上） */
+.ta-text-1 {
+  width: calc(50% - 10px);
+  order: 1;
+}
+.ta-img-4 {
+  width: calc(50% - 10px);
+  order: 2;
+}
+.ta-img-5 {
+  width: calc(50% - 10px);
+  order: 3;
+}
+.ta-text-2 {
+  width: calc(50% - 10px);
+  order: 4;
+}
 
 .imgdeckM{
      flex-wrap: wrap;
@@ -1741,7 +1783,25 @@ footer p {
        max-width: 70%;
 }
 .column-page h1{font-size:1.5em;}
-    
+
+/*TAコラム*/
+.ta-text-1 {
+    width: calc(55% - 10px);
+    order: 1;
+  }
+  .ta-img-4 {
+    width: calc(45% - 10px);
+    order: 2;
+  }
+  .ta-img-5 {
+    width: calc(45% - 10px);
+    order: 3;
+  }
+  .ta-text-2 {
+    width: calc(55% - 10px);
+    order: 4;
+  }
+
     #topDetails{flex-direction: column;align-items: flex-start;}
     .topDetailsPart{display:none;}
         #UI {
@@ -1806,6 +1866,20 @@ footer p {
         width:100%;
         height:auto;
     }    
+    
+/*TAコラム*/
+    .ta-story-guide {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .ta-story-guide > p,
+  .ta-story-guide > div {
+    width: 100%;
+  }
+  .ta-text-1 { order: 1; }
+  .ta-img-4  { order: 2; }
+  .ta-text-2 { order: 3; }
+  .ta-img-5  { order: 4; }
     
 .nonamzn{
     flex-direction: column;
