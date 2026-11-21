@@ -20,8 +20,8 @@
 <!--1200 × 630 pxの画像 XなどSNSに表示される-->
 <meta name="twitter:card" content="summary_large_image">
 <meta property="og:url" content="https://mochicotori.com/">
-<meta property="og:image" content="https://mochicotori.com/img/TIMING_AUCTION2.jpg">
-<meta name="twitter:image" content="https://mochicotori.com/img/TIMING_AUCTION2.jpg">
+<meta property="og:image" content="https://mochicotori.com/img/TIMING_AUCTION1.jpg">
+<meta name="twitter:image" content="https://mochicotori.com/img/TIMING_AUCTION1.jpg">
     <link rel="icon" type="image/png" href="/img/favicon.png">
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
     <link rel="stylesheet" href="../css/style.css">
@@ -35,7 +35,7 @@
     
    
 <h2>[26.11.21] チャンスを競り落として物語を作る「タイミング・オークション」</h2> 
-<img class="column_imgA imgC" src="../img/TIMING_AUCTION2.jpg">
+<img class="column_imgA imgC" src="../img/TIMING_AUCTION1.jpg">
 <h1><a target="_blank" rel="noopener" href="../index.html">MOCHICOTORI(モチコトリ)</a>
 <br><span class="guide">⇗ ゲームはこちらからプレイできます</span></h1>
 
@@ -59,10 +59,16 @@
 「タイミング・オークション」というゲームを作ったので紹介しますᐠ(   ᐢ ᵕ ᐢ )ᐟ<br>みんなで一つの物語を作るゲームで、協力は必須だけど、いいタイミングを取りに行ったり物語への貢献で競い合う。このサイトのストーリーモードを使ってプレイできるから、その説明も併記しよう。デッキもあげるʕ•ᴥ•ʔつ<a href="#deck">🃏</a>
 </p>
 <h3 id="rule">ルール</h3>    
+<p>
+プレイ人数:3人以上 / プレイ時間：4人＋手札5枚で1時間程度</p>
 <p>ワードカードを5枚ずつ、軍資金を10点ずつ配られる。
 ターンプレイヤーからカードを提出すると同時にそのワードを使った一文を提出します。そうしたら、1人飛ばしてその次のプレイヤーから、軍資金残高を最大として、ターンを競り落とすために入札していきます(本来ターンがもらえるはずの人を競り順の最後に置く)。最後に入札した人に誰も上乗せせず一周したら、その人が落札者。誰も入札しなかったら、そのまま次のプレイヤーのターンになります。この競りには、生き残っている全てのプレイヤーが参加できます。競りの結果誰かのターンが飛ばされても、ターンは基本的にターンプレイヤーからその次の人に進行します。飛ばされた人のターンは戻ってきません。<br>
-物語の展開やワードの使い方に無理があったり、誰かを傷つけるような不適切な内容だと思ったら、他のプレイヤーは却下提案できます。ターンプレイヤー以外の全員がそれに賛成すると、その一文は無効になり、そのプレイヤーは脱落になります。<br>
-生き残っている人全員の手札がなくなったらゲーム終了。脱落した人も含め、全員が投票権を1つもっています。自分以外の生き残ったプレイヤーのワードの中から、いちばん物語のクオリティに貢献したと思うものを一つずつ選び投票。選ばれた回数が多いプレイヤーの勝ち！同点の場合、軍資金を多く残している人の勝ち！
+物語の展開やワードの使い方に無理があったり、誰かを傷つけるような不適切な内容だと思ったら、他のプレイヤーは却下提案できます。ターンプレイヤー以外の全員がそれに賛成すると、その一文は無効になり、そのプレイヤーは脱落になります(すでに脱落している人も却下提案・賛否に参加できます)。<br>
+生き残っている人全員の手札がなくなったらゲーム終了。脱落した人も含め、全員が投票権を1つもっています。自分以外の生き残ったプレイヤーのワードの中から、いちばん物語のクオリティに貢献したと思うものを一つずつ選び投票。選ばれた回数が多いプレイヤーの勝ち！同点の場合、軍資金を多く残している人の勝ち！</p>
+<p>
+オプション<br>
+・最初のターンプレイヤーをオークションで決めるのもアリ！このとき、入札金額は一斉に出して、最高入札者が残って1人になるか10点になるまで続ける。10点になったらその中からランダムで落札者を決めてスタート。<br>
+・人数増えるほど手札5枚でやるの重くなっていくから、5人くらいから減らして調整しよう。ガッツリ遊びたいか軽めでいいかにもよりけり ᴗ ̫ ᴗ
 </p>
 <h3 id="onStory">ストーリーモードを使ってプレイ！</h3>
 <div class="flex ta-story-guide">
@@ -490,24 +496,39 @@ function copyDeck(button) {
     
 //    ヘッダー画像レスポンシブ
 function syncColumnImgClass() {
-    const isPc = window.innerWidth > 1280;
+    const width = window.innerWidth;
+    const isPc = width > 1280;
+    const isSp = width <= 768;
 
     // 既存の column_imgA 向け（PCのときだけ column_imgB を付与）
     document.querySelectorAll('.column_imgA').forEach(img => {
         img.classList.toggle('column_imgB', isPc);
     });
 
-    // imgC 向け（PCなら TIMING_AUCTION2.jpg、それ以外は TIMING_AUCTION1.jpg）
+    // imgC 向け
+    // PC（1281px〜）：元の画像（TIMING_AUCTION2.jpg）
+    // タブレット（769px〜1280px）：指定画像A
+    // スマホ（768px以下）：指定画像B
     document.querySelectorAll('.imgC').forEach(img => {
         if (!img.dataset.pcSrc) {
             img.dataset.pcSrc = img.getAttribute('src'); // 元のPC用パスを保持
         }
-        const targetSrc = isPc ? img.dataset.pcSrc : '../img/TIMING_AUCTION3.jpg';
+
+        let targetSrc = '../img/TIMING_AUCTION3.jpg';
+        if (isPc) {
+            targetSrc = img.dataset.pcSrc;
+        } else if (isSp) {
+            targetSrc = '../img/TIMING_AUCTION2.jpg';
+        }
+
         if (img.getAttribute('src') !== targetSrc) {
             img.setAttribute('src', targetSrc);
         }
     });
 }
+
+window.addEventListener('DOMContentLoaded', syncColumnImgClass);
+window.addEventListener('resize', syncColumnImgClass);
 
 window.addEventListener('DOMContentLoaded', syncColumnImgClass);
 window.addEventListener('resize', syncColumnImgClass);
