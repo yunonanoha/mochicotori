@@ -11,7 +11,7 @@ const app = express();
 
 app.get('/robots.txt', (req, res) => {
     res.type('text/plain');
-    res.send("User-agent: *\nAllow: /\nDisallow:");
+    res.send("User-agent: *\nAllow: /");
 });
 
 app.use((req, res, next) => {
