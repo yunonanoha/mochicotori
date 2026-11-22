@@ -1876,10 +1876,10 @@ footer p {
   .ta-story-guide > div {
     width: 100%;
   }
-  .ta-text-1 { order: 1; }
-  .ta-img-4  { order: 2; }
-  .ta-text-2 { order: 3; }
-  .ta-img-5  { order: 4; }
+  .ta-text-1 { order: 2; }
+  .ta-img-4  { order: 1; }
+  .ta-text-2 { order: 4; }
+  .ta-img-5  { order: 3; }
     
 .nonamzn{
     flex-direction: column;
