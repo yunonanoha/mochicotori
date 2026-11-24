@@ -35,7 +35,7 @@ footer img{display:none;}
 .nav-side {
     position: fixed;
     top: 0;
-    width: 10%;      /* クリック範囲（お好みで調整） */
+    width: 8%;      /* クリック範囲（お好みで調整） */
     height: 100%;
     display: flex;
     align-items: center;
@@ -57,7 +57,7 @@ footer img{display:none;}
 /* スマホだと誤操作しやすいので、少し幅を狭くするか非表示にする調整 */
 @media (max-width: 1280px) {
     .nav-side {
-        width: 12%;
+        width: 7%;
         font-size: 1.5rem;
     }
 }
@@ -84,8 +84,8 @@ footer img{display:none;}
 .waitWrapper{text-align: center; margin-bottom: 15px;}
 .wait{display: inline-block; text-align: left;font-size:.8em}
 
-.column-page h1{text-align: right;}
-.column-page h1 .guide{font-size:.75em;}
+#toMOCHICOTORI{text-align: right;font-size:2em;font-weight: bold;}
+#toMOCHICOTORI .guide{font-size:.75em;}
 
 .columnYT{
     display: block;
@@ -445,7 +445,7 @@ max-width:200px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 .column{
-       max-width: 75%;
+       max-width: 80%;
 }
 
 /* 部屋作成画面 */
@@ -1780,9 +1780,9 @@ footer p {
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 .column{
-       max-width: 70%;
+       max-width: 80%;
 }
-.column-page h1{font-size:1.5em;}
+#toMOCHICOTORI{font-size:1.5em;}
 
 /*TAコラム*/
 .ta-text-1 {
@@ -1859,9 +1859,9 @@ footer p {
     gap: 0px;
 }
 
-.column-page h1{font-size:.9em;}
+#toMOCHICOTORI{font-size:.9em;}
 
-    
+.column{max-width:80%}    
 .columnYT{
         width:100%;
         height:auto;
